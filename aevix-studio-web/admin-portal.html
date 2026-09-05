@@ -3,775 +3,459 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Portal | Aevix Studio</title>
+    <title>Aevix Studio | Admin Portal</title>
+    <!-- Supabase JS Client via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-dark: #0b0f17;
-            --card-bg: #111827;
-            --border-color: #1f2937;
+            --bg-dark: #0f1117;
+            --card-bg: #1a1d24;
+            --input-bg: #242832;
+            --border: #2e3440;
             --text-main: #f3f4f6;
             --text-muted: #9ca3af;
-            --accent-blue: #3b82f6;
-            --accent-green: #4ade80;
-            --accent-red: #f87171;
-            --accent-yellow: #facc15;
-            --hover-bg: #1a2234;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --danger: #ef4444;
+            --success: #10b981;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
             background-color: var(--bg-dark);
             color: var(--text-main);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Auth Container */
+        #auth-container {
+            max-width: 400px;
+            margin: auto;
             padding: 2rem;
-        }
-
-        .admin-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 1.5rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .admin-header h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        .btn {
-            background: var(--accent-blue);
-            color: #ffffff;
-            border: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: opacity 0.2s ease, background 0.2s ease;
-        }
-
-        .btn:hover {
-            opacity: 0.9;
-        }
-
-        .btn-danger {
-            background: var(--accent-red);
-        }
-
-        .btn-secondary {
-            background: #374151;
-            color: var(--text-main);
-            border: 1px solid #4b5563;
-        }
-
-        .btn-secondary:hover {
-            background-color: #4b5563;
-        }
-
-        .btn-success {
-            background: #10b981;
-            color: #ffffff;
-        }
-
-        .btn-success:hover {
-            background: #059669;
-        }
-
-        .controls-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .tab-controls {
-            display: flex;
-            gap: 0.75rem;
-        }
-
-        .tab-btn {
-            background-color: var(--card-bg);
-            color: var(--text-muted);
-            border: 1px solid var(--border-color);
-            padding: 0.6rem 1.2rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-        }
-
-        .tab-btn:hover {
-            color: var(--text-main);
-            border-color: #374151;
-        }
-
-        .tab-btn.active {
-            background-color: var(--accent-blue);
-            color: #ffffff;
-            border-color: var(--accent-blue);
-        }
-
-        .admin-table-container {
             background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
 
-        .admin-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.88rem;
-        }
-
-        .admin-table th {
-            background-color: #1f2937;
-            color: var(--text-muted);
-            font-weight: 600;
-            padding: 0.875rem 1rem;
-            border-bottom: 1px solid #374151;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-        }
-
-        .admin-table td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            color: #e5e7eb;
-        }
-
-        .admin-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .admin-table tbody tr:hover {
-            background-color: var(--hover-bg);
-        }
-
-        /* Status Badges */
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.6rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: capitalize;
-        }
-
-        .badge-active, .badge-advance {
-            background-color: rgba(59, 130, 246, 0.15);
-            color: #60a5fa;
-            border: 1px solid rgba(59, 130, 246, 0.4);
-        }
-
-        .badge-completed, .badge-cleared {
-            background-color: rgba(74, 222, 128, 0.15);
-            color: var(--accent-green);
-            border: 1px solid rgba(74, 222, 128, 0.4);
-        }
-
-        .badge-pending {
-            background-color: rgba(250, 204, 21, 0.15);
-            color: var(--accent-yellow);
-            border: 1px solid rgba(250, 204, 21, 0.4);
-        }
-
-        .badge-overdue {
-            background-color: rgba(248, 113, 113, 0.15);
-            color: var(--accent-red);
-            border: 1px solid rgba(248, 113, 113, 0.4);
-        }
-
-        .action-btn {
-            background: none;
-            border: 1px solid #374151;
-            color: var(--text-muted);
-            padding: 0.35rem 0.75rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            margin-right: 0.4rem;
-            transition: all 0.2s ease;
-        }
-
-        .action-btn:hover {
-            color: #ffffff;
-            border-color: #6b7280;
-        }
-
-        .action-btn.delete:hover {
-            background-color: rgba(239, 68, 68, 0.2);
-            color: var(--accent-red);
-            border-color: rgba(239, 68, 68, 0.4);
-        }
-
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.75);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            width: 100%;
-            max-width: 500px;
-            padding: 2rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-card h3 {
-            margin-bottom: 1.25rem;
-            font-size: 1.25rem;
-            color: #ffffff;
+        #auth-container h2 {
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: var(--accent);
         }
 
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.2rem;
         }
 
         .form-group label {
             display: block;
+            margin-bottom: 0.4rem;
             font-size: 0.85rem;
             color: var(--text-muted);
-            margin-bottom: 0.4rem;
         }
 
-        .form-group input, .form-group select, .form-group textarea {
+        input, select, textarea {
             width: 100%;
-            background: #1f2937;
-            border: 1px solid #374151;
-            color: #ffffff;
-            padding: 0.6rem 0.8rem;
+            padding: 0.75rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
             border-radius: 6px;
-            font-size: 0.9rem;
+            color: var(--text-main);
+            font-size: 0.95rem;
             outline: none;
         }
 
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            border-color: var(--accent-blue);
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--accent);
+        }
+
+        button {
+            cursor: pointer;
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 6px;
+            background: var(--accent);
+            color: white;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        button:hover { background: var(--accent-hover); }
+
+        .btn-danger { background: var(--danger); }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-secondary { background: #4b5563; }
+        .btn-secondary:hover { background: #374151; }
+
+        /* Dashboard Layout */
+        header {
+            background: var(--card-bg);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        nav {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        nav button {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid transparent;
+        }
+
+        nav button.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        main {
+            padding: 2rem;
+            flex-grow: 1;
+        }
+
+        .tab-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Data Tables */
+        .table-responsive {
+            overflow-x: auto;
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: var(--input-bg);
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--border);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 1rem;
         }
 
         .modal-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 0.75rem;
+            gap: 0.5rem;
             margin-top: 1.5rem;
         }
     </style>
 </head>
 <body>
 
-    <div class="admin-container">
-        <header class="admin-header">
-            <h2>Admin Portal | Aevix Studio</h2>
-            <button id="logout-btn" class="btn btn-secondary" style="display: none;">Logout</button>
-        </header>
-
-        <div id="controls-row" class="controls-row" style="display: none;">
-            <div class="tab-controls">
-                <button class="tab-btn active" onclick="switchTab('projects', event)">Projects</button>
-                <button class="tab-btn" onclick="switchTab('inquiries', event)">Inquiries</button>
-                <button class="tab-btn" onclick="switchTab('payments', event)">Payments</button>
+    <!-- Authentication Interface -->
+    <div id="auth-container">
+        <h2>Aevix Studio Admin</h2>
+        <form onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="email">Admin Email</label>
+                <input type="email" id="email" required placeholder="aevixstudio962@gmail.com">
             </div>
-            <button id="add-record-btn" class="btn btn-success" onclick="openAddModal()">+ Add Project</button>
-        </div>
-
-        <div id="workspace-content">
-            <div style="text-align: center; color: var(--text-muted); padding: 2rem;">Verifying session permissions...</div>
-        </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="••••••••">
+            </div>
+            <button type="submit" style="width: 100%;">Login to Portal</button>
+        </form>
     </div>
 
-    <div id="crud-modal" class="modal-overlay">
-        <div class="modal-card">
-            <h3 id="modal-title">Add Record</h3>
-            <form id="crud-form">
-                <div id="modal-fields"></div>
+    <!-- Main Admin Dashboard -->
+    <div id="dashboard-container" class="hidden">
+        <header>
+            <h1>Aevix Studio Dashboard</h1>
+            <button onclick="logout()" class="btn-secondary">Logout</button>
+        </header>
+
+        <nav>
+            <button id="btn-projects" onclick="switchTab('projects')">Projects</button>
+            <button id="btn-inquiries" onclick="switchTab('inquiries')">Inquiries</button>
+            <button id="btn-payments" onclick="switchTab('payments')">Payments</button>
+        </nav>
+
+        <main>
+            <div class="tab-header">
+                <h2 id="tab-title">Projects</h2>
+                <button onclick="openModal('create')">+ Add Record</button>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr id="table-head"></tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Dynamic CRUD Modal -->
+    <div id="crud-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 id="modal-title">Record</h3>
+            <form id="crud-form" onsubmit="handleFormSubmit(event)">
+                <input type="hidden" id="record-id">
+                <div id="dynamic-fields"></div>
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn">Save</button>
+                    <button type="button" onclick="closeModal()" class="btn-secondary">Cancel</button>
+                    <button type="submit">Save Record</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
+        // Initialize Supabase with Workspace Credentials
         const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
-        const ADMIN_EMAILS = ['aevixstudio962@gmail.com', 'aevixstudio961@gmail.com'];
         
-        const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: { flowType: 'pkce', autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
-        });
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const workspaceContent = document.getElementById('workspace-content');
-        const logoutBtn = document.getElementById('logout-btn');
-        const controlsRow = document.getElementById('controls-row');
-        const addRecordBtn = document.getElementById('add-record-btn');
-        
-        let currentTab = 'projects';
-        let isAuthorized = false;
-        let activeDataCache = [];
-        let editingRecordId = null;
+        const ADMIN_EMAILS = ['aevixstudio962@gmail.com'];
+        let activeTab = 'projects';
+        let currentData = [];
 
-        logoutBtn.addEventListener('click', async () => {
-            await db.auth.signOut();
-            window.location.href = 'index.html';
-        });
+        // Tab Column Mappings
+        const schema = {
+            projects: [
+                { name: 'client_name', label: 'Client Name', type: 'text', required: true },
+                { name: 'project_title', label: 'Project Title', type: 'text', required: true },
+                { name: 'status', label: 'Status', type: 'select', options: ['Pending', 'In Progress', 'Completed', 'On Hold'] },
+                { name: 'budget', label: 'Budget ($)', type: 'number', required: true }
+            ],
+            inquiries: [
+                { name: 'contact_name', label: 'Contact Name', type: 'text', required: true },
+                { name: 'email', label: 'Email Address', type: 'email', required: true },
+                { name: 'message', label: 'Message', type: 'textarea', required: true },
+                { name: 'status', label: 'Status', type: 'select', options: ['New', 'Contacted', 'Archived'] }
+            ],
+            payments: [
+                { name: 'client_name', label: 'Client Name', type: 'text', required: true },
+                { name: 'amount', label: 'Amount ($)', type: 'number', required: true },
+                { name: 'status', label: 'Payment Status', type: 'select', options: ['Unpaid', 'Paid', 'Overdue'] },
+                { name: 'due_date', label: 'Due Date', type: 'date', required: true }
+            ]
+        };
 
+        // Authentication Handlers
         async function verifySessionFast() {
-            const { data: { session } } = await db.auth.getSession();
-            
-            if (!session || !session.user) {
-                renderAccessDenied("Authentication required to access this workspace.");
-                return;
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session && ADMIN_EMAILS.includes(session.user.email)) {
+                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('dashboard-container').classList.remove('hidden');
+                switchTab('projects');
+            } else {
+                document.getElementById('auth-container').classList.remove('hidden');
+                document.getElementById('dashboard-container').classList.add('hidden');
             }
-
-            await checkUserPermissions(session);
         }
 
-        async function checkUserPermissions(session) {
-            const userEmail = (session.user.email || '').toLowerCase();
-            
-            if (ADMIN_EMAILS.includes(userEmail)) {
-                grantAccess();
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                alert('Authentication Failed: ' + error.message);
                 return;
             }
 
-            try {
-                const { data: profile, error } = await db
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', session.user.id)
-                    .maybeSingle();
+            if (!ADMIN_EMAILS.includes(email)) {
+                alert('Access Restricted: Non-admin account.');
+                await supabase.auth.signOut();
+                return;
+            }
 
-                if (!error && profile && ['admin', 'team'].includes(profile.role)) {
-                    grantAccess();
+            verifySessionFast();
+        }
+
+        async function logout() {
+            await supabase.auth.signOut();
+            verifySessionFast();
+        }
+
+        // Tab Navigation & Data Operations
+        function switchTab(tab) {
+            activeTab = tab;
+            document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${tab}`).classList.add('active');
+            document.getElementById('tab-title').innerText = tab.charAt(0).toUpperCase() + tab.slice(1);
+            
+            loadTableData();
+        }
+
+        async function loadTableData() {
+            const { data, error } = await supabase.from(activeTab).select('*').order('created_at', { ascending: false });
+            if (error) {
+                console.error('Data Fetch Error:', error.message);
+                currentData = [];
+            } else {
+                currentData = data || [];
+            }
+            renderTable();
+        }
+
+        function renderTable() {
+            const head = document.getElementById('table-head');
+            const body = document.getElementById('table-body');
+            const fields = schema[activeTab];
+
+            // Render Headings
+            let headHTML = '<th>ID</th>';
+            fields.forEach(f => headHTML += `<th>${f.label}</th>`);
+            headHTML += '<th>Actions</th>';
+            head.innerHTML = headHTML;
+
+            // Render Rows
+            if (currentData.length === 0) {
+                body.innerHTML = `<tr><td colspan="${fields.length + 2}" style="text-align:center; padding: 2rem;">No records found.</td></tr>`;
+                return;
+            }
+
+            body.innerHTML = currentData.map(row => {
+                let rowHTML = `<tr><td>${row.id}</td>`;
+                fields.forEach(f => {
+                    rowHTML += `<td>${row[f.name] || '-'}</td>`;
+                });
+                rowHTML += `
+                    <td class="actions-cell">
+                        <button onclick="openModal('edit', ${row.id})">Edit</button>
+                        <button onclick="deleteRecord(${row.id})" class="btn-danger">Delete</button>
+                    </td>
+                </tr>`;
+                return rowHTML;
+            }).join('');
+        }
+
+        // Modal Operations
+        function openModal(mode, id = null) {
+            const modal = document.getElementById('crud-modal');
+            const fieldsContainer = document.getElementById('dynamic-fields');
+            const fields = schema[activeTab];
+            const record = id ? currentData.find(r => r.id === id) : null;
+
+            document.getElementById('modal-title').innerText = `${mode === 'edit' ? 'Edit' : 'Create'} ${activeTab.slice(0, -1)}`;
+            document.getElementById('record-id').value = id || '';
+
+            fieldsContainer.innerHTML = fields.map(f => {
+                const val = record ? record[f.name] : '';
+                if (f.type === 'select') {
+                    const options = f.options.map(opt => `<option value="${opt}" ${val === opt ? 'selected' : ''}>${opt}</option>`).join('');
+                    return `<div class="form-group"><label>${f.label}</label><select name="${f.name}">${options}</select></div>`;
+                } else if (f.type === 'textarea') {
+                    return `<div class="form-group"><label>${f.label}</label><textarea name="${f.name}" rows="3" ${f.required ? 'required' : ''}>${val}</textarea></div>`;
                 } else {
-                    renderAccessDenied(`Access Denied: Account (${escapeHtml(session.user.email)}) does not have administrative permissions.`);
+                    return `<div class="form-group"><label>${f.label}</label><input type="${f.type}" name="${f.name}" value="${val}" ${f.required ? 'required' : ''}></div>`;
                 }
-            } catch (err) {
-                renderAccessDenied("An error occurred while verifying user permissions.");
-            }
-        }
+            }).join('');
 
-        function grantAccess() {
-            if (isAuthorized) return;
-            isAuthorized = true;
-            logoutBtn.style.display = 'inline-block';
-            controlsRow.style.display = 'flex';
-            loadActiveTab();
-        }
-
-        function switchTab(tabName, evt) {
-            currentTab = tabName;
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            if (evt && evt.target) {
-                evt.target.classList.add('active');
-            }
-            
-            const labelMap = { projects: '+ Add Project', inquiries: '+ Add Inquiry', payments: '+ Add Payment' };
-            addRecordBtn.innerText = labelMap[tabName];
-
-            loadActiveTab();
-        }
-
-        function loadActiveTab() {
-            if (currentTab === 'projects') fetchProjects();
-            else if (currentTab === 'inquiries') fetchInquiries();
-            else if (currentTab === 'payments') fetchPayments();
-        }
-
-        function getBadgeClass(status) {
-            const st = (status || '').toLowerCase();
-            if (['completed', 'cleared', 'paid'].includes(st)) return 'badge-completed';
-            if (['in progress', 'active', 'advance', 'in contact'].includes(st)) return 'badge-active';
-            if (['overdue', 'closed'].includes(st)) return 'badge-overdue';
-            return 'badge-pending';
-        }
-
-        /* --- 1. PROJECTS --- */
-        async function fetchProjects() {
-            workspaceContent.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading projects...</div>`;
-            const { data: projects, error } = await db.from('projects').select('*').order('created_at', { ascending: false });
-
-            if (error) {
-                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: var(--accent-red);">Failed to fetch projects. Please verify RLS permissions.</div></div>`;
-                return;
-            }
-
-            activeDataCache = projects || [];
-
-            if (!activeDataCache.length) {
-                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: var(--text-muted);">No active projects found. Click "+ Add Project" above to create one.</div></div>`;
-                return;
-            }
-
-            let html = `
-                <div class="admin-table-container">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Client Name</th>
-                                <th>Project Title</th>
-                                <th>Status</th>
-                                <th>Deadline</th>
-                                <th>Budget</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            activeDataCache.forEach(p => {
-                const statusClass = getBadgeClass(p.status);
-                html += `
-                    <tr>
-                        <td><strong>${escapeHtml(p.client_name || 'N/A')}</strong></td>
-                        <td>${escapeHtml(p.project_title || 'N/A')}</td>
-                        <td><span class="badge ${statusClass}">${escapeHtml(p.status || 'Pending')}</span></td>
-                        <td>${escapeHtml(p.deadline || 'N/A')}</td>
-                        <td>$${p.budget ? Number(p.budget).toLocaleString() : '0.00'}</td>
-                        <td>
-                            <button class="action-btn" onclick="openEditModal('${p.id}')">Edit</button>
-                            <button class="action-btn delete" onclick="deleteRecord('projects', '${p.id}')">Delete</button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            html += `</tbody></table></div>`;
-            workspaceContent.innerHTML = html;
-        }
-
-        /* --- 2. INQUIRIES --- */
-        async function fetchInquiries() {
-            workspaceContent.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading inquiries...</div>`;
-            const { data: inquiries, error } = await db.from('inquiries').select('*').order('created_at', { ascending: false });
-
-            if (error) {
-                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: var(--accent-red);">Failed to fetch inquiries. Please verify RLS permissions.</div></div>`;
-                return;
-            }
-
-            activeDataCache = inquiries || [];
-
-            if (!activeDataCache.length) {
-                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: var(--text-muted);">No inquiries found.</div></div>`;
-                return;
-            }
-
-            let html = `
-                <div class="admin-table-container">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Client</th>
-                                <th>Email</th>
-                                <th>Service</th>
-                                <th>Message</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            activeDataCache.forEach(i => {
-                const statusClass = getBadgeClass(i.status);
-                html += `
-                    <tr>
-                        <td><strong>${escapeHtml(i.client_name || 'N/A')}</strong></td>
-                        <td>${escapeHtml(i.email || 'N/A')}</td>
-                        <td>${escapeHtml(i.service_requested || 'General')}</td>
-                        <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(i.message || '')}">${escapeHtml(i.message || 'N/A')}</td>
-                        <td><span class="badge ${statusClass}">${escapeHtml(i.status || 'New')}</span></td>
-                        <td>
-                            <button class="action-btn" onclick="openEditModal('${i.id}')">Edit</button>
-                            <button class="action-btn delete" onclick="deleteRecord('inquiries', '${i.id}')">Delete</button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            html += `</tbody></table></div>`;
-            workspaceContent.innerHTML = html;
-        }
-
-        /* --- 3. PAYMENTS --- */
-        async function fetchPayments() {
-            workspaceContent.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading payments...</div>`;
-            const { data: payments, error } = await db.from('payments').select('*').order('created_at', { ascending: false });
-
-            if (error) {
-                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: var(--accent-red);">Failed to fetch payments. Please verify RLS permissions.</div></div>`;
-                return;
-            }
-
-            activeDataCache = payments || [];
-
-            if (!activeDataCache.length) {
-                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: var(--text-muted);">No payment records found.</div></div>`;
-                return;
-            }
-
-            let html = `
-                <div class="admin-table-container">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Client</th>
-                                <th>Milestone</th>
-                                <th>Amount</th>
-                                <th>Due Date</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            activeDataCache.forEach(pm => {
-                const statusClass = getBadgeClass(pm.status);
-                html += `
-                    <tr>
-                        <td><strong>${escapeHtml(pm.client_name || 'N/A')}</strong></td>
-                        <td>${escapeHtml(pm.milestone || 'N/A')}</td>
-                        <td>$${pm.amount ? Number(pm.amount).toLocaleString() : '0.00'}</td>
-                        <td>${escapeHtml(pm.due_date || 'N/A')}</td>
-                        <td><span class="badge ${statusClass}">${escapeHtml(pm.status || 'Unpaid')}</span></td>
-                        <td>
-                            <button class="action-btn" onclick="openEditModal('${pm.id}')">Edit</button>
-                            <button class="action-btn delete" onclick="deleteRecord('payments', '${pm.id}')">Delete</button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            html += `</tbody></table></div>`;
-            workspaceContent.innerHTML = html;
-        }
-
-        /* --- CRUD MODAL ENGINE --- */
-        function openAddModal() {
-            editingRecordId = null;
-            document.getElementById('modal-title').innerText = `Add New ${currentTab.slice(0, -1)}`;
-            renderModalFields();
-            document.getElementById('crud-modal').classList.add('active');
-        }
-
-        function openEditModal(id) {
-            editingRecordId = id;
-            const record = activeDataCache.find(r => String(r.id) === String(id));
-            if (!record) return;
-
-            document.getElementById('modal-title').innerText = `Edit ${currentTab.slice(0, -1)}`;
-            renderModalFields(record);
-            document.getElementById('crud-modal').classList.add('active');
+            modal.classList.remove('hidden');
         }
 
         function closeModal() {
-            document.getElementById('crud-modal').classList.remove('active');
-            document.getElementById('crud-form').reset();
-            editingRecordId = null;
+            document.getElementById('crud-modal').classList.add('hidden');
         }
 
-        function renderModalFields(data = {}) {
-            const container = document.getElementById('modal-fields');
-            let fieldsHtml = '';
-
-            if (currentTab === 'projects') {
-                fieldsHtml = `
-                    <div class="form-group">
-                        <label>Client Name</label>
-                        <input type="text" name="client_name" value="${escapeHtml(data.client_name || '')}" required />
-                    </div>
-                    <div class="form-group">
-                        <label>Project Title</label>
-                        <input type="text" name="project_title" value="${escapeHtml(data.project_title || '')}" required />
-                    </div>
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select name="status">
-                            <option value="In Progress" ${data.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
-                            <option value="Completed" ${data.status === 'Completed' ? 'selected' : ''}>Completed</option>
-                            <option value="Pending" ${data.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Deadline</label>
-                        <input type="text" name="deadline" placeholder="e.g. Oct 15, 2026" value="${escapeHtml(data.deadline || '')}" />
-                    </div>
-                    <div class="form-group">
-                        <label>Budget ($)</label>
-                        <input type="number" step="0.01" name="budget" value="${data.budget || ''}" />
-                    </div>
-                `;
-            } else if (currentTab === 'inquiries') {
-                fieldsHtml = `
-                    <div class="form-group">
-                        <label>Client Name</label>
-                        <input type="text" name="client_name" value="${escapeHtml(data.client_name || '')}" required />
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email" value="${escapeHtml(data.email || '')}" required />
-                    </div>
-                    <div class="form-group">
-                        <label>Service Requested</label>
-                        <input type="text" name="service_requested" value="${escapeHtml(data.service_requested || '')}" />
-                    </div>
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select name="status">
-                            <option value="New" ${data.status === 'New' ? 'selected' : ''}>New</option>
-                            <option value="In Contact" ${data.status === 'In Contact' ? 'selected' : ''}>In Contact</option>
-                            <option value="Closed" ${data.status === 'Closed' ? 'selected' : ''}>Closed</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Message</label>
-                        <textarea name="message" rows="3">${escapeHtml(data.message || '')}</textarea>
-                    </div>
-                `;
-            } else if (currentTab === 'payments') {
-                fieldsHtml = `
-                    <div class="form-group">
-                        <label>Client Name</label>
-                        <input type="text" name="client_name" value="${escapeHtml(data.client_name || '')}" required />
-                    </div>
-                    <div class="form-group">
-                        <label>Milestone</label>
-                        <input type="text" name="milestone" value="${escapeHtml(data.milestone || '')}" required />
-                    </div>
-                    <div class="form-group">
-                        <label>Amount ($)</label>
-                        <input type="number" step="0.01" name="amount" value="${data.amount || ''}" required />
-                    </div>
-                    <div class="form-group">
-                        <label>Due Date</label>
-                        <input type="text" name="due_date" placeholder="e.g. Nov 01, 2026" value="${escapeHtml(data.due_date || '')}" />
-                    </div>
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select name="status">
-                            <option value="Unpaid" ${data.status === 'Unpaid' ? 'selected' : ''}>Unpaid</option>
-                            <option value="Paid" ${data.status === 'Paid' ? 'selected' : ''}>Paid</option>
-                            <option value="Overdue" ${data.status === 'Overdue' ? 'selected' : ''}>Overdue</option>
-                            <option value="Cleared" ${data.status === 'Cleared' ? 'selected' : ''}>Cleared</option>
-                        </select>
-                    </div>
-                `;
-            }
-
-            container.innerHTML = fieldsHtml;
-        }
-
-        /* --- SAVE / UPDATE HANDLER --- */
-        document.getElementById('crud-form').addEventListener('submit', async (e) => {
+        async function handleFormSubmit(e) {
             e.preventDefault();
+            const id = document.getElementById('record-id').value;
             const formData = new FormData(e.target);
             const payload = {};
-            
-            formData.forEach((value, key) => {
-                payload[key] = value;
+
+            schema[activeTab].forEach(f => {
+                payload[f.name] = formData.get(f.name);
             });
 
             let error;
-            if (editingRecordId) {
-                const res = await db.from(currentTab).update(payload).eq('id', editingRecordId);
-                error = res.error;
+            if (id) {
+                ({ error } = await supabase.from(activeTab).update(payload).eq('id', id));
             } else {
-                const res = await db.from(currentTab).insert([payload]);
-                error = res.error;
+                ({ error } = await supabase.from(activeTab).insert([payload]));
             }
 
             if (error) {
-                alert(`Error saving record: ${error.message}`);
-                return;
+                alert('Database Operation Failed: ' + error.message);
+            } else {
+                closeModal();
+                loadTableData();
             }
+        }
 
-            closeModal();
-            loadActiveTab();
-        });
-
-        /* --- DELETE HANDLER --- */
-        async function deleteRecord(table, id) {
-            if (!confirm("Are you sure you want to permanently delete this entry?")) return;
-
-            const { error } = await db.from(table).delete().eq('id', id);
-
+        async function deleteRecord(id) {
+            if (!confirm('Are you sure you want to delete this record?')) return;
+            const { error } = await supabase.from(activeTab).delete().eq('id', id);
             if (error) {
-                alert(`Failed to delete record: ${error.message}`);
-                return;
+                alert('Deletion Failed: ' + error.message);
+            } else {
+                loadTableData();
             }
-
-            loadActiveTab();
         }
 
-        function renderAccessDenied(message) {
-            logoutBtn.style.display = 'none';
-            controlsRow.style.display = 'none';
-            workspaceContent.innerHTML = `
-                <div style="text-align: center; padding: 4rem 2rem; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px;">
-                    <h3 style="color: var(--accent-red); margin-top: 0; margin-bottom: 0.5rem;">Restricted Access</h3>
-                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">${escapeHtml(message)}</p>
-                    <a href="index.html" style="color: #60a5fa; text-decoration: underline;">Return to Main Site</a>
-                </div>
-            `;
-        }
-
-        function escapeHtml(str) {
-            if (str === null || str === undefined) return '';
-            return String(str)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
+        // Initialize Authentication Status
         verifySessionFast();
-
-        db.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_OUT' || !session) {
-                isAuthorized = false;
-                renderAccessDenied("Authentication required to access this workspace.");
-            } else if (event === 'SIGNED_IN') {
-                checkUserPermissions(session);
-            }
-        });
     </script>
 </body>
 </html>
