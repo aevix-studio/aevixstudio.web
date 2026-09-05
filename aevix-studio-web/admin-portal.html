@@ -4,27 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aevix Studio | Admin Portal</title>
-    <!-- Supabase JS Client via CDN -->
+    <!-- Supabase JS v2 Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* Modern Dark Mode Design System */
         :root {
-            --bg-dark: #0f1117;
-            --card-bg: #1a1d24;
-            --input-bg: #242832;
-            --border: #2e3440;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
+            --bg-dark: #0a0a0c;
+            --card-bg: #141418;
+            --card-border: #23232a;
+            --input-bg: #1c1c22;
+            --text-main: #f0f0f5;
+            --text-muted: #8e8e9e;
             --accent: #6366f1;
             --accent-hover: #4f46e5;
+            --accent-soft: rgba(99, 102, 241, 0.15);
             --danger: #ef4444;
+            --danger-hover: #dc2626;
             --success: #10b981;
+            --warning: #f59e0b;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --radius-sm: 6px;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: var(--font-sans);
         }
 
         body {
@@ -33,287 +41,478 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            line-height: 1.5;
         }
 
+        /* Utilities */
         .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .gap-md { gap: 1rem; }
+        .gap-sm { gap: 0.5rem; }
 
-        /* Auth Container */
+        /* Auth Screen */
         #auth-container {
-            max-width: 400px;
-            margin: auto;
-            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            background: radial-gradient(circle at top, rgba(99, 102, 241, 0.1) 0%, transparent 60%);
+        }
+
+        .auth-card {
             background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            width: 90%;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
         }
 
-        #auth-container h2 {
-            margin-bottom: 1.5rem;
+        .auth-header {
             text-align: center;
-            color: var(--accent);
+            margin-bottom: 2rem;
         }
 
+        .auth-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            color: #fff;
+            margin-bottom: 0.25rem;
+        }
+
+        .auth-header p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* Dashboard Screen */
+        #dashboard-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--card-border);
+            padding: 1rem 2rem;
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-badge {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background: var(--input-bg);
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--card-border);
+        }
+
+        /* Navigation Bar */
+        nav {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--card-border);
+            padding: 0 2rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 1rem 1.25rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            color: var(--text-main);
+        }
+
+        .nav-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        /* Main Workspace */
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .action-bar {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Forms & Inputs */
         .form-group {
-            margin-bottom: 1.2rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
         }
 
         .form-group label {
-            display: block;
-            margin-bottom: 0.4rem;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
             color: var(--text-muted);
         }
 
         input, select, textarea {
-            width: 100%;
-            padding: 0.75rem;
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            border-radius: 6px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--card-border);
             color: var(--text-main);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
             font-size: 0.95rem;
             outline: none;
+            transition: border-color 0.2s;
+            width: 100%;
         }
 
         input:focus, select:focus, textarea:focus {
             border-color: var(--accent);
         }
 
-        button {
-            cursor: pointer;
-            padding: 0.75rem 1.25rem;
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Buttons */
+        .btn {
+            background-color: var(--accent);
+            color: #fff;
             border: none;
-            border-radius: 6px;
-            background: var(--accent);
-            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-md);
             font-weight: 600;
-            transition: background 0.2s ease;
-        }
-
-        button:hover { background: var(--accent-hover); }
-
-        .btn-danger { background: var(--danger); }
-        .btn-danger:hover { background: #dc2626; }
-        .btn-secondary { background: #4b5563; }
-        .btn-secondary:hover { background: #374151; }
-
-        /* Dashboard Layout */
-        header {
-            background: var(--card-bg);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: inline-flex;
             align-items: center;
-            border-bottom: 1px solid var(--border);
+            justify-content: center;
+            gap: 0.5rem;
         }
 
-        nav {
-            display: flex;
-            gap: 1rem;
-            padding: 1rem 2rem;
+        .btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--input-bg);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger-hover);
+        }
+
+        .btn-sm {
+            padding: 0.35rem 0.65rem;
+            font-size: 0.8rem;
+            border-radius: var(--radius-sm);
+        }
+
+        /* Tables & Data Grid */
+        .table-container {
             background: var(--card-bg);
-            border-bottom: 1px solid var(--border);
-        }
-
-        nav button {
-            background: transparent;
-            color: var(--text-muted);
-            border: 1px solid transparent;
-        }
-
-        nav button.active {
-            background: var(--accent);
-            color: white;
-        }
-
-        main {
-            padding: 2rem;
-            flex-grow: 1;
-        }
-
-        .tab-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        /* Data Tables */
-        .table-responsive {
-            overflow-x: auto;
-            background: var(--card-bg);
-            border-radius: 8px;
-            border: 1px solid var(--border);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-        }
-
-        th, td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
             font-size: 0.9rem;
         }
 
         th {
-            background: var(--input-bg);
+            background: #18181c;
+            padding: 1rem;
             color: var(--text-muted);
             font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--card-border);
         }
 
-        .actions-cell {
-            display: flex;
-            gap: 0.5rem;
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--text-main);
+            vertical-align: middle;
         }
 
-        /* Modal */
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.015);
+        }
+
+        /* Status Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .badge-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-active, .badge-completed, .badge-paid { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-cancelled, .badge-unpaid { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        /* Modal Overlay */
         .modal-overlay {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.75);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
             display: flex;
-            align-items: center;
             justify-content: center;
-            z-index: 1000;
+            align-items: center;
+            z-index: 100;
+            padding: 1.5rem;
         }
 
-        .modal-content {
+        .modal-card {
             background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 550px;
             padding: 2rem;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
-        .modal-content h3 {
-            margin-bottom: 1rem;
+        .modal-header {
+            margin-bottom: 1.5rem;
         }
 
-        .modal-actions {
+        .modal-footer {
+            margin-top: 2rem;
             display: flex;
             justify-content: flex-end;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
+            gap: 0.75rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 4rem 2rem;
+            text-align: center;
+            color: var(--text-muted);
         }
     </style>
 </head>
 <body>
 
-    <!-- Authentication Interface -->
+    <!-- Authentication View -->
     <div id="auth-container">
-        <h2>Aevix Studio Admin</h2>
-        <form onsubmit="handleLogin(event)">
-            <div class="form-group">
-                <label for="email">Admin Email</label>
-                <input type="email" id="email" required placeholder="aevixstudio962@gmail.com">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Aevix Studio</h1>
+                <p>Sign in to access administration portal</p>
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" required placeholder="••••••••">
-            </div>
-            <button type="submit" style="width: 100%;">Login to Portal</button>
-        </form>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="admin@aevixstudio.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%; margin-top: 0.5rem;">Sign In</button>
+            </form>
+        </div>
     </div>
 
-    <!-- Main Admin Dashboard -->
+    <!-- Main Administrative Dashboard -->
     <div id="dashboard-container" class="hidden">
-        <header>
-            <h1>Aevix Studio Dashboard</h1>
-            <button onclick="logout()" class="btn-secondary">Logout</button>
+        <header class="flex-between">
+            <div class="logo-text">Aevix Studio Admin</div>
+            <div class="flex gap-md" style="align-items: center;">
+                <span id="user-display" class="user-badge">User</span>
+                <button onclick="handleLogout()" class="btn btn-secondary btn-sm">Logout</button>
+            </div>
         </header>
 
         <nav>
-            <button id="btn-projects" onclick="switchTab('projects')">Projects</button>
-            <button id="btn-inquiries" onclick="switchTab('inquiries')">Inquiries</button>
-            <button id="btn-payments" onclick="switchTab('payments')">Payments</button>
+            <button class="nav-btn active" onclick="switchTab('projects')" id="tab-projects">Projects</button>
+            <button class="nav-btn" onclick="switchTab('inquiries')" id="tab-inquiries">Inquiries</button>
+            <button class="nav-btn" onclick="switchTab('payments')" id="tab-payments">Payments</button>
         </nav>
 
         <main>
-            <div class="tab-header">
-                <h2 id="tab-title">Projects</h2>
-                <button onclick="openModal('create')">+ Add Record</button>
+            <div class="action-bar flex-between">
+                <h2 id="tab-title" style="font-size: 1.5rem; font-weight: 600;">Projects</h2>
+                <button onclick="openModal()" class="btn">+ Add New Record</button>
             </div>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr id="table-head"></tr>
+
+            <div class="table-container">
+                <table id="data-table">
+                    <thead id="table-head">
+                        <!-- Dynamic Columns -->
                     </thead>
-                    <tbody id="table-body"></tbody>
+                    <tbody id="table-body">
+                        <!-- Dynamic Rows -->
+                    </tbody>
                 </table>
+                <div id="empty-state" class="empty-state hidden">
+                    No records found for this section.
+                </div>
             </div>
         </main>
     </div>
 
-    <!-- Dynamic CRUD Modal -->
+    <!-- Universal Dynamic CRUD Modal -->
     <div id="crud-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h3 id="modal-title">Record</h3>
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-title" style="font-size: 1.25rem;">Add Record</h3>
+            </div>
             <form id="crud-form" onsubmit="handleFormSubmit(event)">
-                <input type="hidden" id="record-id">
-                <div id="dynamic-fields"></div>
-                <div class="modal-actions">
-                    <button type="button" onclick="closeModal()" class="btn-secondary">Cancel</button>
-                    <button type="submit">Save Record</button>
+                <input type="hidden" id="entity-id">
+                <div id="modal-fields">
+                    <!-- Dynamic Dynamic Form Inputs Injected Here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn">Save Changes</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // Initialize Supabase with Workspace Credentials
-        const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
+        // ------------------------------------------------------------------
+        // Configuration Parameters
+        // Replace SUPABASE_URL & SUPABASE_ANON_KEY with your project credentials.
+        // Found in Supabase Dashboard -> Project Settings -> API
+        // ------------------------------------------------------------------
+        const SUPABASE_URL = 'https://YOUR_SUPABASE_PROJECT_ID.supabase.co';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
         
+        // Allowed Admin Accounts
+        const ADMIN_EMAILS = [
+            'admin@aevixstudio.com',
+            'dahiyat@aevixstudio.com'
+        ];
+
+        // Initialize Supabase Client
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const ADMIN_EMAILS = ['aevixstudio962@gmail.com'];
+        // Application State
         let activeTab = 'projects';
         let currentData = [];
 
-        // Tab Column Mappings
-        const schema = {
-            projects: [
-                { name: 'client_name', label: 'Client Name', type: 'text', required: true },
-                { name: 'project_title', label: 'Project Title', type: 'text', required: true },
-                { name: 'status', label: 'Status', type: 'select', options: ['Pending', 'In Progress', 'Completed', 'On Hold'] },
-                { name: 'budget', label: 'Budget ($)', type: 'number', required: true }
-            ],
-            inquiries: [
-                { name: 'contact_name', label: 'Contact Name', type: 'text', required: true },
-                { name: 'email', label: 'Email Address', type: 'email', required: true },
-                { name: 'message', label: 'Message', type: 'textarea', required: true },
-                { name: 'status', label: 'Status', type: 'select', options: ['New', 'Contacted', 'Archived'] }
-            ],
-            payments: [
-                { name: 'client_name', label: 'Client Name', type: 'text', required: true },
-                { name: 'amount', label: 'Amount ($)', type: 'number', required: true },
-                { name: 'status', label: 'Payment Status', type: 'select', options: ['Unpaid', 'Paid', 'Overdue'] },
-                { name: 'due_date', label: 'Due Date', type: 'date', required: true }
-            ]
+        // Entity Schema Definitions for Dynamic UI Engine
+        const schemas = {
+            projects: {
+                title: 'Project',
+                fields: [
+                    { name: 'name', label: 'Project Name', type: 'text', required: true },
+                    { name: 'client_name', label: 'Client Name', type: 'text', required: true },
+                    { name: 'budget', label: 'Budget ($)', type: 'number', step: '0.01', required: true },
+                    { name: 'status', label: 'Status', type: 'select', options: ['Pending', 'Active', 'Completed', 'Cancelled'], required: true },
+                    { name: 'deadline', label: 'Deadline', type: 'date', required: false },
+                    { name: 'description', label: 'Description', type: 'textarea', required: false }
+                ],
+                columns: ['name', 'client_name', 'budget', 'status', 'deadline']
+            },
+            inquiries: {
+                title: 'Inquiry',
+                fields: [
+                    { name: 'client_name', label: 'Client Name', type: 'text', required: true },
+                    { name: 'email', label: 'Email', type: 'email', required: true },
+                    { name: 'service_requested', label: 'Service Requested', type: 'text', required: true },
+                    { name: 'status', label: 'Status', type: 'select', options: ['Pending', 'Contacted', 'Converted', 'Archived'], required: true },
+                    { name: 'message', label: 'Message Details', type: 'textarea', required: true }
+                ],
+                columns: ['client_name', 'email', 'service_requested', 'status']
+            },
+            payments: {
+                title: 'Payment',
+                fields: [
+                    { name: 'client_name', label: 'Client Name', type: 'text', required: true },
+                    { name: 'amount', label: 'Amount ($)', type: 'number', step: '0.01', required: true },
+                    { name: 'payment_status', label: 'Payment Status', type: 'select', options: ['Unpaid', 'Paid', 'Pending', 'Refunded'], required: true },
+                    { name: 'due_date', label: 'Due Date', type: 'date', required: true },
+                    { name: 'notes', label: 'Payment Notes', type: 'textarea', required: false }
+                ],
+                columns: ['client_name', 'amount', 'payment_status', 'due_date']
+            }
         };
 
-        // Authentication Handlers
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', () => {
+            verifySessionFast();
+        });
+
+        // 1. Session Verification & Auth Handlers
         async function verifySessionFast() {
             const { data: { session } } = await supabase.auth.getSession();
-            if (session && ADMIN_EMAILS.includes(session.user.email)) {
-                document.getElementById('auth-container').classList.add('hidden');
-                document.getElementById('dashboard-container').classList.remove('hidden');
-                switchTab('projects');
+            if (session && session.user) {
+                if (ADMIN_EMAILS.includes(session.user.email)) {
+                    showDashboard(session.user);
+                } else {
+                    alert('Access Restricted: Your account is not authorized as an Administrator.');
+                    await supabase.auth.signOut();
+                    showAuth();
+                }
             } else {
-                document.getElementById('auth-container').classList.remove('hidden');
-                document.getElementById('dashboard-container').classList.add('hidden');
+                showAuth();
             }
         }
 
         async function handleLogin(e) {
             e.preventDefault();
-            const email = document.getElementById('email').value;
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
 
             const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -323,139 +522,223 @@
                 return;
             }
 
-            if (!ADMIN_EMAILS.includes(email)) {
-                alert('Access Restricted: Non-admin account.');
+            if (!ADMIN_EMAILS.includes(data.user.email)) {
+                alert('Access Restricted: Your account is not authorized as an Administrator.');
                 await supabase.auth.signOut();
                 return;
             }
 
-            verifySessionFast();
+            showDashboard(data.user);
         }
 
-        async function logout() {
+        async function handleLogout() {
             await supabase.auth.signOut();
-            verifySessionFast();
+            showAuth();
         }
 
-        // Tab Navigation & Data Operations
-        function switchTab(tab) {
-            activeTab = tab;
-            document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`btn-${tab}`).classList.add('active');
-            document.getElementById('tab-title').innerText = tab.charAt(0).toUpperCase() + tab.slice(1);
+        function showAuth() {
+            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('dashboard-container').classList.add('hidden');
+        }
+
+        function showDashboard(user) {
+            document.getElementById('user-display').textContent = user.email;
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('dashboard-container').classList.remove('hidden');
+            switchTab(activeTab);
+        }
+
+        // 2. Navigation & Data Loading
+        function switchTab(tabName) {
+            activeTab = tabName;
             
-            loadTableData();
+            // Update Active Navigation Tab
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            // Update Tab Title Header
+            document.getElementById('tab-title').textContent = tabName.charAt(0).toUpperCase() + tabName.slice(1);
+
+            fetchTabContent(tabName);
         }
 
-        async function loadTableData() {
-            const { data, error } = await supabase.from(activeTab).select('*').order('created_at', { ascending: false });
+        async function fetchTabContent(table) {
+            const tableHead = document.getElementById('table-head');
+            const tableBody = document.getElementById('table-body');
+            const emptyState = document.getElementById('empty-state');
+            
+            tableBody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 2rem;">Loading data...</td></tr>';
+            emptyState.classList.add('hidden');
+
+            const { data, error } = await supabase.from(table).select('*').order('created_at', { ascending: false });
+
             if (error) {
-                console.error('Data Fetch Error:', error.message);
-                currentData = [];
-            } else {
-                currentData = data || [];
-            }
-            renderTable();
-        }
-
-        function renderTable() {
-            const head = document.getElementById('table-head');
-            const body = document.getElementById('table-body');
-            const fields = schema[activeTab];
-
-            // Render Headings
-            let headHTML = '<th>ID</th>';
-            fields.forEach(f => headHTML += `<th>${f.label}</th>`);
-            headHTML += '<th>Actions</th>';
-            head.innerHTML = headHTML;
-
-            // Render Rows
-            if (currentData.length === 0) {
-                body.innerHTML = `<tr><td colspan="${fields.length + 2}" style="text-align:center; padding: 2rem;">No records found.</td></tr>`;
+                console.error('Data loading error:', error);
+                tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--danger); padding: 2rem;">Failed to retrieve records from database.</td></tr>`;
                 return;
             }
 
-            body.innerHTML = currentData.map(row => {
-                let rowHTML = `<tr><td>${row.id}</td>`;
-                fields.forEach(f => {
-                    rowHTML += `<td>${row[f.name] || '-'}</td>`;
-                });
-                rowHTML += `
-                    <td class="actions-cell">
-                        <button onclick="openModal('edit', ${row.id})">Edit</button>
-                        <button onclick="deleteRecord(${row.id})" class="btn-danger">Delete</button>
-                    </td>
-                </tr>`;
-                return rowHTML;
-            }).join('');
+            currentData = data || [];
+            renderTableStructure(table, currentData);
         }
 
-        // Modal Operations
-        function openModal(mode, id = null) {
-            const modal = document.getElementById('crud-modal');
-            const fieldsContainer = document.getElementById('dynamic-fields');
-            const fields = schema[activeTab];
-            const record = id ? currentData.find(r => r.id === id) : null;
+        // 3. Dynamic Rendering Engine
+        function renderTableStructure(table, data) {
+            const tableHead = document.getElementById('table-head');
+            const tableBody = document.getElementById('table-body');
+            const emptyState = document.getElementById('empty-state');
+            const schema = schemas[table];
 
-            document.getElementById('modal-title').innerText = `${mode === 'edit' ? 'Edit' : 'Create'} ${activeTab.slice(0, -1)}`;
-            document.getElementById('record-id').value = id || '';
+            // Render Header
+            let headHTML = '<tr>';
+            schema.columns.forEach(col => {
+                headHTML += `<th>${col.replace('_', ' ')}</th>`;
+            });
+            headHTML += '<th style="text-align: right;">Actions</th></tr>';
+            tableHead.innerHTML = headHTML;
 
-            fieldsContainer.innerHTML = fields.map(f => {
-                const val = record ? record[f.name] : '';
-                if (f.type === 'select') {
-                    const options = f.options.map(opt => `<option value="${opt}" ${val === opt ? 'selected' : ''}>${opt}</option>`).join('');
-                    return `<div class="form-group"><label>${f.label}</label><select name="${f.name}">${options}</select></div>`;
-                } else if (f.type === 'textarea') {
-                    return `<div class="form-group"><label>${f.label}</label><textarea name="${f.name}" rows="3" ${f.required ? 'required' : ''}>${val}</textarea></div>`;
+            // Render Body
+            tableBody.innerHTML = '';
+            if (data.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            data.forEach(item => {
+                let rowHTML = '<tr>';
+                schema.columns.forEach(col => {
+                    const value = item[col] !== null && item[col] !== undefined ? item[col] : '-';
+                    
+                    // Format Status Badges
+                    if (col === 'status' || col === 'payment_status') {
+                        const statusClass = `badge-${String(value).toLowerCase()}`;
+                        rowHTML += `<td><span class="badge ${statusClass}">${value}</span></td>`;
+                    } else if (col === 'budget' || col === 'amount') {
+                        rowHTML += `<td>$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>`;
+                    } else {
+                        rowHTML += `<td>${value}</td>`;
+                    }
+                });
+
+                // Actions Column
+                rowHTML += `
+                    <td style="text-align: right;">
+                        <button onclick="editRecord('${item.id}')" class="btn btn-secondary btn-sm">Edit</button>
+                        <button onclick="deleteRecord('${item.id}')" class="btn btn-danger btn-sm">Delete</button>
+                    </td>
+                `;
+                rowHTML += '</tr>';
+                tableBody.insertAdjacentHTML('beforeend', rowHTML);
+            });
+        }
+
+        // 4. Modal & CRUD Form Operations
+        function openModal(editId = null) {
+            const schema = schemas[activeTab];
+            const modalFields = document.getElementById('modal-fields');
+            const modalTitle = document.getElementById('modal-title');
+            const entityIdInput = document.getElementById('entity-id');
+
+            modalFields.innerHTML = '';
+            entityIdInput.value = editId || '';
+            modalTitle.textContent = editId ? `Edit ${schema.title}` : `Add New ${schema.title}`;
+
+            let recordToEdit = null;
+            if (editId) {
+                recordToEdit = currentData.find(d => String(d.id) === String(editId));
+            }
+
+            schema.fields.forEach(field => {
+                const formGroup = document.createElement('div');
+                formGroup.className = 'form-group';
+
+                const label = document.createElement('label');
+                label.textContent = field.label;
+                formGroup.appendChild(label);
+
+                let input;
+                const value = recordToEdit ? recordToEdit[field.name] : '';
+
+                if (field.type === 'select') {
+                    input = document.createElement('select');
+                    field.options.forEach(opt => {
+                        const option = document.createElement('option');
+                        option.value = opt;
+                        option.textContent = opt;
+                        if (value === opt) option.selected = true;
+                        input.appendChild(option);
+                    });
+                } else if (field.type === 'textarea') {
+                    input = document.createElement('textarea');
+                    input.value = value || '';
                 } else {
-                    return `<div class="form-group"><label>${f.label}</label><input type="${f.type}" name="${f.name}" value="${val}" ${f.required ? 'required' : ''}></div>`;
+                    input = document.createElement('input');
+                    input.type = field.type;
+                    if (field.step) input.step = field.step;
+                    input.value = value || '';
                 }
-            }).join('');
 
-            modal.classList.remove('hidden');
+                input.name = field.name;
+                if (field.required) input.required = true;
+
+                formGroup.appendChild(input);
+                modalFields.appendChild(formGroup);
+            });
+
+            document.getElementById('crud-modal').classList.remove('hidden');
         }
 
         function closeModal() {
             document.getElementById('crud-modal').classList.add('hidden');
+            document.getElementById('crud-form').reset();
         }
 
         async function handleFormSubmit(e) {
             e.preventDefault();
-            const id = document.getElementById('record-id').value;
+            const entityId = document.getElementById('entity-id').value;
             const formData = new FormData(e.target);
             const payload = {};
 
-            schema[activeTab].forEach(f => {
-                payload[f.name] = formData.get(f.name);
+            schemas[activeTab].fields.forEach(field => {
+                payload[field.name] = formData.get(field.name);
             });
 
-            let error;
-            if (id) {
-                ({ error } = await supabase.from(activeTab).update(payload).eq('id', id));
+            let result;
+            if (entityId) {
+                // Update Record
+                result = await supabase.from(activeTab).update(payload).eq('id', entityId);
             } else {
-                ({ error } = await supabase.from(activeTab).insert([payload]));
+                // Insert New Record
+                result = await supabase.from(activeTab).insert([payload]);
             }
 
-            if (error) {
-                alert('Database Operation Failed: ' + error.message);
-            } else {
-                closeModal();
-                loadTableData();
+            if (result.error) {
+                alert('Database Error: ' + result.error.message);
+                return;
             }
+
+            closeModal();
+            fetchTabContent(activeTab);
+        }
+
+        function editRecord(id) {
+            openModal(id);
         }
 
         async function deleteRecord(id) {
-            if (!confirm('Are you sure you want to delete this record?')) return;
-            const { error } = await supabase.from(activeTab).delete().eq('id', id);
-            if (error) {
-                alert('Deletion Failed: ' + error.message);
-            } else {
-                loadTableData();
-            }
-        }
+            if (!confirm('Are you sure you want to permanently delete this record?')) return;
 
-        // Initialize Authentication Status
-        verifySessionFast();
+            const { error } = await supabase.from(activeTab).delete().eq('id', id);
+
+            if (error) {
+                alert('Failed to delete record: ' + error.message);
+                return;
+            }
+
+            fetchTabContent(activeTab);
+        }
     </script>
 </body>
 </html>
