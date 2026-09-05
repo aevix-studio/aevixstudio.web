@@ -7,86 +7,147 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        :root {
+            --bg-dark: #0b0f17;
+            --card-bg: #111827;
+            --border-color: #1f2937;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent-blue: #3b82f6;
+            --accent-green: #4ade80;
+            --accent-red: #f87171;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
         .portal-container {
-            max-width: 900px;
+            max-width: 960px;
             margin: 0 auto;
             padding: 2rem 1rem;
         }
+
         .portal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #1f2937;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
         }
+
+        .user-info {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
         .card {
-            background: #111827;
-            border: 1px solid #1f2937;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+            padding: 1.75rem;
+            margin-bottom: 1.75rem;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
         }
+
         .progress-bar-container {
-            background: #1f2937;
+            background: var(--border-color);
             border-radius: 999px;
-            height: 12px;
+            height: 10px;
             overflow: hidden;
-            margin: 1rem 0;
+            margin: 0.75rem 0 1.25rem 0;
         }
+
         .progress-bar-fill {
-            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            background: linear-gradient(90deg, #2563eb, #60a5fa);
             height: 100%;
             width: 0%;
-            transition: width 0.5s ease;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 1rem;
-            margin-top: 1.5rem;
+            margin-top: 1.25rem;
         }
+
         .stat-box {
-            background: #0b0f17;
-            border: 1px solid #1f2937;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
             padding: 1rem;
             border-radius: 8px;
         }
+
         .stat-label {
-            color: #9ca3af;
-            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
             margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
+
         .stat-value {
             color: #fff;
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 600;
         }
+
         .status-badge {
             display: inline-block;
             padding: 4px 12px;
             border-radius: 999px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
             text-transform: capitalize;
         }
-        .status-working { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
-        .status-delayed { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
-        .status-completed { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; }
+
+        .status-working, .status-in-progress { 
+            background: rgba(59, 130, 246, 0.15); 
+            color: #60a5fa; 
+            border: 1px solid rgba(59, 130, 246, 0.4); 
+        }
+        .status-delayed { 
+            background: rgba(239, 68, 68, 0.15); 
+            color: var(--accent-red); 
+            border: 1px solid rgba(239, 68, 68, 0.4); 
+        }
+        .status-completed { 
+            background: rgba(34, 197, 94, 0.15); 
+            color: var(--accent-green); 
+            border: 1px solid rgba(34, 197, 94, 0.4); 
+        }
+
+        .logs-container {
+            margin-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.25rem;
+        }
+
         .log-item {
-            border-left: 2px solid #3b82f6;
+            border-left: 2px solid var(--accent-blue);
             padding-left: 1rem;
             margin-bottom: 1rem;
         }
+
         .log-date {
-            font-size: 0.8rem;
-            color: #9ca3af;
+            font-size: 0.78rem;
+            color: var(--text-muted);
         }
+
         .log-text {
             color: #e5e7eb;
-            margin-top: 0.25rem;
+            margin-top: 0.2rem;
+            font-size: 0.95rem;
+            line-height: 1.4;
         }
+
         .action-btn {
             background: #2563eb;
             color: #ffffff;
@@ -94,16 +155,23 @@
             padding: 10px 20px;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
+            transition: background 0.2s ease;
         }
+        .action-btn:hover { background: #1d4ed8; }
+
         .logout-btn {
             background: transparent;
-            color: #ef4444;
-            border: 1px solid #ef4444;
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
             padding: 8px 16px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
         }
     </style>
 </head>
@@ -112,14 +180,14 @@
     <div class="portal-container">
         <div class="portal-header">
             <div>
-                <h2>Client Dashboard</h2>
-                <p class="section-lead" style="margin: 0;">Track real-time progress, financial summary, and milestone updates.</p>
+                <h2 style="margin: 0; font-size: 1.5rem;">Client Dashboard</h2>
+                <div id="user-info-display" class="user-info">Authenticating...</div>
             </div>
             <button id="logout-btn" class="logout-btn" style="display: none;">Sign Out</button>
         </div>
 
         <div id="portal-content">
-            <p style="color: #9ca3af;">Checking session authentication...</p>
+            <p style="color: var(--text-muted);">Checking session authentication...</p>
         </div>
     </div>
 
@@ -150,6 +218,7 @@
 
         const portalContent = document.getElementById('portal-content');
         const logoutBtn = document.getElementById('logout-btn');
+        const userInfoDisplay = document.getElementById('user-info-display');
 
         logoutBtn.addEventListener('click', async () => {
             const client = getSupabase();
@@ -163,18 +232,21 @@
             if (!session || !session.user) {
                 renderAuthScreen();
                 logoutBtn.style.display = 'none';
+                userInfoDisplay.textContent = 'Please sign in to access portal';
                 return;
             }
 
             const email = (session.user.email || '').toLowerCase();
+            userInfoDisplay.textContent = `Signed in as ${email}`;
 
-            // Redirect Admins away from the Client Portal
+            const client = getSupabase();
+            
+            // Redirect team/admin profiles to admin portal
             if (email === 'aevixstudio962@gmail.com') {
                 window.location.replace('admin-portal.html');
                 return;
             }
 
-            const client = getSupabase();
             try {
                 const { data: profile } = await client
                     .from('profiles')
@@ -191,36 +263,35 @@
             }
 
             logoutBtn.style.display = 'inline-block';
-            await loadClientProject(session.user.id);
+            await loadClientProjects(session.user.id);
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
             const client = getSupabase();
             if (!client) {
-                portalContent.innerHTML = `<p style="color: #ef4444;">Unable to load authentication library. Please check network connection.</p>`;
+                portalContent.innerHTML = `<p style="color: var(--accent-red);">Unable to load authentication library. Please check network connection.</p>`;
                 return;
             }
 
-            // Session check on load
             const { data: { session } } = await client.auth.getSession();
             await verifyUserAndLoad(session);
 
-            // Auth listener
             client.auth.onAuthStateChange(async (event, session) => {
                 if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
                     await verifyUserAndLoad(session);
                 } else if (event === 'SIGNED_OUT' || !session) {
                     renderAuthScreen();
                     logoutBtn.style.display = 'none';
+                    userInfoDisplay.textContent = 'Please sign in to access portal';
                 }
             });
         });
 
         function renderAuthScreen() {
             portalContent.innerHTML = `
-                <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
-                    <h3 style="margin-bottom: 0.5rem;">Access Your Project Dashboard</h3>
-                    <p style="color: #9ca3af; margin-bottom: 1.5rem;">Sign in with your registered Google account to view progress and timeline logs.</p>
+                <div class="card" style="text-align: center; padding: 3.5rem 1.5rem;">
+                    <h3 style="margin-bottom: 0.5rem; font-size: 1.3rem;">Access Your Project Dashboard</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1.75rem;">Sign in with your registered Google account to view active project milestones and timeline logs.</p>
                     <button onclick="triggerGoogleSignIn()" class="action-btn">Sign In with Google</button>
                 </div>
             `;
@@ -232,7 +303,7 @@
             await client.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: window.location.origin + '/index.html',
+                    redirectTo: window.location.origin + '/client-portal.html',
                     queryParams: {
                         access_type: 'offline',
                         prompt: 'consent'
@@ -241,107 +312,126 @@
             });
         }
 
-        async function loadClientProject(userId) {
+        async function loadClientProjects(userId) {
             const client = getSupabase();
             
-            // Fetch project assigned to this client ID
+            // Fetch all projects assigned to this client ID
             const { data: projects, error } = await client
                 .from('projects')
                 .select('*')
-                .eq('client_id', userId);
+                .eq('client_id', userId)
+                .order('created_at', { ascending: false });
 
             if (error) {
-                portalContent.innerHTML = `<p style="color: #ef4444;">Error loading project data: ${escapeHtml(error.message)}</p>`;
+                portalContent.innerHTML = `<p style="color: var(--accent-red);">Error loading project data: ${escapeHtml(error.message)}</p>`;
                 return;
             }
 
             if (!projects || projects.length === 0) {
                 portalContent.innerHTML = `
                     <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
-                        <h3 style="color: #60a5fa; margin-bottom: 0.5rem;">No Active Project Linked</h3>
-                        <p style="color: #9ca3af;">Your account is authenticated, but no active project has been assigned to your profile yet. Please contact the Aevix Studio team.</p>
+                        <h3 style="color: var(--accent-blue); margin-bottom: 0.5rem;">No Active Projects Linked</h3>
+                        <p style="color: var(--text-muted);">Your account is authenticated, but no active project has been assigned to your profile yet. Please contact the Aevix Studio team.</p>
                     </div>
                 `;
                 return;
             }
 
-            const project = projects[0];
-
-            // Fetch activity logs for this project
+            // Fetch activity logs for all fetched projects in a single batched query
+            const projectIds = projects.map(p => p.id);
             const { data: logs } = await client
                 .from('activity_logs')
                 .select('*')
-                .eq('project_id', project.id)
+                .in('project_id', projectIds)
                 .order('created_at', { ascending: false });
 
-            renderDashboardUI(project, logs || []);
-        }
-
-        function renderDashboardUI(project, logs) {
-            const statusClass = `status-${project.status || 'working'}`;
-            const remainingBalance = (project.total_price || 0) - (project.fees_covered || 0);
-
-            let logsHTML = logs.map(log => `
-                <div class="log-item">
-                    <div class="log-date">${new Date(log.created_at).toLocaleString()}</div>
-                    <div class="log-text">${escapeHtml(log.log_text || '')}</div>
-                </div>
-            `).join('');
-
-            if (logs.length === 0) {
-                logsHTML = `<p style="color: #9ca3af; font-size: 0.9rem;">No timeline updates posted yet.</p>`;
+            // Group activity logs by project_id
+            const logsMap = {};
+            if (logs) {
+                logs.forEach(log => {
+                    if (!logsMap[log.project_id]) logsMap[log.project_id] = [];
+                    logsMap[log.project_id].push(log);
+                });
             }
 
-            portalContent.innerHTML = `
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
-                        <div>
-                            <h2 style="margin: 0;">${escapeHtml(project.title || 'Untitled Project')}</h2>
-                            <p style="color: #9ca3af; margin: 0.25rem 0 0 0; font-size: 0.9rem;">Assigned Lead: ${escapeHtml(project.assigned_to || 'Aevix Team')}</p>
-                        </div>
-                        <span class="status-badge ${statusClass}">${escapeHtml(project.status || 'working')}</span>
-                    </div>
+            renderDashboardUI(projects, logsMap);
+        }
 
-                    <div style="margin-top: 1.5rem;">
-                        <div style="display: flex; justify-content: space-between; font-weight: 500;">
-                            <span>Project Completion</span>
-                            <span>${project.progress || 0}%</span>
+        function renderDashboardUI(projects, logsMap) {
+            portalContent.innerHTML = projects.map(project => {
+                const statusClass = `status-${(project.status || 'working').toLowerCase().replace(/\s+/g, '-')}`;
+                const total = Number(project.total_price) || 0;
+                const covered = Number(project.fees_covered) || 0;
+                const remainingBalance = total - covered;
+                const projectLogs = logsMap[project.id] || [];
+
+                let logsHTML = projectLogs.map(log => `
+                    <div class="log-item">
+                        <div class="log-date">${new Date(log.created_at).toLocaleString()}</div>
+                        <div class="log-text">${escapeHtml(log.log_text || '')}</div>
+                    </div>
+                `).join('');
+
+                if (projectLogs.length === 0) {
+                    logsHTML = `<p style="color: var(--text-muted); font-size: 0.88rem;">No timeline updates posted for this project yet.</p>`;
+                }
+
+                return `
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <h2 style="margin: 0; font-size: 1.4rem;">${escapeHtml(project.title || 'Untitled Project')}</h2>
+                                <p style="color: var(--text-muted); margin: 0.25rem 0 0 0; font-size: 0.88rem;">Assigned Lead: ${escapeHtml(project.assigned_to || 'Aevix Team')}</p>
+                            </div>
+                            <span class="status-badge ${statusClass}">${escapeHtml(project.status || 'working')}</span>
                         </div>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar-fill" style="width: ${project.progress || 0}%;"></div>
+
+                        <div style="margin-top: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; font-weight: 500; font-size: 0.9rem;">
+                                <span>Project Completion</span>
+                                <span>${project.progress || 0}%</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" style="width: ${Math.min(100, Math.max(0, project.progress || 0))}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-label">Target Deadline</div>
+                                <div class="stat-value">${project.deadline ? new Date(project.deadline).toLocaleDateString() : 'TBD'}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Contract Value</div>
+                                <div class="stat-value">$${total.toLocaleString()}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Payments Cleared</div>
+                                <div class="stat-value" style="color: var(--accent-green);">$${covered.toLocaleString()}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Remaining Balance</div>
+                                <div class="stat-value" style="color: ${remainingBalance > 0 ? 'var(--accent-red)' : 'var(--accent-green)'};">$${remainingBalance.toLocaleString()}</div>
+                            </div>
+                        </div>
+
+                        <div class="logs-container">
+                            <h4 style="margin: 0 0 1rem 0; font-size: 1rem; color: #e5e7eb;">Project Timeline & Activity</h4>
+                            <div>${logsHTML}</div>
                         </div>
                     </div>
-
-                    <div class="stats-grid">
-                        <div class="stat-box">
-                            <div class="stat-label">Target Deadline</div>
-                            <div class="stat-value">${project.deadline ? new Date(project.deadline).toLocaleDateString() : 'TBD'}</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-label">Total Contract Value</div>
-                            <div class="stat-value">$${(project.total_price || 0).toLocaleString()}</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-label">Payments Cleared</div>
-                            <div class="stat-value" style="color: #4ade80;">$${(project.fees_covered || 0).toLocaleString()}</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-label">Remaining Balance</div>
-                            <div class="stat-value" style="color: ${remainingBalance > 0 ? '#f87171' : '#4ade80'};">$${remainingBalance.toLocaleString()}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3 style="margin-bottom: 1rem;">Project Timeline & Activity</h3>
-                    <div>${logsHTML}</div>
-                </div>
-            `;
+                `;
+            }).join('');
         }
 
         function escapeHtml(str) {
             if (!str) return '';
-            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
     </script>
 </body>
