@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aevix Studio | Admin Portal</title>
-    <!-- Supabase JS v2 Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Modern Dark Mode Design System */
@@ -44,14 +43,12 @@
             line-height: 1.5;
         }
 
-        /* Utilities */
         .hidden { display: none !important; }
         .flex { display: flex; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; }
         .gap-md { gap: 1rem; }
         .gap-sm { gap: 0.5rem; }
 
-        /* Dashboard Screen */
         #dashboard-container {
             display: flex;
             flex-direction: column;
@@ -83,7 +80,6 @@
             border: 1px solid var(--card-border);
         }
 
-        /* Navigation Bar */
         nav {
             background: var(--card-bg);
             border-bottom: 1px solid var(--card-border);
@@ -113,7 +109,6 @@
             border-bottom-color: var(--accent);
         }
 
-        /* Main Workspace */
         main {
             flex: 1;
             padding: 2rem;
@@ -126,7 +121,6 @@
             margin-bottom: 1.5rem;
         }
 
-        /* Forms & Inputs */
         .form-group {
             margin-bottom: 1.25rem;
             display: flex;
@@ -160,10 +154,9 @@
 
         textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 120px;
         }
 
-        /* Buttons */
         .btn {
             background-color: var(--accent);
             color: #fff;
@@ -208,7 +201,6 @@
             border-radius: var(--radius-sm);
         }
 
-        /* Tables & Data Grid */
         .table-container {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -249,7 +241,6 @@
             background-color: rgba(255, 255, 255, 0.015);
         }
 
-        /* Status Badges */
         .badge {
             display: inline-block;
             padding: 0.25rem 0.6rem;
@@ -260,11 +251,10 @@
             letter-spacing: 0.025em;
         }
 
-        .badge-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-        .badge-active, .badge-completed, .badge-paid { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .badge-cancelled, .badge-unpaid { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-due, .badge-working, .badge-pending, .badge-unpaid { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-completed, .badge-paid, .badge-active { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-overdue, .badge-cancelled { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
 
-        /* Modal Overlay */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -285,7 +275,7 @@
             border: 1px solid var(--card-border);
             border-radius: var(--radius-lg);
             width: 100%;
-            max-width: 550px;
+            max-width: 650px;
             padding: 2rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
             max-height: 90vh;
@@ -303,17 +293,37 @@
             gap: 0.75rem;
         }
 
-        /* Empty & Loading State */
         .empty-state {
             padding: 4rem 2rem;
             text-align: center;
             color: var(--text-muted);
         }
+
+        .tab-subnav {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tab-subnav button {
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            padding: 0.4rem 0.8rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .tab-subnav button.active {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
     </style>
 </head>
 <body>
 
-    <!-- Direct Administrative Dashboard -->
     <div id="dashboard-container">
         <header class="flex-between">
             <div class="logo-text">Aevix Studio Admin</div>
@@ -331,17 +341,20 @@
         <main>
             <div class="action-bar flex-between">
                 <h2 id="tab-title" style="font-size: 1.5rem; font-weight: 600;">Projects</h2>
-                <button onclick="openModal()" class="btn">+ Add New Record</button>
+                <button onclick="openModal()" class="btn">+ Add New Project</button>
+            </div>
+
+            <div id="project-filters" class="tab-subnav">
+                <button class="active" onclick="filterProjects('All')">All</button>
+                <button onclick="filterProjects('Due')">Due</button>
+                <button onclick="filterProjects('Working')">Working</button>
+                <button onclick="filterProjects('Completed')">Completed</button>
             </div>
 
             <div class="table-container">
                 <table id="data-table">
-                    <thead id="table-head">
-                        <!-- Dynamic Columns -->
-                    </thead>
-                    <tbody id="table-body">
-                        <!-- Dynamic Rows -->
-                    </tbody>
+                    <thead id="table-head"></thead>
+                    <tbody id="table-body"></tbody>
                 </table>
                 <div id="empty-state" class="empty-state hidden">
                     No records found for this section.
@@ -350,19 +363,31 @@
         </main>
     </div>
 
-    <!-- Universal Dynamic CRUD Modal -->
     <div id="crud-modal" class="modal-overlay hidden">
         <div class="modal-card">
-            <div class="modal-header">
+            <div class="modal-header flex-between">
                 <h3 id="modal-title" style="font-size: 1.25rem;">Add Record</h3>
+                <div id="modal-sub-tabs" class="flex gap-sm">
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="switchModalTab('details')">Project Details</button>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="switchModalTab('logs')">Logs</button>
+                </div>
             </div>
             <form id="crud-form" onsubmit="handleFormSubmit(event)">
                 <input type="hidden" id="entity-id">
-                <div id="modal-fields">
-                    <!-- Dynamic Form Inputs Injected Here -->
+                
+                <div id="modal-tab-details">
+                    <div id="modal-fields"></div>
                 </div>
+
+                <div id="modal-tab-logs" class="hidden">
+                    <div class="form-group">
+                        <label>Activity & Progress Logs (Visible to Client)</label>
+                        <textarea id="project-logs-input" placeholder="Enter logs and progress updates for this project..."></textarea>
+                    </div>
+                </div>
+
                 <div class="modal-footer">
-                    <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                    <button type="button" onclick="closeModal()" class="btn btn-secondary">Discard</button>
                     <button type="submit" class="btn">Save Changes</button>
                 </div>
             </form>
@@ -370,33 +395,43 @@
     </div>
 
     <script>
-        // ------------------------------------------------------------------
-        // Configuration Parameters
-        // Replace SUPABASE_URL & SUPABASE_ANON_KEY with your project credentials.
-        // ------------------------------------------------------------------
         const SUPABASE_URL = 'https://YOUR_SUPABASE_PROJECT_ID.supabase.co';
         const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 
-        // Initialize Supabase Client
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabase = null;
+        try {
+            if (window.supabase && SUPABASE_URL.includes('.supabase.co')) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (e) {
+            console.error("Supabase Client Error:", e);
+        }
 
-        // Application State
         let activeTab = 'projects';
+        let projectFilter = 'All';
         let currentData = [];
+        let activeModalTab = 'details';
 
-        // Entity Schema Definitions for Dynamic UI Engine
+        // Aligned schemas matching database schema and wireframe specifications
         const schemas = {
             projects: {
                 title: 'Project',
                 fields: [
-                    { name: 'name', label: 'Project Name', type: 'text', required: true },
+                    { name: 'project_name', label: 'Project Name', type: 'text', required: true },
                     { name: 'client_name', label: 'Client Name', type: 'text', required: true },
-                    { name: 'budget', label: 'Budget ($)', type: 'number', step: '0.01', required: true },
-                    { name: 'status', label: 'Status', type: 'select', options: ['Pending', 'Active', 'Completed', 'Cancelled'], required: true },
-                    { name: 'deadline', label: 'Deadline', type: 'date', required: false },
-                    { name: 'description', label: 'Description', type: 'textarea', required: false }
+                    { name: 'client_business_name', label: 'Client Business Name (N/A if not applicable)', type: 'text', required: false },
+                    { name: 'client_contact_email', label: 'Client Contact Email', type: 'email', required: true },
+                    { name: 'client_access_email', label: "Client's Email that can access this project", type: 'email', required: true },
+                    { name: 'projected_fee', label: 'Projected Fee ($)', type: 'number', step: '0.01', required: true },
+                    { name: 'service_requested', label: 'Service Requested', type: 'text', required: true },
+                    { name: 'people_working', label: 'Names of people who are working on it', type: 'text', required: false },
+                    { name: 'status', label: 'Status', type: 'select', options: ['Due', 'Working', 'Completed'], required: true },
+                    { name: 'payment_status', label: 'Payment Status', type: 'select', options: ['Paid', 'Overdue', 'Pending', 'Unpaid'], required: true },
+                    { name: 'advance_amount', label: 'Advance Amount ($)', type: 'number', step: '0.01', required: false },
+                    { name: 'late_fee', label: 'Late Fee ($)', type: 'number', step: '0.01', required: false },
+                    { name: 'deadline', label: 'Deadline', type: 'date', required: false }
                 ],
-                columns: ['name', 'client_name', 'budget', 'status', 'deadline']
+                columns: ['project_name', 'client_name', 'client_access_email', 'projected_fee', 'status', 'payment_status', 'deadline']
             },
             inquiries: {
                 title: 'Inquiry',
@@ -422,86 +457,108 @@
             }
         };
 
-        // Initialize Portal Immediately
         document.addEventListener('DOMContentLoaded', () => {
             switchTab(activeTab);
         });
 
-        // 1. Navigation & Data Loading
         function switchTab(tabName) {
             activeTab = tabName;
-            
-            // Update Active Navigation Tab
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`tab-${tabName}`).classList.add('active');
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            if (activeBtn) activeBtn.classList.add('active');
             
-            // Update Tab Title Header
             document.getElementById('tab-title').textContent = tabName.charAt(0).toUpperCase() + tabName.slice(1);
+
+            const filterBar = document.getElementById('project-filters');
+            if (tabName === 'projects') {
+                filterBar.classList.remove('hidden');
+            } else {
+                filterBar.classList.add('hidden');
+            }
 
             fetchTabContent(tabName);
         }
 
+        function filterProjects(status) {
+            projectFilter = status;
+            document.querySelectorAll('#project-filters button').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === status);
+            });
+            renderTableStructure('projects', currentData);
+        }
+
         async function fetchTabContent(table) {
-            const tableHead = document.getElementById('table-head');
             const tableBody = document.getElementById('table-body');
             const emptyState = document.getElementById('empty-state');
             
-            tableBody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 2rem;">Loading data...</td></tr>';
+            renderTableStructure(table, []);
+            tableBody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 2rem; color: var(--text-muted);">Loading data...</td></tr>';
             emptyState.classList.add('hidden');
 
-            const { data, error } = await supabase.from(table).select('*').order('created_at', { ascending: false });
-
-            if (error) {
-                console.error('Data loading error:', error);
-                tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--danger); padding: 2rem;">Failed to retrieve records from database. Check RLS policies or credentials.</td></tr>`;
+            if (!supabase) {
+                tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--warning); padding: 2rem;">Supabase credentials missing or invalid. Update SUPABASE_URL and SUPABASE_ANON_KEY in script.</td></tr>`;
                 return;
             }
 
-            currentData = data || [];
-            renderTableStructure(table, currentData);
+            try {
+                const { data, error } = await supabase.from(table).select('*').order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('Data loading error:', error);
+                    tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--danger); padding: 2rem;">Failed to fetch: ${error.message}</td></tr>`;
+                    return;
+                }
+
+                currentData = data || [];
+                renderTableStructure(table, currentData);
+            } catch (err) {
+                console.error('Execution Error:', err);
+                tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--danger); padding: 2rem;">Connection failed. Verify API Keys.</td></tr>`;
+            }
         }
 
-        // 2. Dynamic Rendering Engine
         function renderTableStructure(table, data) {
             const tableHead = document.getElementById('table-head');
             const tableBody = document.getElementById('table-body');
             const emptyState = document.getElementById('empty-state');
             const schema = schemas[table];
 
-            // Render Header
             let headHTML = '<tr>';
             schema.columns.forEach(col => {
-                headHTML += `<th>${col.replace('_', ' ')}</th>`;
+                headHTML += `<th>${col.replace(/_/g, ' ')}</th>`;
             });
             headHTML += '<th style="text-align: right;">Actions</th></tr>';
             tableHead.innerHTML = headHTML;
 
-            // Render Body
             tableBody.innerHTML = '';
-            if (data.length === 0) {
+            
+            let filteredData = data;
+            if (table === 'projects' && projectFilter !== 'All') {
+                filteredData = data.filter(d => d.status === projectFilter);
+            }
+
+            if (filteredData.length === 0) {
                 emptyState.classList.remove('hidden');
                 return;
             } else {
                 emptyState.classList.add('hidden');
             }
 
-            data.forEach(item => {
+            filteredData.forEach(item => {
                 let rowHTML = '<tr>';
                 schema.columns.forEach(col => {
                     const value = item[col] !== null && item[col] !== undefined ? item[col] : '-';
                     
-                    // Format Status Badges
                     if (col === 'status' || col === 'payment_status') {
                         const statusClass = `badge-${String(value).toLowerCase()}`;
                         rowHTML += `<td><span class="badge ${statusClass}">${value}</span></td>`;
-                    } else if (col === 'budget' || col === 'amount') {
-                        rowHTML += `<td>$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>`;
+                    } else if (col === 'projected_fee' || col === 'amount') {
+                        rowHTML += `<td>$${Number(value || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>`;
                     } else {
                         rowHTML += `<td>${value}</td>`;
                     }
                 });
 
-                // Actions Column
                 rowHTML += `
                     <td style="text-align: right;">
                         <button onclick="editRecord('${item.id}')" class="btn btn-secondary btn-sm">Edit</button>
@@ -513,20 +570,51 @@
             });
         }
 
-        // 3. Modal & CRUD Form Operations
-        function openModal(editId = null) {
+        function switchModalTab(tab) {
+            activeModalTab = tab;
+            const detailsTab = document.getElementById('modal-tab-details');
+            const logsTab = document.getElementById('modal-tab-logs');
+
+            if (tab === 'details') {
+                detailsTab.classList.remove('hidden');
+                logsTab.classList.add('hidden');
+            } else {
+                detailsTab.classList.add('hidden');
+                logsTab.classList.remove('hidden');
+            }
+        }
+
+        async function openModal(editId = null) {
             const schema = schemas[activeTab];
             const modalFields = document.getElementById('modal-fields');
             const modalTitle = document.getElementById('modal-title');
             const entityIdInput = document.getElementById('entity-id');
+            const subTabs = document.getElementById('modal-sub-tabs');
+            const logsInput = document.getElementById('project-logs-input');
 
             modalFields.innerHTML = '';
             entityIdInput.value = editId || '';
+            logsInput.value = '';
             modalTitle.textContent = editId ? `Edit ${schema.title}` : `Add New ${schema.title}`;
+
+            if (activeTab === 'projects') {
+                subTabs.classList.remove('hidden');
+            } else {
+                subTabs.classList.add('hidden');
+            }
+
+            switchModalTab('details');
 
             let recordToEdit = null;
             if (editId) {
                 recordToEdit = currentData.find(d => String(d.id) === String(editId));
+                
+                if (activeTab === 'projects' && supabase) {
+                    const { data: logData } = await supabase.from('project_logs').select('log_text').eq('project_id', editId).maybeSingle();
+                    if (logData) {
+                        logsInput.value = logData.log_text;
+                    }
+                }
             }
 
             schema.fields.forEach(field => {
@@ -576,26 +664,40 @@
 
         async function handleFormSubmit(e) {
             e.preventDefault();
+            if (!supabase) {
+                alert('Cannot save: Supabase client is not connected.');
+                return;
+            }
+
             const entityId = document.getElementById('entity-id').value;
             const formData = new FormData(e.target);
             const payload = {};
 
             schemas[activeTab].fields.forEach(field => {
-                payload[field.name] = formData.get(field.name);
+                payload[field.name] = formData.get(field.name) || null;
             });
 
+            let projectId = entityId;
             let result;
+
             if (entityId) {
-                // Update Record
                 result = await supabase.from(activeTab).update(payload).eq('id', entityId);
             } else {
-                // Insert New Record
-                result = await supabase.from(activeTab).insert([payload]);
+                result = await supabase.from(activeTab).insert([payload]).select();
+                if (result.data && result.data[0]) {
+                    projectId = result.data[0].id;
+                }
             }
 
             if (result.error) {
                 alert('Database Error: ' + result.error.message);
                 return;
+            }
+
+            // Save project log if on projects tab
+            if (activeTab === 'projects' && projectId) {
+                const logText = document.getElementById('project-logs-input').value;
+                await supabase.from('project_logs').upsert({ project_id: projectId, log_text: logText });
             }
 
             closeModal();
@@ -607,7 +709,8 @@
         }
 
         async function deleteRecord(id) {
-            if (!confirm('Are you sure you want to permanently delete this record?')) return;
+            if (!confirm('Are you sure you want to delete this record?')) return;
+            if (!supabase) return;
 
             const { error } = await supabase.from(activeTab).delete().eq('id', id);
 
