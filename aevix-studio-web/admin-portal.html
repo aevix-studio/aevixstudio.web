@@ -3,10 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Portal Workspace</title>
-    <!-- Supabase JS Client -->
+    <title>Admin Portal | Aevix Studio</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        :root {
+            --bg-dark: #0b0f17;
+            --card-bg: #111827;
+            --border-color: #1f2937;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent-blue: #3b82f6;
+            --accent-green: #4ade80;
+            --accent-red: #f87171;
+            --accent-yellow: #facc15;
+            --hover-bg: #1a2234;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -15,8 +27,8 @@
         }
 
         body {
-            background-color: #0b0f17;
-            color: #f3f4f6;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
             min-height: 100vh;
             padding: 2rem;
         }
@@ -32,7 +44,7 @@
             align-items: center;
             padding-bottom: 1.5rem;
             margin-bottom: 1.5rem;
-            border-bottom: 1px solid #1f2937;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .admin-header h2 {
@@ -41,19 +53,43 @@
             color: #ffffff;
         }
 
-        .logout-btn {
-            background-color: #374151;
-            color: #f3f4f6;
-            border: 1px solid #4b5563;
-            padding: 0.5rem 1rem;
+        .btn {
+            background: var(--accent-blue);
+            color: #ffffff;
+            border: none;
+            padding: 0.6rem 1.2rem;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.875rem;
-            transition: background 0.2s ease;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: opacity 0.2s ease, background 0.2s ease;
         }
 
-        .logout-btn:hover {
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-danger {
+            background: var(--accent-red);
+        }
+
+        .btn-secondary {
+            background: #374151;
+            color: var(--text-main);
+            border: 1px solid #4b5563;
+        }
+
+        .btn-secondary:hover {
             background-color: #4b5563;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: #ffffff;
+        }
+
+        .btn-success:hover {
+            background: #059669;
         }
 
         .controls-row {
@@ -69,9 +105,9 @@
         }
 
         .tab-btn {
-            background-color: #111827;
-            color: #9ca3af;
-            border: 1px solid #1f2937;
+            background-color: var(--card-bg);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
             padding: 0.6rem 1.2rem;
             border-radius: 6px;
             cursor: pointer;
@@ -81,35 +117,19 @@
         }
 
         .tab-btn:hover {
-            color: #f3f4f6;
+            color: var(--text-main);
             border-color: #374151;
         }
 
         .tab-btn.active {
-            background-color: #2563eb;
+            background-color: var(--accent-blue);
             color: #ffffff;
-            border-color: #2563eb;
-        }
-
-        .add-btn {
-            background-color: #10b981;
-            color: #ffffff;
-            border: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: background 0.2s ease;
-        }
-
-        .add-btn:hover {
-            background-color: #059669;
+            border-color: var(--accent-blue);
         }
 
         .admin-table-container {
-            background: #111827;
-            border: 1px solid #1f2937;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             overflow-x: auto;
         }
@@ -118,20 +138,23 @@
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            font-size: 0.875rem;
+            font-size: 0.88rem;
         }
 
         .admin-table th {
             background-color: #1f2937;
-            color: #9ca3af;
+            color: var(--text-muted);
             font-weight: 600;
             padding: 0.875rem 1rem;
             border-bottom: 1px solid #374151;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
         }
 
         .admin-table td {
             padding: 1rem;
-            border-bottom: 1px solid #1f2937;
+            border-bottom: 1px solid var(--border-color);
             color: #e5e7eb;
         }
 
@@ -140,39 +163,47 @@
         }
 
         .admin-table tbody tr:hover {
-            background-color: #1a2234;
+            background-color: var(--hover-bg);
         }
 
+        /* Status Badges */
         .badge {
             display: inline-block;
             padding: 0.25rem 0.6rem;
             border-radius: 9999px;
             font-size: 0.75rem;
             font-weight: 600;
+            text-transform: capitalize;
         }
 
-        .badge-active {
-            background-color: rgba(37, 99, 235, 0.2);
+        .badge-active, .badge-advance {
+            background-color: rgba(59, 130, 246, 0.15);
             color: #60a5fa;
-            border: 1px solid rgba(37, 99, 235, 0.4);
+            border: 1px solid rgba(59, 130, 246, 0.4);
         }
 
-        .badge-completed {
-            background-color: rgba(16, 185, 129, 0.2);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.4);
+        .badge-completed, .badge-cleared {
+            background-color: rgba(74, 222, 128, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(74, 222, 128, 0.4);
         }
 
         .badge-pending {
-            background-color: rgba(245, 158, 11, 0.2);
-            color: #fbbf24;
-            border: 1px solid rgba(245, 158, 11, 0.4);
+            background-color: rgba(250, 204, 21, 0.15);
+            color: var(--accent-yellow);
+            border: 1px solid rgba(250, 204, 21, 0.4);
+        }
+
+        .badge-overdue {
+            background-color: rgba(248, 113, 113, 0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(248, 113, 113, 0.4);
         }
 
         .action-btn {
             background: none;
             border: 1px solid #374151;
-            color: #9ca3af;
+            color: var(--text-muted);
             padding: 0.35rem 0.75rem;
             border-radius: 4px;
             cursor: pointer;
@@ -188,7 +219,7 @@
 
         .action-btn.delete:hover {
             background-color: rgba(239, 68, 68, 0.2);
-            color: #f87171;
+            color: var(--accent-red);
             border-color: rgba(239, 68, 68, 0.4);
         }
 
@@ -211,8 +242,8 @@
         }
 
         .modal-card {
-            background: #111827;
-            border: 1px solid #1f2937;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
             width: 100%;
             max-width: 500px;
@@ -233,7 +264,7 @@
         .form-group label {
             display: block;
             font-size: 0.85rem;
-            color: #9ca3af;
+            color: var(--text-muted);
             margin-bottom: 0.4rem;
         }
 
@@ -249,7 +280,7 @@
         }
 
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            border-color: #2563eb;
+            border-color: var(--accent-blue);
         }
 
         .modal-actions {
@@ -258,33 +289,14 @@
             gap: 0.75rem;
             margin-top: 1.5rem;
         }
-
-        .btn-cancel {
-            background: #374151;
-            color: #f3f4f6;
-            border: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .btn-save {
-            background: #2563eb;
-            color: #ffffff;
-            border: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-        }
     </style>
 </head>
 <body>
 
     <div class="admin-container">
         <header class="admin-header">
-            <h2>Admin Workspace</h2>
-            <button id="logout-btn" class="logout-btn" style="display: none;">Logout</button>
+            <h2>Admin Portal | Aevix Studio</h2>
+            <button id="logout-btn" class="btn btn-secondary" style="display: none;">Logout</button>
         </header>
 
         <div id="controls-row" class="controls-row" style="display: none;">
@@ -293,23 +305,22 @@
                 <button class="tab-btn" onclick="switchTab('inquiries', event)">Inquiries</button>
                 <button class="tab-btn" onclick="switchTab('payments', event)">Payments</button>
             </div>
-            <button id="add-record-btn" class="add-btn" onclick="openAddModal()">+ Add New Project</button>
+            <button id="add-record-btn" class="btn btn-success" onclick="openAddModal()">+ Add Project</button>
         </div>
 
         <div id="workspace-content">
-            <div style="text-align: center; color: #9ca3af; padding: 2rem;">Verifying session permissions...</div>
+            <div style="text-align: center; color: var(--text-muted); padding: 2rem;">Verifying session permissions...</div>
         </div>
     </div>
 
-    <!-- Dynamic CRUD Modal -->
     <div id="crud-modal" class="modal-overlay">
         <div class="modal-card">
             <h3 id="modal-title">Add Record</h3>
             <form id="crud-form">
                 <div id="modal-fields"></div>
                 <div class="modal-actions">
-                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn-save">Save</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn">Save</button>
                 </div>
             </form>
         </div>
@@ -390,7 +401,6 @@
                 evt.target.classList.add('active');
             }
             
-            // Update Add Button label based on tab
             const labelMap = { projects: '+ Add Project', inquiries: '+ Add Inquiry', payments: '+ Add Payment' };
             addRecordBtn.innerText = labelMap[tabName];
 
@@ -403,20 +413,28 @@
             else if (currentTab === 'payments') fetchPayments();
         }
 
+        function getBadgeClass(status) {
+            const st = (status || '').toLowerCase();
+            if (['completed', 'cleared', 'paid'].includes(st)) return 'badge-completed';
+            if (['in progress', 'active', 'advance', 'in contact'].includes(st)) return 'badge-active';
+            if (['overdue', 'closed'].includes(st)) return 'badge-overdue';
+            return 'badge-pending';
+        }
+
         /* --- 1. PROJECTS --- */
         async function fetchProjects() {
-            workspaceContent.innerHTML = `<div style="text-align: center; color: #9ca3af; padding: 2rem;">Loading projects...</div>`;
+            workspaceContent.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading projects...</div>`;
             const { data: projects, error } = await db.from('projects').select('*').order('created_at', { ascending: false });
 
             if (error) {
-                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: #ef4444;">Failed to fetch projects. Please verify RLS permissions.</div></div>`;
+                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: var(--accent-red);">Failed to fetch projects. Please verify RLS permissions.</div></div>`;
                 return;
             }
 
             activeDataCache = projects || [];
 
             if (!activeDataCache.length) {
-                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: #9ca3af;">No active projects found. Click "+ Add Project" above to create one.</div></div>`;
+                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: var(--text-muted);">No active projects found. Click "+ Add Project" above to create one.</div></div>`;
                 return;
             }
 
@@ -437,7 +455,7 @@
             `;
 
             activeDataCache.forEach(p => {
-                const statusClass = p.status === 'Completed' ? 'badge-completed' : (p.status === 'In Progress' ? 'badge-active' : 'badge-pending');
+                const statusClass = getBadgeClass(p.status);
                 html += `
                     <tr>
                         <td><strong>${escapeHtml(p.client_name || 'N/A')}</strong></td>
@@ -459,18 +477,18 @@
 
         /* --- 2. INQUIRIES --- */
         async function fetchInquiries() {
-            workspaceContent.innerHTML = `<div style="text-align: center; color: #9ca3af; padding: 2rem;">Loading inquiries...</div>`;
+            workspaceContent.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading inquiries...</div>`;
             const { data: inquiries, error } = await db.from('inquiries').select('*').order('created_at', { ascending: false });
 
             if (error) {
-                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: #ef4444;">Failed to fetch inquiries. Please verify RLS permissions.</div></div>`;
+                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: var(--accent-red);">Failed to fetch inquiries. Please verify RLS permissions.</div></div>`;
                 return;
             }
 
             activeDataCache = inquiries || [];
 
             if (!activeDataCache.length) {
-                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: #9ca3af;">No inquiries found.</div></div>`;
+                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: var(--text-muted);">No inquiries found.</div></div>`;
                 return;
             }
 
@@ -491,13 +509,14 @@
             `;
 
             activeDataCache.forEach(i => {
+                const statusClass = getBadgeClass(i.status);
                 html += `
                     <tr>
                         <td><strong>${escapeHtml(i.client_name || 'N/A')}</strong></td>
                         <td>${escapeHtml(i.email || 'N/A')}</td>
                         <td>${escapeHtml(i.service_requested || 'General')}</td>
                         <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(i.message || '')}">${escapeHtml(i.message || 'N/A')}</td>
-                        <td><span class="badge badge-active">${escapeHtml(i.status || 'New')}</span></td>
+                        <td><span class="badge ${statusClass}">${escapeHtml(i.status || 'New')}</span></td>
                         <td>
                             <button class="action-btn" onclick="openEditModal('${i.id}')">Edit</button>
                             <button class="action-btn delete" onclick="deleteRecord('inquiries', '${i.id}')">Delete</button>
@@ -512,18 +531,18 @@
 
         /* --- 3. PAYMENTS --- */
         async function fetchPayments() {
-            workspaceContent.innerHTML = `<div style="text-align: center; color: #9ca3af; padding: 2rem;">Loading payments...</div>`;
+            workspaceContent.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading payments...</div>`;
             const { data: payments, error } = await db.from('payments').select('*').order('created_at', { ascending: false });
 
             if (error) {
-                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: #ef4444;">Failed to fetch payments. Please verify RLS permissions.</div></div>`;
+                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: var(--accent-red);">Failed to fetch payments. Please verify RLS permissions.</div></div>`;
                 return;
             }
 
             activeDataCache = payments || [];
 
             if (!activeDataCache.length) {
-                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: #9ca3af;">No payment records found.</div></div>`;
+                workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: var(--text-muted);">No payment records found.</div></div>`;
                 return;
             }
 
@@ -544,7 +563,7 @@
             `;
 
             activeDataCache.forEach(pm => {
-                const statusClass = pm.status === 'Paid' ? 'badge-completed' : 'badge-pending';
+                const statusClass = getBadgeClass(pm.status);
                 html += `
                     <tr>
                         <td><strong>${escapeHtml(pm.client_name || 'N/A')}</strong></td>
@@ -669,6 +688,8 @@
                         <select name="status">
                             <option value="Unpaid" ${data.status === 'Unpaid' ? 'selected' : ''}>Unpaid</option>
                             <option value="Paid" ${data.status === 'Paid' ? 'selected' : ''}>Paid</option>
+                            <option value="Overdue" ${data.status === 'Overdue' ? 'selected' : ''}>Overdue</option>
+                            <option value="Cleared" ${data.status === 'Cleared' ? 'selected' : ''}>Cleared</option>
                         </select>
                     </div>
                 `;
@@ -689,11 +710,9 @@
 
             let error;
             if (editingRecordId) {
-                // Update
                 const res = await db.from(currentTab).update(payload).eq('id', editingRecordId);
                 error = res.error;
             } else {
-                // Insert
                 const res = await db.from(currentTab).insert([payload]);
                 error = res.error;
             }
@@ -725,9 +744,9 @@
             logoutBtn.style.display = 'none';
             controlsRow.style.display = 'none';
             workspaceContent.innerHTML = `
-                <div style="text-align: center; padding: 4rem 2rem; background: #111827; border: 1px solid #1f2937; border-radius: 12px;">
-                    <h3 style="color: #ef4444; margin-top: 0; margin-bottom: 0.5rem;">Restricted Access</h3>
-                    <p style="color: #9ca3af; margin-bottom: 1.5rem;">${escapeHtml(message)}</p>
+                <div style="text-align: center; padding: 4rem 2rem; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px;">
+                    <h3 style="color: var(--accent-red); margin-top: 0; margin-bottom: 0.5rem;">Restricted Access</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">${escapeHtml(message)}</p>
                     <a href="index.html" style="color: #60a5fa; text-decoration: underline;">Return to Main Site</a>
                 </div>
             `;
