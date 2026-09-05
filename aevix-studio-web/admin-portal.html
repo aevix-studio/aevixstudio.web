@@ -4,151 +4,259 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Portal | Aevix Studio</title>
+    <!-- Core External Dependencies -->
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* ==========================================================================
+           1. ROOT VARIABLES & CORE THEME SYSTEM
+           ========================================================================== */
         :root {
             --bg-dark: #0b0f17;
+            --bg-darker: #06090e;
             --card-bg: #111827;
+            --card-bg-hover: #1f2937;
             --border-color: #1f2937;
+            --border-color-light: #374151;
             --text-main: #f3f4f6;
             --text-muted: #9ca3af;
+            --text-dark: #6b7280;
             --accent-blue: #3b82f6;
             --accent-blue-hover: #1d4ed8;
             --accent-green: #4ade80;
+            --accent-green-bg: rgba(74, 222, 128, 0.15);
             --accent-red: #f87171;
+            --accent-red-bg: rgba(248, 113, 113, 0.15);
             --accent-yellow: #f59e0b;
+            --accent-yellow-bg: rgba(245, 158, 11, 0.15);
+            --accent-purple: #a855f7;
             --input-bg: #1f2937;
+            --input-border: #374151;
+            --input-focus: #3b82f6;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            --transition-speed: 0.2s;
         }
 
+        /* ==========================================================================
+           2. BASE RESET & GENERAL STYLES
+           ========================================================================== */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-        body {
+        html, body {
+            width: 100%;
+            min-height: 100vh;
             background-color: var(--bg-dark);
             color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: var(--font-family);
             line-height: 1.5;
-            padding-bottom: 3rem;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
+        body {
+            padding-bottom: 4rem;
+        }
+
+        /* ==========================================================================
+           3. LAYOUT CONTAINERS
+           ========================================================================== */
         .portal-container {
-            max-width: 1200px;
+            max-width: 1280px;
             margin: 0 auto;
-            padding: 2rem 1.5rem;
+            padding: 2.5rem 1.5rem;
         }
 
-        /* Header */
+        /* ==========================================================================
+           4. TOP HEADER BAR
+           ========================================================================== */
         .admin-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1.25rem;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
             border-bottom: 1px solid var(--border-color);
         }
 
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-logo-badge {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #ffffff;
+            box-shadow: var(--shadow-md);
+        }
+
         .admin-title {
-            font-size: 1.6rem;
+            font-size: 1.75rem;
             font-weight: 700;
             color: #ffffff;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.025em;
+            line-height: 1.2;
         }
 
         .user-info {
-            font-size: 0.85rem;
+            font-size: 0.875rem;
             color: var(--text-muted);
             margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        /* Access Denied Overlay */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--accent-green);
+            display: inline-block;
+        }
+
+        /* ==========================================================================
+           5. ACCESS DENIED / UNAUTHORIZED OVERLAY
+           ========================================================================== */
         .unauthorized-card {
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239, 68, 68, 0.08);
             border: 1px solid var(--accent-red);
-            border-radius: 12px;
-            padding: 3rem 2rem;
+            border-radius: 16px;
+            padding: 3.5rem 2.5rem;
             text-align: center;
-            max-width: 500px;
-            margin: 4rem auto;
+            max-width: 520px;
+            margin: 5rem auto;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(8px);
+        }
+
+        .unauthorized-card .icon-wrapper {
+            width: 64px;
+            height: 64px;
+            background: var(--accent-red-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem auto;
+            color: var(--accent-red);
+            font-size: 1.75rem;
+            font-weight: bold;
         }
 
         .unauthorized-card h2 {
             color: var(--accent-red);
-            font-size: 1.5rem;
-            margin-bottom: 0.75rem;
+            font-size: 1.6rem;
+            margin-bottom: 0.85rem;
+            font-weight: 700;
         }
 
         .unauthorized-card p {
             color: var(--text-muted);
             font-size: 0.95rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
         }
 
-        /* Stats Grid */
+        /* ==========================================================================
+           6. ANALYTICS & STATS GRID
+           ========================================================================== */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.25rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
         }
 
         .stat-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 1.25rem;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform var(--transition-speed) ease, border-color var(--transition-speed) ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--border-color-light);
+            transform: translateY(-2px);
         }
 
         .stat-card .label {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             text-transform: uppercase;
             color: var(--text-muted);
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.65rem;
+            font-weight: 600;
         }
 
         .stat-card .value {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 700;
             color: #ffffff;
+            line-height: 1.1;
         }
 
-        /* Standard Cards */
+        .stat-card .subtext {
+            font-size: 0.8rem;
+            color: var(--text-dark);
+            margin-top: 0.5rem;
+        }
+
+        /* ==========================================================================
+           7. CARDS & CONTAINER BOXES
+           ========================================================================== */
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.75rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            border-radius: 14px;
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--shadow-lg);
         }
 
         .section-title {
             margin-top: 0;
-            margin-bottom: 1.25rem;
-            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 600;
             color: #ffffff;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.75rem;
         }
 
-        /* Forms */
+        /* ==========================================================================
+           8. FORM ELEMENTS & GRID LAYOUTS
+           ========================================================================== */
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.25rem;
-            margin-bottom: 1.25rem;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.4rem;
+            gap: 0.5rem;
         }
 
         .form-group.full-width {
@@ -167,104 +275,150 @@
         .form-group select, 
         .form-group textarea {
             background: var(--input-bg);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--input-border);
             color: var(--text-main);
-            padding: 10px 14px;
-            border-radius: 6px;
-            font-size: 0.9rem;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.925rem;
             outline: none;
-            transition: border-color 0.2s ease;
+            transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+            font-family: inherit;
         }
 
         .form-group input:focus, 
         .form-group select:focus, 
         .form-group textarea:focus {
-            border-color: var(--accent-blue);
+            border-color: var(--input-focus);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
 
         .form-group textarea {
             resize: vertical;
-            min-height: 80px;
+            min-height: 100px;
         }
 
-        /* Buttons */
+        /* ==========================================================================
+           9. BUTTON SYSTEM
+           ========================================================================== */
         .action-btn {
             background: var(--accent-blue);
             color: #ffffff;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 12px 24px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.9rem;
-            transition: background 0.2s ease;
+            font-size: 0.925rem;
+            transition: background var(--transition-speed) ease, transform var(--transition-speed) ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
         }
-        .action-btn:hover { background: var(--accent-blue-hover); }
+
+        .action-btn:hover {
+            background: var(--accent-blue-hover);
+        }
+
+        .action-btn:active {
+            transform: scale(0.98);
+        }
 
         .btn-danger {
             background: transparent;
             color: var(--accent-red);
             border: 1px solid var(--accent-red);
-            padding: 6px 12px;
-            border-radius: 4px;
+            padding: 6px 14px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.2s ease;
+            font-size: 0.825rem;
+            font-weight: 500;
+            transition: all var(--transition-speed) ease;
         }
+
         .btn-danger:hover {
-            background: rgba(248, 113, 113, 0.15);
+            background: var(--accent-red-bg);
         }
 
         .logout-btn {
             background: transparent;
             color: var(--accent-red);
             border: 1px solid var(--accent-red);
-            padding: 8px 18px;
-            border-radius: 6px;
+            padding: 9px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 500;
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
-        }
-        .logout-btn:hover {
-            background: rgba(248, 113, 113, 0.15);
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all var(--transition-speed) ease;
         }
 
-        /* Nav Tabs */
+        .logout-btn:hover {
+            background: var(--accent-red-bg);
+        }
+
+        /* ==========================================================================
+           10. NAVIGATION TABS
+           ========================================================================== */
         .tab-bar {
             display: flex;
             gap: 1.5rem;
             border-bottom: 1px solid var(--border-color);
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .tab-bar::-webkit-scrollbar {
+            display: none;
         }
 
         .tab-btn {
             background: none;
             border: none;
             color: var(--text-muted);
-            padding: 0.85rem 0.25rem;
+            padding: 1rem 0.5rem;
             cursor: pointer;
             font-weight: 500;
             font-size: 0.95rem;
             border-bottom: 2px solid transparent;
             white-space: nowrap;
-            transition: all 0.2s ease;
+            transition: all var(--transition-speed) ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
         }
 
         .tab-btn.active {
             color: var(--accent-blue);
             border-bottom-color: var(--accent-blue);
+            font-weight: 600;
         }
 
-        /* Tables */
+        .tab-badge {
+            background: var(--input-bg);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-btn.active .tab-badge {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        /* ==========================================================================
+           11. DATA TABLES & STATUS BADGES
+           ========================================================================== */
         .table-responsive {
             overflow-x: auto;
-            border-radius: 8px;
+            border-radius: 10px;
             border: 1px solid var(--border-color);
         }
 
@@ -276,9 +430,9 @@
         }
 
         th {
-            background: var(--bg-dark);
+            background: var(--bg-darker);
             color: var(--text-muted);
-            padding: 12px 16px;
+            padding: 14px 18px;
             font-weight: 600;
             border-bottom: 1px solid var(--border-color);
             text-transform: uppercase;
@@ -287,7 +441,7 @@
         }
 
         td {
-            padding: 14px 16px;
+            padding: 16px 18px;
             border-bottom: 1px solid var(--border-color);
             color: #e5e7eb;
             vertical-align: middle;
@@ -298,21 +452,21 @@
         }
 
         tr:hover td {
-            background-color: rgba(255, 255, 255, 0.02);
+            background-color: rgba(255, 255, 255, 0.015);
         }
 
-        /* Status Badges */
         .status-badge {
             display: inline-block;
-            padding: 3px 10px;
+            padding: 4px 12px;
             border-radius: 999px;
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: capitalize;
+            letter-spacing: 0.02em;
         }
 
         .status-paid, .status-completed, .status-active {
-            background: rgba(74, 222, 128, 0.15);
+            background: var(--accent-green-bg);
             color: var(--accent-green);
             border: 1px solid rgba(74, 222, 128, 0.3);
         }
@@ -324,11 +478,20 @@
         }
 
         .status-overdue, .status-delayed, .status-cancelled {
-            background: rgba(248, 113, 113, 0.15);
+            background: var(--accent-red-bg);
             color: var(--accent-red);
             border: 1px solid rgba(248, 113, 113, 0.3);
         }
 
+        .status-hold, .status-on-hold {
+            background: var(--accent-yellow-bg);
+            color: var(--accent-yellow);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        /* ==========================================================================
+           12. TAB CONTENT VISIBILITY
+           ========================================================================== */
         .tab-content {
             display: none;
         }
@@ -336,36 +499,60 @@
         .tab-content.active {
             display: block;
         }
+
+        /* ==========================================================================
+           13. UTILITY CLASSES & FEEDBACK
+           ========================================================================== */
+        .text-center { text-align: center; }
+        .text-muted { color: var(--text-muted); }
+        .font-mono { font-family: monospace; }
+        .empty-state {
+            padding: 3rem 1rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
     </style>
 </head>
 <body>
 
     <div class="portal-container">
         <!-- Main Top Bar -->
-        <div class="admin-header">
-            <div>
-                <h1 class="admin-title">Aevix Studio Admin Portal</h1>
-                <div id="user-info-display" class="user-info">Verifying system access...</div>
+        <header class="admin-header">
+            <div class="header-brand">
+                <div class="brand-logo-badge">A</div>
+                <div>
+                    <h1 class="admin-title">Aevix Studio Admin Portal</h1>
+                    <div id="user-info-display" class="user-info">
+                        <span class="status-dot"></span>
+                        <span>Verifying system access...</span>
+                    </div>
+                </div>
             </div>
             <button id="admin-logout-btn" class="logout-btn" style="display: none;">Sign Out</button>
-        </div>
+        </header>
 
         <!-- System View Area -->
-        <div id="admin-main-view">
-            <p style="color: var(--text-muted); text-align: center; padding: 4rem 0;">Authenticating credentials...</p>
-        </div>
+        <main id="admin-main-view">
+            <div class="empty-state">
+                <p style="font-size: 1.1rem; color: var(--text-muted);">Authenticating session & verifying credentials against database...</p>
+            </div>
+        </main>
     </div>
 
     <script>
-        // Supabase Credentials
+        /* ==========================================================================
+           SUPABASE & APPLICATION CONFIGURATION
+           ========================================================================== */
         const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
 
         let supabaseClient = null;
 
-        // XSS Prevention Utility
+        /**
+         * Safely escapes HTML input string to prevent Cross-Site Scripting (XSS).
+         */
         function escapeHtml(str) {
-            if (!str) return '';
+            if (str === null || str === undefined) return '';
             return String(str)
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
@@ -374,7 +561,9 @@
                 .replace(/'/g, '&#039;');
         }
 
-        // Initialize Supabase Client safely
+        /**
+         * Initialize or return existing Supabase client instance.
+         */
         function getSupabase() {
             if (!supabaseClient) {
                 const config = {
@@ -398,7 +587,11 @@
         const logoutBtn = document.getElementById('admin-logout-btn');
         const userInfoDisplay = document.getElementById('user-info-display');
 
-        // Logout Handler
+        /* ==========================================================================
+           AUTHENTICATION & DYNAMIC AUTHORIZATION SYSTEM
+           ========================================================================== */
+
+        // Logout Event Listener
         logoutBtn.addEventListener('click', async () => {
             const client = getSupabase();
             if (client) {
@@ -407,7 +600,10 @@
             window.location.replace('index.html');
         });
 
-        // Strict Authorization Check
+        /**
+         * Queries the Supabase database to check if the current user is an authorized admin.
+         * Checks 'admin_users' table, 'profiles' table, and session metadata.
+         */
         async function checkAdminAuthorization(session) {
             if (!session || !session.user) {
                 window.location.replace('index.html');
@@ -415,34 +611,80 @@
             }
 
             const email = (session.user.email || '').toLowerCase();
-            const userMetadata = session.user.user_metadata || {};
-            const appMetadata = session.user.app_metadata || {};
+            const userId = session.user.id;
+            const client = getSupabase();
 
-            // Check if account is admin authorized
-            const isAdmin = email === 'dahiyatdanesh@gmail.com' || 
-                            userMetadata.role === 'admin' || 
-                            appMetadata.role === 'admin' || 
-                            userMetadata.is_admin === true;
+            let isAdmin = false;
+
+            try {
+                // 1. Check database 'admin_users' table
+                const { data: adminRecord, error: adminErr } = await client
+                    .from('admin_users')
+                    .select('email')
+                    .eq('email', email)
+                    .maybeSingle();
+
+                if (adminRecord && !adminErr) {
+                    isAdmin = true;
+                }
+
+                // 2. Check 'profiles' table if not verified yet
+                if (!isAdmin) {
+                    const { data: profileRecord, error: profErr } = await client
+                        .from('profiles')
+                        .select('role, is_admin')
+                        .eq('id', userId)
+                        .maybeSingle();
+
+                    if (profileRecord && !profErr) {
+                        if (profileRecord.role === 'admin' || profileRecord.is_admin === true) {
+                            isAdmin = true;
+                        }
+                    }
+                }
+
+                // 3. Metadata fallback
+                if (!isAdmin) {
+                    const userMetadata = session.user.user_metadata || {};
+                    const appMetadata = session.user.app_metadata || {};
+                    isAdmin = userMetadata.role === 'admin' || 
+                              appMetadata.role === 'admin' || 
+                              userMetadata.is_admin === true;
+                }
+
+            } catch (err) {
+                console.error('Error verifying admin permissions against Supabase:', err);
+            }
 
             if (!isAdmin) {
                 renderUnauthorizedView(email);
                 return false;
             }
 
-            userInfoDisplay.textContent = `Administrator: ${email}`;
+            userInfoDisplay.innerHTML = `
+                <span class="status-dot"></span>
+                <span>Administrator: <strong>${escapeHtml(email)}</strong></span>
+            `;
             logoutBtn.style.display = 'inline-block';
             return true;
         }
 
+        /**
+         * Renders access denied state for unauthorized accounts and redirects.
+         */
         function renderUnauthorizedView(email) {
-            userInfoDisplay.textContent = `Signed in as: ${email}`;
+            userInfoDisplay.innerHTML = `
+                <span class="status-dot" style="background-color: var(--accent-red);"></span>
+                <span>Signed in as: ${escapeHtml(email)}</span>
+            `;
             logoutBtn.style.display = 'inline-block';
             
             mainView.innerHTML = `
                 <div class="unauthorized-card">
+                    <div class="icon-wrapper">!</div>
                     <h2>Access Denied</h2>
-                    <p>Your account (<strong>${escapeHtml(email)}</strong>) does not have administrator privileges to access this area.</p>
-                    <button class="action-btn" onclick="window.location.href='client-portal.html'">Go to Client Portal</button>
+                    <p>Your account (<strong>${escapeHtml(email)}</strong>) is not registered in the administrator database. Please log in with authorized credentials.</p>
+                    <button class="action-btn" onclick="window.location.href='client-portal.html'">Redirect to Client Portal</button>
                 </div>
             `;
 
@@ -451,10 +693,17 @@
             }, 3500);
         }
 
+        /* ==========================================================================
+           INITIALIZATION & AUTHENTICATION LISTENERS
+           ========================================================================== */
         document.addEventListener('DOMContentLoaded', async () => {
             const client = getSupabase();
             if (!client) {
-                mainView.innerHTML = `<p style="color: var(--accent-red); text-align: center;">Failed to connect to authentication server.</p>`;
+                mainView.innerHTML = `
+                    <div class="empty-state">
+                        <p style="color: var(--accent-red);">Failed to establish connection with Supabase services.</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -475,7 +724,13 @@
             });
         });
 
-        // Fetch All Database Records
+        /* ==========================================================================
+           DATA FETCHING & DASHBOARD CONTROLLER
+           ========================================================================== */
+
+        /**
+         * Queries all project, payment, activity log, and inquiry records from Supabase.
+         */
         async function loadAdminDashboard() {
             const client = getSupabase();
 
@@ -494,7 +749,9 @@
             renderAdminUI(projects, payments, logs, inquiries);
         }
 
-        // Render Complete Dashboard UI
+        /* ==========================================================================
+           FULL DASHBOARD INTERFACE RENDERER
+           ========================================================================== */
         function renderAdminUI(projects, payments, logs, inquiries) {
             const totalRevenue = payments
                 .filter(p => (p.status || p.payment_status || '').toLowerCase() === 'paid')
@@ -504,32 +761,44 @@
 
             mainView.innerHTML = `
                 <!-- Analytics Overview Counters -->
-                <div class="stats-grid">
+                <section class="stats-grid">
                     <div class="stat-card">
                         <div class="label">Total Revenue Collected</div>
-                        <div class="value" style="color: var(--accent-green);">$${totalRevenue.toLocaleString()}</div>
+                        <div class="value" style="color: var(--accent-green);">$${totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div class="subtext">From settled invoices</div>
                     </div>
                     <div class="stat-card">
                         <div class="label">Active Projects</div>
                         <div class="value">${activeProjectsCount}</div>
+                        <div class="subtext">In progress / review</div>
                     </div>
                     <div class="stat-card">
                         <div class="label">Total Inquiries</div>
                         <div class="value">${inquiries.length}</div>
+                        <div class="subtext">Contact form entries</div>
                     </div>
                     <div class="stat-card">
-                        <div class="label">Total Logged Payments</div>
+                        <div class="label">Logged Transactions</div>
                         <div class="value">${payments.length}</div>
+                        <div class="subtext">All ledger records</div>
                     </div>
-                </div>
+                </section>
 
-                <!-- Tab Navigation Bar -->
-                <div class="tab-bar">
-                    <button class="tab-btn active" onclick="switchTab('tab-projects', this)">Projects Management</button>
-                    <button class="tab-btn" onclick="switchTab('tab-payments', this)">Payment Ledger</button>
-                    <button class="tab-btn" onclick="switchTab('tab-logs', this)">Activity Timeline Logs</button>
-                    <button class="tab-btn" onclick="switchTab('tab-inquiries', this)">Inquiry Inbox (${inquiries.length})</button>
-                </div>
+                <!-- Navigation Tabs Bar -->
+                <nav class="tab-bar">
+                    <button class="tab-btn active" onclick="switchTab('tab-projects', this)">
+                        Projects Management <span class="tab-badge">${projects.length}</span>
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('tab-payments', this)">
+                        Payment Ledger <span class="tab-badge">${payments.length}</span>
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('tab-logs', this)">
+                        Activity Timeline Logs <span class="tab-badge">${logs.length}</span>
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('tab-inquiries', this)">
+                        Inquiry Inbox <span class="tab-badge">${inquiries.length}</span>
+                    </button>
+                </nav>
 
                 <!-- Tab 1: Projects Management -->
                 <div id="tab-projects" class="tab-content active">
@@ -539,15 +808,15 @@
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label>Project Title / Name</label>
-                                    <input type="text" id="proj-title" required placeholder="e.g. E-Commerce Redesign">
+                                    <input type="text" id="proj-title" required placeholder="e.g. E-Commerce Platform Redesign">
                                 </div>
                                 <div class="form-group">
                                     <label>Client Email</label>
                                     <input type="email" id="proj-client-email" required placeholder="client@company.com">
                                 </div>
                                 <div class="form-group">
-                                    <label>Client Name / Company</label>
-                                    <input type="text" id="proj-client-name" placeholder="Acme Corp">
+                                    <label>Client Name / Organization</label>
+                                    <input type="text" id="proj-client-name" placeholder="Acme Corporation">
                                 </div>
                                 <div class="form-group">
                                     <label>Project Status</label>
@@ -559,11 +828,13 @@
                                     </select>
                                 </div>
                                 <div class="form-group full-width">
-                                    <label>Project Scope / Description</label>
-                                    <textarea id="proj-description" placeholder="Brief details about deliverable milestones..."></textarea>
+                                    <label>Project Scope & Specifications</label>
+                                    <textarea id="proj-description" placeholder="Enter full project details, deliverables, and specifications..."></textarea>
                                 </div>
                             </div>
-                            <button type="submit" class="action-btn">Create Project Record</button>
+                            <button type="submit" class="action-btn">
+                                Create Project Record
+                            </button>
                         </form>
                     </div>
 
@@ -582,7 +853,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${projects.length === 0 ? '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No active projects found.</td></tr>' : ''}
+                                    ${projects.length === 0 ? '<tr><td colspan="6" class="text-center text-muted">No active projects registered in database.</td></tr>' : ''}
                                     ${projects.map(p => `
                                         <tr>
                                             <td><strong>${escapeHtml(p.title || p.project_name || 'Untitled Project')}</strong></td>
@@ -604,11 +875,11 @@
                 <!-- Tab 2: Payments Ledger -->
                 <div id="tab-payments" class="tab-content">
                     <div class="card">
-                        <h3 class="section-title">Record Payment / Invoice</h3>
+                        <h3 class="section-title">Record Payment / Invoice Entry</h3>
                         <form id="create-payment-form">
                             <div class="form-grid">
                                 <div class="form-group">
-                                    <label>Client Name / Email</label>
+                                    <label>Client Identifier / Email</label>
                                     <input type="text" id="pay-client" required placeholder="e.g. John Doe / client@gmail.com">
                                 </div>
                                 <div class="form-group">
@@ -617,7 +888,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Milestone / Note</label>
-                                    <input type="text" id="pay-milestone" placeholder="50% Upfront Deposit">
+                                    <input type="text" id="pay-milestone" placeholder="50% Deposit / Deliverable 1">
                                 </div>
                                 <div class="form-group">
                                     <label>Payment Status</label>
@@ -633,24 +904,24 @@
                     </div>
 
                     <div class="card">
-                        <h3 class="section-title">All Transactions & Payments</h3>
+                        <h3 class="section-title">All Financial Transactions</h3>
                         <div class="table-responsive">
                             <table>
                                 <thead>
                                     <tr>
                                         <th>Date</th>
                                         <th>Client</th>
-                                        <th>Milestone / Details</th>
+                                        <th>Milestone / Description</th>
                                         <th>Amount</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${payments.length === 0 ? '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No payment entries found.</td></tr>' : ''}
+                                    ${payments.length === 0 ? '<tr><td colspan="6" class="text-center text-muted">No financial records logged yet.</td></tr>' : ''}
                                     ${payments.map(p => `
                                         <tr>
-                                            <td>${new Date(p.created_at || p.due_date || Date.now()).toLocaleDateString()}</td>
+                                            <td>${new Date(p.created_at || Date.now()).toLocaleDateString()}</td>
                                             <td>${escapeHtml(p.client_name || p.email || 'N/A')}</td>
                                             <td>${escapeHtml(p.milestone || p.notes || 'General Payment')}</td>
                                             <td>$${Number(p.amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
@@ -669,27 +940,27 @@
                 <!-- Tab 3: Timeline Logs -->
                 <div id="tab-logs" class="tab-content">
                     <div class="card">
-                        <h3 class="section-title">Post New Timeline Activity</h3>
+                        <h3 class="section-title">Post New Project Activity Log</h3>
                         <form id="create-log-form">
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label>Target Project</label>
                                     <select id="log-project-id" required>
-                                        <option value="">-- Select Project --</option>
+                                        <option value="">-- Select Target Project --</option>
                                         ${projects.map(p => `<option value="${p.id}">${escapeHtml(p.title || p.project_name || 'Untitled Project')}</option>`).join('')}
                                     </select>
                                 </div>
                                 <div class="form-group full-width">
                                     <label>Activity Update Details</label>
-                                    <textarea id="log-text" required placeholder="Completed database schema migration and deployed staging build..."></textarea>
+                                    <textarea id="log-text" required placeholder="Describe milestone progress, build updates, or revision completions..."></textarea>
                                 </div>
                             </div>
-                            <button type="submit" class="action-btn">Post Update to Project</button>
+                            <button type="submit" class="action-btn">Post Update Entry</button>
                         </form>
                     </div>
 
                     <div class="card">
-                        <h3 class="section-title">Recent Activity Audit Logs</h3>
+                        <h3 class="section-title">Activity Audit Timeline</h3>
                         <div class="table-responsive">
                             <table>
                                 <thead>
@@ -701,11 +972,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${logs.length === 0 ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No activity logs recorded.</td></tr>' : ''}
+                                    ${logs.length === 0 ? '<tr><td colspan="4" class="text-center text-muted">No activity logs recorded.</td></tr>' : ''}
                                     ${logs.map(l => `
                                         <tr>
                                             <td style="white-space: nowrap;">${new Date(l.created_at).toLocaleString()}</td>
-                                            <td><code>${escapeHtml(l.project_id || '-')}</code></td>
+                                            <td><code class="font-mono">${escapeHtml(l.project_id || '-')}</code></td>
                                             <td>${escapeHtml(l.log_text || l.message || l.activity || '')}</td>
                                             <td>
                                                 <button class="btn-danger" onclick="deleteLog('${l.id}')">Delete</button>
@@ -721,20 +992,20 @@
                 <!-- Tab 4: Inquiry Inbox -->
                 <div id="tab-inquiries" class="tab-content">
                     <div class="card">
-                        <h3 class="section-title">Client Contact & Website Inquiries</h3>
+                        <h3 class="section-title">Inquiry Inbox & Contact Form Submissions</h3>
                         <div class="table-responsive">
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>Date</th>
+                                        <th>Date Received</th>
                                         <th>Name</th>
                                         <th>Email</th>
-                                        <th>Subject / Scope</th>
-                                        <th>Message</th>
+                                        <th>Subject / Service</th>
+                                        <th>Message Body</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${inquiries.length === 0 ? '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No contact inquiries received yet.</td></tr>' : ''}
+                                    ${inquiries.length === 0 ? '<tr><td colspan="5" class="text-center text-muted">No contact inquiries received yet.</td></tr>' : ''}
                                     ${inquiries.map(i => `
                                         <tr>
                                             <td style="white-space: nowrap;">${new Date(i.created_at).toLocaleDateString()}</td>
@@ -751,13 +1022,15 @@
                 </div>
             `;
 
-            // Form Submit Event Handlers
+            // Attach Form Submission Event Listeners
             document.getElementById('create-project-form').addEventListener('submit', handleProjectSubmit);
             document.getElementById('create-payment-form').addEventListener('submit', handlePaymentSubmit);
             document.getElementById('create-log-form').addEventListener('submit', handleLogSubmit);
         }
 
-        // Tab Switcher
+        /* ==========================================================================
+           TAB NAVIGATION CONTROLLER
+           ========================================================================== */
         function switchTab(tabId, btnElement) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -766,7 +1039,9 @@
             btnElement.classList.add('active');
         }
 
-        // Action Handlers
+        /* ==========================================================================
+           DATABASE ACTION & INSERTION HANDLERS
+           ========================================================================== */
         async function handleProjectSubmit(e) {
             e.preventDefault();
             const client = getSupabase();
@@ -783,9 +1058,9 @@
             const { error } = await client.from('projects').insert([payload]);
 
             if (error) {
-                alert('Failed to create project: ' + error.message);
+                alert('Failed to create project record: ' + error.message);
             } else {
-                alert('Project created successfully!');
+                alert('Project record created successfully!');
                 loadAdminDashboard();
             }
         }
@@ -797,7 +1072,7 @@
             const payload = {
                 client_name: document.getElementById('pay-client').value,
                 amount: parseFloat(document.getElementById('pay-amount').value),
-                milestone: document.getElementById('pay-milestone').value || 'Payment',
+                milestone: document.getElementById('pay-milestone').value || 'Payment Entry',
                 status: document.getElementById('pay-status').value,
                 payment_status: document.getElementById('pay-status').value
             };
@@ -805,7 +1080,7 @@
             const { error } = await client.from('payments').insert([payload]);
 
             if (error) {
-                alert('Failed to log payment: ' + error.message);
+                alert('Failed to log payment record: ' + error.message);
             } else {
                 alert('Payment logged successfully!');
                 loadAdminDashboard();
@@ -824,35 +1099,37 @@
             const { error } = await client.from('activity_logs').insert([payload]);
 
             if (error) {
-                alert('Failed to post activity log: ' + error.message);
+                alert('Failed to post activity update: ' + error.message);
             } else {
                 alert('Activity log posted successfully!');
                 loadAdminDashboard();
             }
         }
 
-        // Deletion Handlers
+        /* ==========================================================================
+           DATABASE DELETION HANDLERS
+           ========================================================================== */
         async function deleteProject(id) {
-            if (!confirm('Are you sure you want to delete this project record?')) return;
+            if (!confirm('Are you sure you want to permanently delete this project?')) return;
             const client = getSupabase();
             const { error } = await client.from('projects').delete().eq('id', id);
-            if (error) alert('Error: ' + error.message);
+            if (error) alert('Error removing project: ' + error.message);
             else loadAdminDashboard();
         }
 
         async function deletePayment(id) {
-            if (!confirm('Are you sure you want to delete this payment entry?')) return;
+            if (!confirm('Are you sure you want to delete this financial ledger record?')) return;
             const client = getSupabase();
             const { error } = await client.from('payments').delete().eq('id', id);
-            if (error) alert('Error: ' + error.message);
+            if (error) alert('Error removing payment: ' + error.message);
             else loadAdminDashboard();
         }
 
         async function deleteLog(id) {
-            if (!confirm('Are you sure you want to remove this log entry?')) return;
+            if (!confirm('Are you sure you want to delete this activity log?')) return;
             const client = getSupabase();
             const { error } = await client.from('activity_logs').delete().eq('id', id);
-            if (error) alert('Error: ' + error.message);
+            if (error) alert('Error removing activity log: ' + error.message);
             else loadAdminDashboard();
         }
     </script>
