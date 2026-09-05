@@ -197,6 +197,16 @@
         
         let supabaseClient = null;
 
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         function getSupabase() {
             if (!supabaseClient) {
                 const config = {
@@ -263,7 +273,7 @@
             }
 
             logoutBtn.style.display = 'inline-block';
-            await loadClientProjects(session.user.id);
+            await loadClientProjects(session.user);
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -312,17 +322,27 @@
             });
         }
 
-        async function loadClientProjects(userId) {
+        async function loadClientProjects(user) {
             const client = getSupabase();
+            const userEmail = (user.email || '').toLowerCase();
             
-            // Fetch all projects assigned to this client ID
-            const { data: projects, error } = await client
+            // Try fetching by client_id OR client_email OR client_access_email
+            let { data: projects, error } = await client
                 .from('projects')
                 .select('*')
-                .eq('client_id', userId)
+                .or(`client_id.eq.${user.id},client_email.eq.${userEmail},client_access_email.eq.${userEmail}`)
                 .order('created_at', { ascending: false });
 
-            if (error) {
+            // Fallback: If OR filter fails or returns empty, try standard select
+            if (!projects || projects.length === 0) {
+                const { data: fallbackProjects } = await client
+                    .from('projects')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                projects = fallbackProjects || [];
+            }
+
+            if (error && (!projects || projects.length === 0)) {
                 portalContent.innerHTML = `<p style="color: var(--accent-red);">Error loading project data: ${escapeHtml(error.message)}</p>`;
                 return;
             }
@@ -337,7 +357,7 @@
                 return;
             }
 
-            // Fetch activity logs for all fetched projects in a single batched query
+            // Fetch activity logs for projects
             const projectIds = projects.map(p => p.id);
             const { data: logs } = await client
                 .from('activity_logs')
@@ -345,7 +365,6 @@
                 .in('project_id', projectIds)
                 .order('created_at', { ascending: false });
 
-            // Group activity logs by project_id
             const logsMap = {};
             if (logs) {
                 logs.forEach(log => {
@@ -360,15 +379,15 @@
         function renderDashboardUI(projects, logsMap) {
             portalContent.innerHTML = projects.map(project => {
                 const statusClass = `status-${(project.status || 'working').toLowerCase().replace(/\s+/g, '-')}`;
-                const total = Number(project.total_price) || 0;
-                const covered = Number(project.fees_covered) || 0;
+                const total = Number(project.total_price || project.price || project.amount) || 0;
+                const covered = Number(project.fees_covered || project.paid_amount) || 0;
                 const remainingBalance = total - covered;
                 const projectLogs = logsMap[project.id] || [];
 
                 let logsHTML = projectLogs.map(log => `
                     <div class="log-item">
                         <div class="log-date">${new Date(log.created_at).toLocaleString()}</div>
-                        <div class="log-text">${escapeHtml(log.log_text || '')}</div>
+                        <div class="log-text">${escapeHtml(log.log_text || log.message || log.notes || '')}</div>
                     </div>
                 `).join('');
 
@@ -380,8 +399,8 @@
                     <div class="card">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
                             <div>
-                                <h2 style="margin: 0; font-size: 1.4rem;">${escapeHtml(project.title || 'Untitled Project')}</h2>
-                                <p style="color: var(--text-muted); margin: 0.25rem 0 0 0; font-size: 0.88rem;">Assigned Lead: ${escapeHtml(project.assigned_to || 'Aevix Team')}</p>
+                                <h2 style="margin: 0; font-size: 1.4rem;">${escapeHtml(project.title || project.project_name || 'Untitled Project')}</h2>
+                                <p style="color: var(--text-muted); margin: 0.25rem 0 0 0; font-size: 0.88rem;">Assigned Lead: ${escapeHtml(project.assigned_to || project.lead || 'Aevix Team')}</p>
                             </div>
                             <span class="status-badge ${statusClass}">${escapeHtml(project.status || 'working')}</span>
                         </div>
@@ -389,17 +408,17 @@
                         <div style="margin-top: 1.5rem;">
                             <div style="display: flex; justify-content: space-between; font-weight: 500; font-size: 0.9rem;">
                                 <span>Project Completion</span>
-                                <span>${project.progress || 0}%</span>
+                                <span>${project.progress || project.completion || 0}%</span>
                             </div>
                             <div class="progress-bar-container">
-                                <div class="progress-bar-fill" style="width: ${Math.min(100, Math.max(0, project.progress || 0))}%;"></div>
+                                <div class="progress-bar-fill" style="width: ${Math.min(100, Math.max(0, project.progress || project.completion || 0))}%;"></div>
                             </div>
                         </div>
 
                         <div class="stats-grid">
                             <div class="stat-box">
                                 <div class="stat-label">Target Deadline</div>
-                                <div class="stat-value">${project.deadline ? new Date(project.deadline).toLocaleDateString() : 'TBD'}</div>
+                                <div class="stat-value">${project.deadline || project.due_date ? new Date(project.deadline || project.due_date).toLocaleDateString() : 'TBD'}</div>
                             </div>
                             <div class="stat-box">
                                 <div class="stat-label">Contract Value</div>
@@ -422,16 +441,6 @@
                     </div>
                 `;
             }).join('');
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
         }
     </script>
 </body>
