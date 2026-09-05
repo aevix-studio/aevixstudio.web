@@ -170,8 +170,10 @@
     <script>
         const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
+        const ADMIN_EMAILS = ['aevixstudio962@gmail.com', 'aevixstudio961@gmail.com'];
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        // Single client initialization with unique identifier 'db'
+        const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: { flowType: 'pkce', autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
         });
 
@@ -179,30 +181,37 @@
         const logoutBtn = document.getElementById('logout-btn');
         const tabControls = document.getElementById('tab-controls');
         let currentTab = 'projects';
+        let isAuthorized = false;
 
         logoutBtn.addEventListener('click', async () => {
-            await supabase.auth.signOut();
+            await db.auth.signOut();
             window.location.href = 'index.html';
         });
 
-        async function checkUserPermissions(session) {
+        async function verifySessionFast() {
+            // Read local session instantly (0ms latency, no server roundtrip required)
+            const { data: { session } } = await db.auth.getSession();
+            
             if (!session || !session.user) {
                 renderAccessDenied("Authentication required to access this workspace.");
                 return;
             }
 
-            const userEmail = session.user.email ? session.user.email.toLowerCase() : '';
-            
-            // Primary operational admin email and legacy backup check
-            const isAdminEmail = ['aevixstudio962@gmail.com', 'aevixstudio961@gmail.com'].includes(userEmail);
+            await checkUserPermissions(session);
+        }
 
-            if (isAdminEmail) {
+        async function checkUserPermissions(session) {
+            const userEmail = (session.user.email || '').toLowerCase();
+            
+            // Instant access check for admin emails without blocking on DB queries
+            if (ADMIN_EMAILS.includes(userEmail)) {
                 grantAccess();
                 return;
             }
 
+            // Fallback DB role check for other team members
             try {
-                const { data: profile, error } = await supabase
+                const { data: profile, error } = await db
                     .from('profiles')
                     .select('role')
                     .eq('id', session.user.id)
@@ -219,6 +228,8 @@
         }
 
         function grantAccess() {
+            if (isAuthorized) return;
+            isAuthorized = true;
             logoutBtn.style.display = 'inline-block';
             tabControls.style.display = 'flex';
             loadActiveTab();
@@ -242,7 +253,7 @@
         /* --- 1. PROJECT OVERVIEW TABLE --- */
         async function fetchProjects() {
             workspaceContent.innerHTML = `<div style="text-align: center; color: #9ca3af; padding: 2rem;">Loading projects...</div>`;
-            const { data: projects, error } = await supabase.from('projects').select('*').order('created_at', { ascending: false });
+            const { data: projects, error } = await db.from('projects').select('*').order('created_at', { ascending: false });
 
             if (error || !projects || !projects.length) {
                 workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: #9ca3af;">No active projects found.</div></div>`;
@@ -284,7 +295,7 @@
         /* --- 2. CLIENT & INQUIRY TRACKER --- */
         async function fetchInquiries() {
             workspaceContent.innerHTML = `<div style="text-align: center; color: #9ca3af; padding: 2rem;">Loading inquiries...</div>`;
-            const { data: inquiries, error } = await supabase.from('inquiries').select('*').order('created_at', { ascending: false });
+            const { data: inquiries, error } = await db.from('inquiries').select('*').order('created_at', { ascending: false });
 
             if (error || !inquiries || !inquiries.length) {
                 workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: #9ca3af;">No submissions or client inquiries found.</div></div>`;
@@ -325,7 +336,7 @@
         /* --- 3. PAYMENT & INVOICE STATUS --- */
         async function fetchPayments() {
             workspaceContent.innerHTML = `<div style="text-align: center; color: #9ca3af; padding: 2rem;">Loading payment details...</div>`;
-            const { data: payments, error } = await supabase.from('payments').select('*').order('created_at', { ascending: false });
+            const { data: payments, error } = await db.from('payments').select('*').order('created_at', { ascending: false });
 
             if (error || !payments || !payments.length) {
                 workspaceContent.innerHTML = `<div class="admin-table-container"><div style="padding: 2rem; text-align: center; color: #9ca3af;">No payment records found.</div></div>`;
@@ -386,11 +397,16 @@
                 .replace(/'/g, "&#039;");
         }
 
-        supabase.auth.onAuthStateChange(async (event, session) => {
+        // Initialize verification immediately
+        verifySessionFast();
+
+        // Listen for background state changes (login/logout events)
+        db.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_OUT' || !session) {
+                isAuthorized = false;
                 renderAccessDenied("Authentication required to access this workspace.");
-            } else if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
-                await checkUserPermissions(session);
+            } else if (event === 'SIGNED_IN') {
+                checkUserPermissions(session);
             }
         });
     </script>
