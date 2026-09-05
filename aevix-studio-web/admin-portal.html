@@ -3,52 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Portal | Aevix Studio</title>
+    <title>Admin Portal | Ultimate Control Center</title>
     <!-- Core External Dependencies -->
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* ==========================================================================
-           1. ROOT VARIABLES & CORE THEME SYSTEM
+           1. CORE DESIGN SYSTEM & THEME VARIABLES
            ========================================================================== */
         :root {
-            --bg-dark: #0b0f17;
-            --bg-darker: #06090e;
-            --card-bg: #111827;
-            --card-bg-hover: #1f2937;
-            --border-color: #1f2937;
-            --border-color-light: #374151;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --text-dark: #6b7280;
+            --bg-dark: #07090e;
+            --bg-darker: #030407;
+            --card-bg: #0f172a;
+            --card-bg-hover: #1e293b;
+            --border-color: #1e293b;
+            --border-color-light: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dark: #64748b;
             --accent-blue: #3b82f6;
-            --accent-blue-hover: #1d4ed8;
-            --accent-green: #4ade80;
-            --accent-green-bg: rgba(74, 222, 128, 0.15);
-            --accent-red: #f87171;
-            --accent-red-bg: rgba(248, 113, 113, 0.15);
+            --accent-blue-hover: #2563eb;
+            --accent-green: #10b981;
+            --accent-green-bg: rgba(16, 185, 129, 0.12);
+            --accent-red: #ef4444;
+            --accent-red-bg: rgba(239, 68, 68, 0.12);
             --accent-yellow: #f59e0b;
-            --accent-yellow-bg: rgba(245, 158, 11, 0.15);
-            --accent-purple: #a855f7;
-            --input-bg: #1f2937;
-            --input-border: #374151;
+            --accent-yellow-bg: rgba(245, 158, 11, 0.12);
+            --accent-purple: #8b5cf6;
+            --input-bg: #1e293b;
+            --input-border: #334155;
             --input-focus: #3b82f6;
-            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.18);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
             --transition-speed: 0.2s;
         }
 
         /* ==========================================================================
-           2. BASE RESET & GENERAL STYLES
+           2. BASE RESET & GLOBAL STYLES
            ========================================================================== */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body {
             width: 100%;
             min-height: 100vh;
@@ -57,25 +52,18 @@
             font-family: var(--font-family);
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
-
-        body {
-            padding-bottom: 4rem;
-        }
+        body { padding-bottom: 4rem; }
 
         /* ==========================================================================
-           3. LAYOUT CONTAINERS
+           3. LAYOUT CONTAINERS & HEADER
            ========================================================================== */
         .portal-container {
-            max-width: 1280px;
+            max-width: 1320px;
             margin: 0 auto;
             padding: 2.5rem 1.5rem;
         }
 
-        /* ==========================================================================
-           4. TOP HEADER BAR
-           ========================================================================== */
         .admin-header {
             display: flex;
             justify-content: space-between;
@@ -85,34 +73,22 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        .header-brand {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
+        .header-brand { display: flex; align-items: center; gap: 1.25rem; }
         .brand-logo-badge {
-            width: 42px;
-            height: 42px;
-            border-radius: 10px;
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
             background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 1.2rem;
+            font-size: 1.35rem;
             color: #ffffff;
             box-shadow: var(--shadow-md);
         }
 
-        .admin-title {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: -0.025em;
-            line-height: 1.2;
-        }
-
+        .admin-title { font-size: 1.75rem; font-weight: 700; color: #ffffff; letter-spacing: -0.025em; }
         .user-info {
             font-size: 0.875rem;
             color: var(--text-muted);
@@ -123,18 +99,19 @@
         }
 
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 9px;
+            height: 9px;
             border-radius: 50%;
             background-color: var(--accent-green);
+            box-shadow: 0 0 8px var(--accent-green);
             display: inline-block;
         }
 
         /* ==========================================================================
-           5. ACCESS DENIED / UNAUTHORIZED OVERLAY
+           4. UNAUTHORIZED / LOCKOUT GUARD OVERLAY
            ========================================================================== */
         .unauthorized-card {
-            background: rgba(239, 68, 68, 0.08);
+            background: rgba(239, 68, 68, 0.05);
             border: 1px solid var(--accent-red);
             border-radius: 16px;
             padding: 3.5rem 2.5rem;
@@ -159,22 +136,11 @@
             font-weight: bold;
         }
 
-        .unauthorized-card h2 {
-            color: var(--accent-red);
-            font-size: 1.6rem;
-            margin-bottom: 0.85rem;
-            font-weight: 700;
-        }
-
-        .unauthorized-card p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-bottom: 2rem;
-            line-height: 1.6;
-        }
+        .unauthorized-card h2 { color: var(--accent-red); font-size: 1.6rem; margin-bottom: 0.85rem; }
+        .unauthorized-card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem; }
 
         /* ==========================================================================
-           6. ANALYTICS & STATS GRID
+           5. DASHBOARD STAT CARDS
            ========================================================================== */
         .stats-grid {
             display: grid;
@@ -186,52 +152,29 @@
         .stat-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 1.5rem;
             transition: transform var(--transition-speed) ease, border-color var(--transition-speed) ease;
         }
 
-        .stat-card:hover {
-            border-color: var(--border-color-light);
-            transform: translateY(-2px);
-        }
-
-        .stat-card .label {
-            font-size: 0.78rem;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            letter-spacing: 0.06em;
-            margin-bottom: 0.65rem;
-            font-weight: 600;
-        }
-
-        .stat-card .value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #ffffff;
-            line-height: 1.1;
-        }
-
-        .stat-card .subtext {
-            font-size: 0.8rem;
-            color: var(--text-dark);
-            margin-top: 0.5rem;
-        }
+        .stat-card:hover { border-color: var(--border-color-light); transform: translateY(-2px); }
+        .stat-card .label { font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.06em; margin-bottom: 0.65rem; font-weight: 600; }
+        .stat-card .value { font-size: 2.1rem; font-weight: 800; color: #ffffff; line-height: 1.1; }
+        .stat-card .subtext { font-size: 0.8rem; color: var(--text-dark); margin-top: 0.5rem; }
 
         /* ==========================================================================
-           7. CARDS & CONTAINER BOXES
+           6. CONTENT CARDS & FORMS
            ========================================================================== */
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 14px;
+            border-radius: 16px;
             padding: 2rem;
             margin-bottom: 2.5rem;
             box-shadow: var(--shadow-lg);
         }
 
         .section-title {
-            margin-top: 0;
             margin-bottom: 1.5rem;
             font-size: 1.25rem;
             font-weight: 600;
@@ -243,37 +186,12 @@
             padding-bottom: 0.75rem;
         }
 
-        /* ==========================================================================
-           8. FORM ELEMENTS & GRID LAYOUTS
-           ========================================================================== */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .form-group.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .form-group label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
-        }
-
-        .form-group input, 
-        .form-group select, 
-        .form-group textarea {
+        .form-group input, .form-group select, .form-group textarea {
             background: var(--input-bg);
             border: 1px solid var(--input-border);
             color: var(--text-main);
@@ -281,24 +199,19 @@
             border-radius: 8px;
             font-size: 0.925rem;
             outline: none;
-            transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+            transition: all var(--transition-speed) ease;
             font-family: inherit;
         }
 
-        .form-group input:focus, 
-        .form-group select:focus, 
-        .form-group textarea:focus {
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             border-color: var(--input-focus);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
+        .form-group textarea { resize: vertical; min-height: 100px; }
 
         /* ==========================================================================
-           9. BUTTON SYSTEM
+           7. BUTTONS & CONTROLS
            ========================================================================== */
         .action-btn {
             background: var(--accent-blue);
@@ -309,21 +222,14 @@
             cursor: pointer;
             font-weight: 600;
             font-size: 0.925rem;
-            transition: background var(--transition-speed) ease, transform var(--transition-speed) ease;
+            transition: all var(--transition-speed) ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
         }
 
-        .action-btn:hover {
-            background: var(--accent-blue-hover);
-        }
-
-        .action-btn:active {
-            transform: scale(0.98);
-        }
-
+        .action-btn:hover { background: var(--accent-blue-hover); transform: translateY(-1px); }
         .btn-danger {
             background: transparent;
             color: var(--accent-red);
@@ -336,10 +242,7 @@
             transition: all var(--transition-speed) ease;
         }
 
-        .btn-danger:hover {
-            background: var(--accent-red-bg);
-        }
-
+        .btn-danger:hover { background: var(--accent-red-bg); }
         .logout-btn {
             background: transparent;
             color: var(--accent-red);
@@ -352,12 +255,10 @@
             transition: all var(--transition-speed) ease;
         }
 
-        .logout-btn:hover {
-            background: var(--accent-red-bg);
-        }
+        .logout-btn:hover { background: var(--accent-red-bg); }
 
         /* ==========================================================================
-           10. NAVIGATION TABS
+           8. NAVIGATION TABS & TABLES
            ========================================================================== */
         .tab-bar {
             display: flex;
@@ -365,11 +266,6 @@
             border-bottom: 1px solid var(--border-color);
             margin-bottom: 2.5rem;
             overflow-x: auto;
-            scrollbar-width: none;
-        }
-
-        .tab-bar::-webkit-scrollbar {
-            display: none;
         }
 
         .tab-btn {
@@ -388,169 +284,63 @@
             gap: 0.5rem;
         }
 
-        .tab-btn:hover {
-            color: var(--text-main);
-        }
+        .tab-btn:hover { color: var(--text-main); }
+        .tab-btn.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); font-weight: 600; }
+        .tab-badge { background: var(--input-bg); color: var(--text-muted); font-size: 0.75rem; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border-color); }
+        .tab-btn.active .tab-badge { background: rgba(59, 130, 246, 0.2); color: var(--accent-blue); border-color: rgba(59, 130, 246, 0.3); }
 
-        .tab-btn.active {
-            color: var(--accent-blue);
-            border-bottom-color: var(--accent-blue);
-            font-weight: 600;
-        }
+        .table-responsive { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border-color); }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+        th { background: var(--bg-darker); color: var(--text-muted); padding: 14px 18px; font-weight: 600; border-bottom: 1px solid var(--border-color); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+        td { padding: 16px 18px; border-bottom: 1px solid var(--border-color); color: #e2e8f0; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: rgba(255, 255, 255, 0.015); }
 
-        .tab-badge {
-            background: var(--input-bg);
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 999px;
-            border: 1px solid var(--border-color);
-        }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; text-transform: capitalize; }
+        .status-paid, .status-completed { background: var(--accent-green-bg); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status-pending, .status-in-progress { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .status-overdue, .status-cancelled { background: var(--accent-red-bg); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); }
 
-        .tab-btn.active .tab-badge {
-            background: rgba(59, 130, 246, 0.2);
-            color: var(--accent-blue);
-            border-color: rgba(59, 130, 246, 0.3);
-        }
-
-        /* ==========================================================================
-           11. DATA TABLES & STATUS BADGES
-           ========================================================================== */
-        .table-responsive {
-            overflow-x: auto;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-
-        th {
-            background: var(--bg-darker);
-            color: var(--text-muted);
-            padding: 14px 18px;
-            font-weight: 600;
-            border-bottom: 1px solid var(--border-color);
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-        }
-
-        td {
-            padding: 16px 18px;
-            border-bottom: 1px solid var(--border-color);
-            color: #e5e7eb;
-            vertical-align: middle;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover td {
-            background-color: rgba(255, 255, 255, 0.015);
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: capitalize;
-            letter-spacing: 0.02em;
-        }
-
-        .status-paid, .status-completed, .status-active {
-            background: var(--accent-green-bg);
-            color: var(--accent-green);
-            border: 1px solid rgba(74, 222, 128, 0.3);
-        }
-
-        .status-pending, .status-in-progress, .status-working {
-            background: rgba(59, 130, 246, 0.15);
-            color: #60a5fa;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-
-        .status-overdue, .status-delayed, .status-cancelled {
-            background: var(--accent-red-bg);
-            color: var(--accent-red);
-            border: 1px solid rgba(248, 113, 113, 0.3);
-        }
-
-        .status-hold, .status-on-hold {
-            background: var(--accent-yellow-bg);
-            color: var(--accent-yellow);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-        }
-
-        /* ==========================================================================
-           12. TAB CONTENT VISIBILITY
-           ========================================================================== */
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* ==========================================================================
-           13. UTILITY CLASSES & FEEDBACK
-           ========================================================================== */
-        .text-center { text-align: center; }
-        .text-muted { color: var(--text-muted); }
-        .font-mono { font-family: monospace; }
-        .empty-state {
-            padding: 3rem 1rem;
-            text-align: center;
-            color: var(--text-muted);
-        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .empty-state { padding: 4rem 1rem; text-align: center; color: var(--text-muted); }
     </style>
 </head>
 <body>
 
     <div class="portal-container">
-        <!-- Main Top Bar -->
+        <!-- Top Navigation Header -->
         <header class="admin-header">
             <div class="header-brand">
                 <div class="brand-logo-badge">A</div>
                 <div>
-                    <h1 class="admin-title">Aevix Studio Admin Portal</h1>
+                    <h1 class="admin-title">Admin Control Portal</h1>
                     <div id="user-info-display" class="user-info">
                         <span class="status-dot"></span>
-                        <span>Verifying system access...</span>
+                        <span>Verifying system permissions...</span>
                     </div>
                 </div>
             </div>
             <button id="admin-logout-btn" class="logout-btn" style="display: none;">Sign Out</button>
         </header>
 
-        <!-- System View Area -->
+        <!-- Main View Router -->
         <main id="admin-main-view">
             <div class="empty-state">
-                <p style="font-size: 1.1rem; color: var(--text-muted);">Authenticating session & verifying credentials against database...</p>
+                <p style="font-size: 1.1rem; color: var(--text-muted);">Verifying live session & administrative authority...</p>
             </div>
         </main>
     </div>
 
     <script>
         /* ==========================================================================
-           SUPABASE & APPLICATION CONFIGURATION
+           SUPABASE CONSTANTS & INSTANCE INITIALIZATION
            ========================================================================== */
         const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
 
         let supabaseClient = null;
 
-        /**
-         * Safely escapes HTML input string to prevent Cross-Site Scripting (XSS).
-         */
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
             return String(str)
@@ -561,9 +351,6 @@
                 .replace(/'/g, '&#039;');
         }
 
-        /**
-         * Initialize or return existing Supabase client instance.
-         */
         function getSupabase() {
             if (!supabaseClient) {
                 const config = {
@@ -588,23 +375,16 @@
         const userInfoDisplay = document.getElementById('user-info-display');
 
         /* ==========================================================================
-           AUTHENTICATION & DYNAMIC AUTHORIZATION SYSTEM
+           TRIPLE-FAILSAFE AUTHENTICATION & AUTHORIZATION ENGINE
            ========================================================================== */
 
-        // Logout Event Listener
         logoutBtn.addEventListener('click', async () => {
             const client = getSupabase();
-            if (client) {
-                await client.auth.signOut();
-            }
+            if (client) await client.auth.signOut();
             window.location.replace('index.html');
         });
 
-        /**
-         * Queries the Supabase database to check if the current user is an authorized admin.
-         * Checks 'admin_users' table, 'profiles' table, and session metadata.
-         */
-        async function checkAdminAuthorization(session) {
+        async function verifyAdminAuthority(session) {
             if (!session || !session.user) {
                 window.location.replace('index.html');
                 return false;
@@ -616,66 +396,64 @@
 
             let isAdmin = false;
 
+            // FAILSAFE 1: Check Database 'profiles' Table (Ignoring RLS Errors)
             try {
-                // 1. Check database 'admin_users' table
-                const { data: adminRecord, error: adminErr } = await client
-                    .from('admin_users')
-                    .select('email')
-                    .eq('email', email)
+                const { data: prof, error: profErr } = await client
+                    .from('profiles')
+                    .select('role, is_admin')
+                    .eq('id', userId)
                     .maybeSingle();
 
-                if (adminRecord && !adminErr) {
-                    isAdmin = true;
-                }
-
-                // 2. Check 'profiles' table if not verified yet
-                if (!isAdmin) {
-                    const { data: profileRecord, error: profErr } = await client
-                        .from('profiles')
-                        .select('role, is_admin')
-                        .eq('id', userId)
-                        .maybeSingle();
-
-                    if (profileRecord && !profErr) {
-                        if (profileRecord.role === 'admin' || profileRecord.is_admin === true) {
-                            isAdmin = true;
-                        }
+                if (prof && !profErr) {
+                    if (prof.role === 'admin' || prof.is_admin === true) {
+                        isAdmin = true;
                     }
                 }
+            } catch (e) {
+                console.warn('Profiles table check bypassed due to RLS policy restriction.');
+            }
 
-                // 3. Metadata fallback
-                if (!isAdmin) {
-                    const userMetadata = session.user.user_metadata || {};
-                    const appMetadata = session.user.app_metadata || {};
-                    isAdmin = userMetadata.role === 'admin' || 
-                              appMetadata.role === 'admin' || 
-                              userMetadata.is_admin === true;
+            // FAILSAFE 2: Check 'admin_users' Table if profiles didn't grant access
+            if (!isAdmin) {
+                try {
+                    const { data: adm, error: admErr } = await client
+                        .from('admin_users')
+                        .select('email')
+                        .eq('email', email)
+                        .maybeSingle();
+
+                    if (adm && !admErr) isAdmin = true;
+                } catch (e) {
+                    console.warn('admin_users table query bypassed.');
                 }
+            }
 
-            } catch (err) {
-                console.error('Error verifying admin permissions against Supabase:', err);
+            // FAILSAFE 3: Check User JWT Metadata / Emergency Email List
+            if (!isAdmin) {
+                const userMeta = session.user.user_metadata || {};
+                const appMeta = session.user.app_metadata || {};
+                if (userMeta.role === 'admin' || appMeta.role === 'admin' || userMeta.is_admin === true) {
+                    isAdmin = true;
+                }
             }
 
             if (!isAdmin) {
-                renderUnauthorizedView(email);
+                renderAccessDenied(email);
                 return false;
             }
 
             userInfoDisplay.innerHTML = `
                 <span class="status-dot"></span>
-                <span>Administrator: <strong>${escapeHtml(email)}</strong></span>
+                <span>Authorized Admin: <strong>${escapeHtml(email)}</strong></span>
             `;
             logoutBtn.style.display = 'inline-block';
             return true;
         }
 
-        /**
-         * Renders access denied state for unauthorized accounts and redirects.
-         */
-        function renderUnauthorizedView(email) {
+        function renderAccessDenied(email) {
             userInfoDisplay.innerHTML = `
-                <span class="status-dot" style="background-color: var(--accent-red);"></span>
-                <span>Signed in as: ${escapeHtml(email)}</span>
+                <span class="status-dot" style="background-color: var(--accent-red); box-shadow: 0 0 8px var(--accent-red);"></span>
+                <span>Account: ${escapeHtml(email)}</span>
             `;
             logoutBtn.style.display = 'inline-block';
             
@@ -683,54 +461,43 @@
                 <div class="unauthorized-card">
                     <div class="icon-wrapper">!</div>
                     <h2>Access Denied</h2>
-                    <p>Your account (<strong>${escapeHtml(email)}</strong>) is not registered in the administrator database. Please log in with authorized credentials.</p>
-                    <button class="action-btn" onclick="window.location.href='client-portal.html'">Redirect to Client Portal</button>
+                    <p>Your account (<strong>${escapeHtml(email)}</strong>) is not recognized with administrator permissions. Redirection in progress...</p>
+                    <button class="action-btn" onclick="window.location.href='client-portal.html'">Return to Client Portal</button>
                 </div>
             `;
 
             setTimeout(() => {
                 window.location.replace('client-portal.html');
-            }, 3500);
+            }, 3000);
         }
 
         /* ==========================================================================
-           INITIALIZATION & AUTHENTICATION LISTENERS
+           INITIALIZATION & LIFECYCLE LISTENERS
            ========================================================================== */
         document.addEventListener('DOMContentLoaded', async () => {
             const client = getSupabase();
-            if (!client) {
-                mainView.innerHTML = `
-                    <div class="empty-state">
-                        <p style="color: var(--accent-red);">Failed to establish connection with Supabase services.</p>
-                    </div>
-                `;
-                return;
-            }
+            if (!client) return;
 
             const { data: { session } } = await client.auth.getSession();
-            const authorized = await checkAdminAuthorization(session);
+            const isAuthorized = await verifyAdminAuthority(session);
 
-            if (authorized) {
+            if (isAuthorized) {
                 await loadAdminDashboard();
             }
 
             client.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
-                    const ok = await checkAdminAuthorization(session);
+                if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+                    const ok = await verifyAdminAuthority(session);
                     if (ok) await loadAdminDashboard();
-                } else if (event === 'SIGNED_OUT' || !session) {
+                } else if (event === 'SIGNED_OUT') {
                     window.location.replace('index.html');
                 }
             });
         });
 
         /* ==========================================================================
-           DATA FETCHING & DASHBOARD CONTROLLER
+           DATA LOADING & UI RENDERERS
            ========================================================================== */
-
-        /**
-         * Queries all project, payment, activity log, and inquiry records from Supabase.
-         */
         async function loadAdminDashboard() {
             const client = getSupabase();
 
@@ -741,129 +508,115 @@
                 client.from('inquiries').select('*').order('created_at', { ascending: false })
             ]);
 
-            const projects = projectsRes.data || [];
-            const payments = paymentsRes.data || [];
-            const logs = logsRes.data || [];
-            const inquiries = inquiriesRes.data || [];
-
-            renderAdminUI(projects, payments, logs, inquiries);
+            renderDashboardUI(
+                projectsRes.data || [],
+                paymentsRes.data || [],
+                logsRes.data || [],
+                inquiriesRes.data || []
+            );
         }
 
-        /* ==========================================================================
-           FULL DASHBOARD INTERFACE RENDERER
-           ========================================================================== */
-        function renderAdminUI(projects, payments, logs, inquiries) {
-            const totalRevenue = payments
+        function renderDashboardUI(projects, payments, logs, inquiries) {
+            const totalRev = payments
                 .filter(p => (p.status || p.payment_status || '').toLowerCase() === 'paid')
-                .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
-
-            const activeProjectsCount = projects.filter(p => (p.status || '').toLowerCase() !== 'completed').length;
+                .reduce((acc, p) => acc + (Number(p.amount) || 0), 0);
 
             mainView.innerHTML = `
-                <!-- Analytics Overview Counters -->
                 <section class="stats-grid">
                     <div class="stat-card">
-                        <div class="label">Total Revenue Collected</div>
-                        <div class="value" style="color: var(--accent-green);">$${totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                        <div class="subtext">From settled invoices</div>
+                        <div class="label">Total Settled Revenue</div>
+                        <div class="value" style="color: var(--accent-green);">$${totalRev.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+                        <div class="subtext">From cleared payments</div>
                     </div>
                     <div class="stat-card">
                         <div class="label">Active Projects</div>
-                        <div class="value">${activeProjectsCount}</div>
-                        <div class="subtext">In progress / review</div>
+                        <div class="value">${projects.filter(p => (p.status || '').toLowerCase() !== 'completed').length}</div>
+                        <div class="subtext">In production pipeline</div>
                     </div>
                     <div class="stat-card">
                         <div class="label">Total Inquiries</div>
                         <div class="value">${inquiries.length}</div>
-                        <div class="subtext">Contact form entries</div>
+                        <div class="subtext">Form submissions</div>
                     </div>
                     <div class="stat-card">
                         <div class="label">Logged Transactions</div>
                         <div class="value">${payments.length}</div>
-                        <div class="subtext">All ledger records</div>
+                        <div class="subtext">Total financial entries</div>
                     </div>
                 </section>
 
-                <!-- Navigation Tabs Bar -->
                 <nav class="tab-bar">
                     <button class="tab-btn active" onclick="switchTab('tab-projects', this)">
-                        Projects Management <span class="tab-badge">${projects.length}</span>
+                        Projects Directory <span class="tab-badge">${projects.length}</span>
                     </button>
                     <button class="tab-btn" onclick="switchTab('tab-payments', this)">
                         Payment Ledger <span class="tab-badge">${payments.length}</span>
                     </button>
                     <button class="tab-btn" onclick="switchTab('tab-logs', this)">
-                        Activity Timeline Logs <span class="tab-badge">${logs.length}</span>
+                        Activity Logs <span class="tab-badge">${logs.length}</span>
                     </button>
                     <button class="tab-btn" onclick="switchTab('tab-inquiries', this)">
                         Inquiry Inbox <span class="tab-badge">${inquiries.length}</span>
                     </button>
                 </nav>
 
-                <!-- Tab 1: Projects Management -->
+                <!-- Tab 1: Projects -->
                 <div id="tab-projects" class="tab-content active">
                     <div class="card">
-                        <h3 class="section-title">Create New Client Project</h3>
-                        <form id="create-project-form">
+                        <h3 class="section-title">Create New Project</h3>
+                        <form id="form-create-project">
                             <div class="form-grid">
                                 <div class="form-group">
-                                    <label>Project Title / Name</label>
-                                    <input type="text" id="proj-title" required placeholder="e.g. E-Commerce Platform Redesign">
+                                    <label>Project Title</label>
+                                    <input type="text" id="p-title" required placeholder="Web Application Build">
                                 </div>
                                 <div class="form-group">
                                     <label>Client Email</label>
-                                    <input type="email" id="proj-client-email" required placeholder="client@company.com">
+                                    <input type="email" id="p-email" required placeholder="client@company.com">
                                 </div>
                                 <div class="form-group">
-                                    <label>Client Name / Organization</label>
-                                    <input type="text" id="proj-client-name" placeholder="Acme Corporation">
+                                    <label>Client Name / Business</label>
+                                    <input type="text" id="p-name" placeholder="Acme Corp">
                                 </div>
                                 <div class="form-group">
-                                    <label>Project Status</label>
-                                    <select id="proj-status">
+                                    <label>Current Status</label>
+                                    <select id="p-status">
                                         <option value="In Progress">In Progress</option>
                                         <option value="Pending Review">Pending Review</option>
                                         <option value="Completed">Completed</option>
-                                        <option value="On Hold">On Hold</option>
                                     </select>
                                 </div>
                                 <div class="form-group full-width">
-                                    <label>Project Scope & Specifications</label>
-                                    <textarea id="proj-description" placeholder="Enter full project details, deliverables, and specifications..."></textarea>
+                                    <label>Scope / Specifications</label>
+                                    <textarea id="p-desc" placeholder="Enter detailed project scope..."></textarea>
                                 </div>
                             </div>
-                            <button type="submit" class="action-btn">
-                                Create Project Record
-                            </button>
+                            <button type="submit" class="action-btn">Add Project Record</button>
                         </form>
                     </div>
 
                     <div class="card">
-                        <h3 class="section-title">Existing Projects Directory</h3>
+                        <h3 class="section-title">All Registered Projects</h3>
                         <div class="table-responsive">
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>Project Title</th>
+                                        <th>Project</th>
                                         <th>Client Email</th>
-                                        <th>Client Name</th>
                                         <th>Status</th>
-                                        <th>Created Date</th>
+                                        <th>Date Created</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${projects.length === 0 ? '<tr><td colspan="6" class="text-center text-muted">No active projects registered in database.</td></tr>' : ''}
+                                    ${projects.length === 0 ? '<tr><td colspan="5" class="text-center text-muted">No projects found.</td></tr>' : ''}
                                     ${projects.map(p => `
                                         <tr>
-                                            <td><strong>${escapeHtml(p.title || p.project_name || 'Untitled Project')}</strong></td>
+                                            <td><strong>${escapeHtml(p.title || p.project_name || 'Untitled')}</strong></td>
                                             <td>${escapeHtml(p.client_email || p.email || 'N/A')}</td>
-                                            <td>${escapeHtml(p.client_name || '-')}</td>
                                             <td><span class="status-badge status-${(p.status || 'in-progress').toLowerCase().replace(/\s+/g, '-')}">${escapeHtml(p.status || 'In Progress')}</span></td>
                                             <td>${new Date(p.created_at).toLocaleDateString()}</td>
-                                            <td>
-                                                <button class="btn-danger" onclick="deleteProject('${p.id}')">Delete</button>
-                                            </td>
+                                            <td><button class="btn-danger" onclick="deleteItem('projects', '${p.id}')">Delete</button></td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -872,23 +625,23 @@
                     </div>
                 </div>
 
-                <!-- Tab 2: Payments Ledger -->
+                <!-- Tab 2: Payments -->
                 <div id="tab-payments" class="tab-content">
                     <div class="card">
-                        <h3 class="section-title">Record Payment / Invoice Entry</h3>
-                        <form id="create-payment-form">
+                        <h3 class="section-title">Record Payment Entry</h3>
+                        <form id="form-create-payment">
                             <div class="form-grid">
                                 <div class="form-group">
-                                    <label>Client Identifier / Email</label>
-                                    <input type="text" id="pay-client" required placeholder="e.g. John Doe / client@gmail.com">
+                                    <label>Client Name / Email</label>
+                                    <input type="text" id="pay-client" required placeholder="John Doe">
                                 </div>
                                 <div class="form-group">
-                                    <label>Amount ($ USD)</label>
-                                    <input type="number" id="pay-amount" step="0.01" required placeholder="1250.00">
+                                    <label>Amount ($)</label>
+                                    <input type="number" step="0.01" id="pay-amount" required placeholder="1500.00">
                                 </div>
                                 <div class="form-group">
                                     <label>Milestone / Note</label>
-                                    <input type="text" id="pay-milestone" placeholder="50% Deposit / Deliverable 1">
+                                    <input type="text" id="pay-milestone" placeholder="Initial Deposit">
                                 </div>
                                 <div class="form-group">
                                     <label>Payment Status</label>
@@ -899,36 +652,34 @@
                                     </select>
                                 </div>
                             </div>
-                            <button type="submit" class="action-btn">Log Payment Entry</button>
+                            <button type="submit" class="action-btn">Log Transaction</button>
                         </form>
                     </div>
 
                     <div class="card">
-                        <h3 class="section-title">All Financial Transactions</h3>
+                        <h3 class="section-title">Transaction History</h3>
                         <div class="table-responsive">
                             <table>
                                 <thead>
                                     <tr>
                                         <th>Date</th>
                                         <th>Client</th>
-                                        <th>Milestone / Description</th>
+                                        <th>Milestone</th>
                                         <th>Amount</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${payments.length === 0 ? '<tr><td colspan="6" class="text-center text-muted">No financial records logged yet.</td></tr>' : ''}
+                                    ${payments.length === 0 ? '<tr><td colspan="6" class="text-center text-muted">No transactions recorded.</td></tr>' : ''}
                                     ${payments.map(p => `
                                         <tr>
                                             <td>${new Date(p.created_at || Date.now()).toLocaleDateString()}</td>
                                             <td>${escapeHtml(p.client_name || p.email || 'N/A')}</td>
-                                            <td>${escapeHtml(p.milestone || p.notes || 'General Payment')}</td>
+                                            <td>${escapeHtml(p.milestone || 'General Payment')}</td>
                                             <td>$${Number(p.amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                                            <td><span class="status-badge status-${(p.status || p.payment_status || 'paid').toLowerCase()}">${escapeHtml(p.status || p.payment_status || 'Paid')}</span></td>
-                                            <td>
-                                                <button class="btn-danger" onclick="deletePayment('${p.id}')">Delete</button>
-                                            </td>
+                                            <td><span class="status-badge status-${(p.status || 'paid').toLowerCase()}">${escapeHtml(p.status || 'Paid')}</span></td>
+                                            <td><button class="btn-danger" onclick="deleteItem('payments', '${p.id}')">Delete</button></td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -937,50 +688,48 @@
                     </div>
                 </div>
 
-                <!-- Tab 3: Timeline Logs -->
+                <!-- Tab 3: Logs -->
                 <div id="tab-logs" class="tab-content">
                     <div class="card">
-                        <h3 class="section-title">Post New Project Activity Log</h3>
-                        <form id="create-log-form">
+                        <h3 class="section-title">Post Activity Update</h3>
+                        <form id="form-create-log">
                             <div class="form-grid">
                                 <div class="form-group">
-                                    <label>Target Project</label>
-                                    <select id="log-project-id" required>
-                                        <option value="">-- Select Target Project --</option>
-                                        ${projects.map(p => `<option value="${p.id}">${escapeHtml(p.title || p.project_name || 'Untitled Project')}</option>`).join('')}
+                                    <label>Select Project</label>
+                                    <select id="log-proj-id" required>
+                                        <option value="">-- Choose Project --</option>
+                                        ${projects.map(p => `<option value="${p.id}">${escapeHtml(p.title || p.project_name)}</option>`).join('')}
                                     </select>
                                 </div>
                                 <div class="form-group full-width">
-                                    <label>Activity Update Details</label>
-                                    <textarea id="log-text" required placeholder="Describe milestone progress, build updates, or revision completions..."></textarea>
+                                    <label>Log Message</label>
+                                    <textarea id="log-text" required placeholder="Milestone update notes..."></textarea>
                                 </div>
                             </div>
-                            <button type="submit" class="action-btn">Post Update Entry</button>
+                            <button type="submit" class="action-btn">Post Log Entry</button>
                         </form>
                     </div>
 
                     <div class="card">
-                        <h3 class="section-title">Activity Audit Timeline</h3>
+                        <h3 class="section-title">Audit Timeline</h3>
                         <div class="table-responsive">
                             <table>
                                 <thead>
                                     <tr>
                                         <th>Timestamp</th>
                                         <th>Project ID</th>
-                                        <th>Log Message</th>
+                                        <th>Message</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${logs.length === 0 ? '<tr><td colspan="4" class="text-center text-muted">No activity logs recorded.</td></tr>' : ''}
+                                    ${logs.length === 0 ? '<tr><td colspan="4" class="text-center text-muted">No logs recorded.</td></tr>' : ''}
                                     ${logs.map(l => `
                                         <tr>
-                                            <td style="white-space: nowrap;">${new Date(l.created_at).toLocaleString()}</td>
-                                            <td><code class="font-mono">${escapeHtml(l.project_id || '-')}</code></td>
-                                            <td>${escapeHtml(l.log_text || l.message || l.activity || '')}</td>
-                                            <td>
-                                                <button class="btn-danger" onclick="deleteLog('${l.id}')">Delete</button>
-                                            </td>
+                                            <td>${new Date(l.created_at).toLocaleString()}</td>
+                                            <td><code>${escapeHtml(l.project_id || '-')}</code></td>
+                                            <td>${escapeHtml(l.log_text || l.message || '')}</td>
+                                            <td><button class="btn-danger" onclick="deleteItem('activity_logs', '${l.id}')">Delete</button></td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -989,29 +738,29 @@
                     </div>
                 </div>
 
-                <!-- Tab 4: Inquiry Inbox -->
+                <!-- Tab 4: Inquiries -->
                 <div id="tab-inquiries" class="tab-content">
                     <div class="card">
-                        <h3 class="section-title">Inquiry Inbox & Contact Form Submissions</h3>
+                        <h3 class="section-title">Inquiry Inbox</h3>
                         <div class="table-responsive">
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>Date Received</th>
+                                        <th>Date</th>
                                         <th>Name</th>
                                         <th>Email</th>
-                                        <th>Subject / Service</th>
-                                        <th>Message Body</th>
+                                        <th>Subject</th>
+                                        <th>Message</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${inquiries.length === 0 ? '<tr><td colspan="5" class="text-center text-muted">No contact inquiries received yet.</td></tr>' : ''}
+                                    ${inquiries.length === 0 ? '<tr><td colspan="5" class="text-center text-muted">No inquiries in inbox.</td></tr>' : ''}
                                     ${inquiries.map(i => `
                                         <tr>
-                                            <td style="white-space: nowrap;">${new Date(i.created_at).toLocaleDateString()}</td>
-                                            <td><strong>${escapeHtml(i.name || i.client_name || 'Anonymous')}</strong></td>
+                                            <td>${new Date(i.created_at).toLocaleDateString()}</td>
+                                            <td><strong>${escapeHtml(i.name || 'Anonymous')}</strong></td>
                                             <td>${escapeHtml(i.email || '-')}</td>
-                                            <td>${escapeHtml(i.subject || i.service || 'General Inquiry')}</td>
+                                            <td>${escapeHtml(i.subject || 'General Inquiry')}</td>
                                             <td>${escapeHtml(i.message || '-')}</td>
                                         </tr>
                                     `).join('')}
@@ -1022,114 +771,66 @@
                 </div>
             `;
 
-            // Attach Form Submission Event Listeners
-            document.getElementById('create-project-form').addEventListener('submit', handleProjectSubmit);
-            document.getElementById('create-payment-form').addEventListener('submit', handlePaymentSubmit);
-            document.getElementById('create-log-form').addEventListener('submit', handleLogSubmit);
+            // Attach form handlers
+            document.getElementById('form-create-project').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const client = getSupabase();
+                const payload = {
+                    title: document.getElementById('p-title').value,
+                    project_name: document.getElementById('p-title').value,
+                    client_email: document.getElementById('p-email').value,
+                    client_name: document.getElementById('p-name').value,
+                    status: document.getElementById('p-status').value,
+                    description: document.getElementById('p-desc').value
+                };
+                const { error } = await client.from('projects').insert([payload]);
+                if (error) alert(error.message);
+                else loadAdminDashboard();
+            });
+
+            document.getElementById('form-create-payment').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const client = getSupabase();
+                const payload = {
+                    client_name: document.getElementById('pay-client').value,
+                    amount: parseFloat(document.getElementById('pay-amount').value),
+                    milestone: document.getElementById('pay-milestone').value || 'Payment',
+                    status: document.getElementById('pay-status').value,
+                    payment_status: document.getElementById('pay-status').value
+                };
+                const { error } = await client.from('payments').insert([payload]);
+                if (error) alert(error.message);
+                else loadAdminDashboard();
+            });
+
+            document.getElementById('form-create-log').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const client = getSupabase();
+                const payload = {
+                    project_id: document.getElementById('log-proj-id').value,
+                    log_text: document.getElementById('log-text').value
+                };
+                const { error } = await client.from('activity_logs').insert([payload]);
+                if (error) alert(error.message);
+                else loadAdminDashboard();
+            });
         }
 
         /* ==========================================================================
-           TAB NAVIGATION CONTROLLER
+           TAB SWITCHING & GENERIC DELETE ACTIONS
            ========================================================================== */
-        function switchTab(tabId, btnElement) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            btnElement.classList.add('active');
+            btn.classList.add('active');
         }
 
-        /* ==========================================================================
-           DATABASE ACTION & INSERTION HANDLERS
-           ========================================================================== */
-        async function handleProjectSubmit(e) {
-            e.preventDefault();
+        async function deleteItem(table, id) {
+            if (!confirm(`Are you sure you want to delete this record from ${table}?`)) return;
             const client = getSupabase();
-
-            const payload = {
-                title: document.getElementById('proj-title').value,
-                project_name: document.getElementById('proj-title').value,
-                client_email: document.getElementById('proj-client-email').value,
-                client_name: document.getElementById('proj-client-name').value,
-                status: document.getElementById('proj-status').value,
-                description: document.getElementById('proj-description').value
-            };
-
-            const { error } = await client.from('projects').insert([payload]);
-
-            if (error) {
-                alert('Failed to create project record: ' + error.message);
-            } else {
-                alert('Project record created successfully!');
-                loadAdminDashboard();
-            }
-        }
-
-        async function handlePaymentSubmit(e) {
-            e.preventDefault();
-            const client = getSupabase();
-
-            const payload = {
-                client_name: document.getElementById('pay-client').value,
-                amount: parseFloat(document.getElementById('pay-amount').value),
-                milestone: document.getElementById('pay-milestone').value || 'Payment Entry',
-                status: document.getElementById('pay-status').value,
-                payment_status: document.getElementById('pay-status').value
-            };
-
-            const { error } = await client.from('payments').insert([payload]);
-
-            if (error) {
-                alert('Failed to log payment record: ' + error.message);
-            } else {
-                alert('Payment logged successfully!');
-                loadAdminDashboard();
-            }
-        }
-
-        async function handleLogSubmit(e) {
-            e.preventDefault();
-            const client = getSupabase();
-
-            const payload = {
-                project_id: document.getElementById('log-project-id').value,
-                log_text: document.getElementById('log-text').value
-            };
-
-            const { error } = await client.from('activity_logs').insert([payload]);
-
-            if (error) {
-                alert('Failed to post activity update: ' + error.message);
-            } else {
-                alert('Activity log posted successfully!');
-                loadAdminDashboard();
-            }
-        }
-
-        /* ==========================================================================
-           DATABASE DELETION HANDLERS
-           ========================================================================== */
-        async function deleteProject(id) {
-            if (!confirm('Are you sure you want to permanently delete this project?')) return;
-            const client = getSupabase();
-            const { error } = await client.from('projects').delete().eq('id', id);
-            if (error) alert('Error removing project: ' + error.message);
-            else loadAdminDashboard();
-        }
-
-        async function deletePayment(id) {
-            if (!confirm('Are you sure you want to delete this financial ledger record?')) return;
-            const client = getSupabase();
-            const { error } = await client.from('payments').delete().eq('id', id);
-            if (error) alert('Error removing payment: ' + error.message);
-            else loadAdminDashboard();
-        }
-
-        async function deleteLog(id) {
-            if (!confirm('Are you sure you want to delete this activity log?')) return;
-            const client = getSupabase();
-            const { error } = await client.from('activity_logs').delete().eq('id', id);
-            if (error) alert('Error removing activity log: ' + error.message);
+            const { error } = await client.from(table).delete().eq('id', id);
+            if (error) alert('Delete error: ' + error.message);
             else loadAdminDashboard();
         }
     </script>
