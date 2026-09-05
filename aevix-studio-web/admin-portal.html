@@ -51,44 +51,6 @@
         .gap-md { gap: 1rem; }
         .gap-sm { gap: 0.5rem; }
 
-        /* Auth Screen */
-        #auth-container {
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 1.5rem;
-            background: radial-gradient(circle at top, rgba(99, 102, 241, 0.1) 0%, transparent 60%);
-        }
-
-        .auth-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-lg);
-            padding: 2.5rem;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-        }
-
-        .auth-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .auth-header h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            letter-spacing: -0.025em;
-            color: #fff;
-            margin-bottom: 0.25rem;
-        }
-
-        .auth-header p {
-            color: var(--text-muted);
-            font-size: 0.875rem;
-        }
-
         /* Dashboard Screen */
         #dashboard-container {
             display: flex;
@@ -341,7 +303,7 @@
             gap: 0.75rem;
         }
 
-        /* Empty State */
+        /* Empty & Loading State */
         .empty-state {
             padding: 4rem 2rem;
             text-align: center;
@@ -351,34 +313,12 @@
 </head>
 <body>
 
-    <!-- Authentication View -->
-    <div id="auth-container">
-        <div class="auth-card">
-            <div class="auth-header">
-                <h1>Aevix Studio</h1>
-                <p>Sign in to access administration portal</p>
-            </div>
-            <form id="login-form" onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" placeholder="admin@aevixstudio.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn" style="width: 100%; margin-top: 0.5rem;">Sign In</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Main Administrative Dashboard -->
-    <div id="dashboard-container" class="hidden">
+    <!-- Direct Administrative Dashboard -->
+    <div id="dashboard-container">
         <header class="flex-between">
             <div class="logo-text">Aevix Studio Admin</div>
             <div class="flex gap-md" style="align-items: center;">
-                <span id="user-display" class="user-badge">User</span>
-                <button onclick="handleLogout()" class="btn btn-secondary btn-sm">Logout</button>
+                <span id="user-display" class="user-badge">Admin Mode</span>
             </div>
         </header>
 
@@ -419,7 +359,7 @@
             <form id="crud-form" onsubmit="handleFormSubmit(event)">
                 <input type="hidden" id="entity-id">
                 <div id="modal-fields">
-                    <!-- Dynamic Dynamic Form Inputs Injected Here -->
+                    <!-- Dynamic Form Inputs Injected Here -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
@@ -433,16 +373,9 @@
         // ------------------------------------------------------------------
         // Configuration Parameters
         // Replace SUPABASE_URL & SUPABASE_ANON_KEY with your project credentials.
-        // Found in Supabase Dashboard -> Project Settings -> API
         // ------------------------------------------------------------------
         const SUPABASE_URL = 'https://YOUR_SUPABASE_PROJECT_ID.supabase.co';
         const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-        
-        // Allowed Admin Accounts
-        const ADMIN_EMAILS = [
-            'admin@aevixstudio.com',
-            'dahiyat@aevixstudio.com'
-        ];
 
         // Initialize Supabase Client
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -489,66 +422,12 @@
             }
         };
 
-        // Initialize Application
+        // Initialize Portal Immediately
         document.addEventListener('DOMContentLoaded', () => {
-            verifySessionFast();
+            switchTab(activeTab);
         });
 
-        // 1. Session Verification & Auth Handlers
-        async function verifySessionFast() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session && session.user) {
-                if (ADMIN_EMAILS.includes(session.user.email)) {
-                    showDashboard(session.user);
-                } else {
-                    alert('Access Restricted: Your account is not authorized as an Administrator.');
-                    await supabase.auth.signOut();
-                    showAuth();
-                }
-            } else {
-                showAuth();
-            }
-        }
-
-        async function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-            if (error) {
-                alert('Authentication Failed: ' + error.message);
-                return;
-            }
-
-            if (!ADMIN_EMAILS.includes(data.user.email)) {
-                alert('Access Restricted: Your account is not authorized as an Administrator.');
-                await supabase.auth.signOut();
-                return;
-            }
-
-            showDashboard(data.user);
-        }
-
-        async function handleLogout() {
-            await supabase.auth.signOut();
-            showAuth();
-        }
-
-        function showAuth() {
-            document.getElementById('auth-container').classList.remove('hidden');
-            document.getElementById('dashboard-container').classList.add('hidden');
-        }
-
-        function showDashboard(user) {
-            document.getElementById('user-display').textContent = user.email;
-            document.getElementById('auth-container').classList.add('hidden');
-            document.getElementById('dashboard-container').classList.remove('hidden');
-            switchTab(activeTab);
-        }
-
-        // 2. Navigation & Data Loading
+        // 1. Navigation & Data Loading
         function switchTab(tabName) {
             activeTab = tabName;
             
@@ -574,7 +453,7 @@
 
             if (error) {
                 console.error('Data loading error:', error);
-                tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--danger); padding: 2rem;">Failed to retrieve records from database.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--danger); padding: 2rem;">Failed to retrieve records from database. Check RLS policies or credentials.</td></tr>`;
                 return;
             }
 
@@ -582,7 +461,7 @@
             renderTableStructure(table, currentData);
         }
 
-        // 3. Dynamic Rendering Engine
+        // 2. Dynamic Rendering Engine
         function renderTableStructure(table, data) {
             const tableHead = document.getElementById('table-head');
             const tableBody = document.getElementById('table-body');
@@ -634,7 +513,7 @@
             });
         }
 
-        // 4. Modal & CRUD Form Operations
+        // 3. Modal & CRUD Form Operations
         function openModal(editId = null) {
             const schema = schemas[activeTab];
             const modalFields = document.getElementById('modal-fields');
