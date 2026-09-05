@@ -1,766 +1,710 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Portal - Dashboard</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Supabase JS Client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- FontAwesome Icons -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  <style>
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .filter-btn.active { background-color: #3B82F6; color: white; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | Aevix Studio</title>
+    <!-- Core Dependencies -->
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* ==========================================================================
+           1. DESIGN SYSTEM & VARIABLES
+           ========================================================================== */
+        :root {
+            --bg-dark: #07090e;
+            --bg-darker: #030407;
+            --card-bg: #0f172a;
+            --card-bg-hover: #1e293b;
+            --border-color: #1e293b;
+            --border-color-light: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dark: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-blue-hover: #2563eb;
+            --accent-green: #10b981;
+            --accent-green-bg: rgba(16, 185, 129, 0.12);
+            --accent-red: #ef4444;
+            --accent-red-bg: rgba(239, 68, 68, 0.12);
+            --accent-yellow: #f59e0b;
+            --accent-yellow-bg: rgba(245, 158, 11, 0.12);
+            --accent-purple: #8b5cf6;
+            --input-bg: #1e293b;
+            --input-border: #334155;
+            --input-focus: #3b82f6;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            --transition-speed: 0.2s;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-family);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+        body { padding-bottom: 4rem; }
+
+        /* ==========================================================================
+           2. CONTAINERS & HEADER
+           ========================================================================== */
+        .portal-container { max-width: 1320px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-brand { display: flex; align-items: center; gap: 1.25rem; }
+        .brand-logo-badge {
+            width: 46px; height: 46px; border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1.35rem; color: #ffffff;
+            box-shadow: var(--shadow-md);
+        }
+
+        .admin-title { font-size: 1.75rem; font-weight: 700; color: #ffffff; letter-spacing: -0.025em; }
+        .user-info { font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.5rem; }
+        .status-dot { width: 9px; height: 9px; border-radius: 50%; background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); display: inline-block; }
+
+        /* ==========================================================================
+           3. PROGRESS BAR & BADGES
+           ========================================================================== */
+        .progress-container { width: 100%; background-color: #1e293b; border-radius: 999px; height: 8px; overflow: hidden; margin-top: 6px; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent-blue), var(--accent-green)); border-radius: 999px; transition: width 0.3s ease; }
+        .progress-text { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+
+        /* ==========================================================================
+           4. DASHBOARD STAT CARDS & CARDS
+           ========================================================================== */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
+        .stat-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; transition: all var(--transition-speed) ease; }
+        .stat-card:hover { border-color: var(--border-color-light); transform: translateY(-2px); }
+        .stat-card .label { font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.06em; margin-bottom: 0.65rem; font-weight: 600; }
+        .stat-card .value { font-size: 2.1rem; font-weight: 800; color: #ffffff; line-height: 1.1; }
+        .stat-card .subtext { font-size: 0.8rem; color: var(--text-dark); margin-top: 0.5rem; }
+
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-lg); }
+        .section-title { margin-bottom: 1.5rem; font-size: 1.25rem; font-weight: 600; color: #ffffff; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 0.75rem; }
+
+        /* ==========================================================================
+           5. FORMS, INPUTS & BUTTONS
+           ========================================================================== */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+
+        .form-group input, .form-group select, .form-group textarea {
+            background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-main); padding: 12px 16px; border-radius: 8px; font-size: 0.925rem; outline: none; transition: all var(--transition-speed) ease; font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--input-focus); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+
+        .action-btn { background: var(--accent-blue); color: #ffffff; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.925rem; transition: all var(--transition-speed) ease; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .action-btn:hover { background: var(--accent-blue-hover); transform: translateY(-1px); }
+        .btn-danger { background: transparent; color: var(--accent-red); border: 1px solid var(--accent-red); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.825rem; font-weight: 500; transition: all var(--transition-speed) ease; }
+        .btn-danger:hover { background: var(--accent-red-bg); }
+        .logout-btn { background: transparent; color: var(--accent-red); border: 1px solid var(--accent-red); padding: 9px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.875rem; transition: all var(--transition-speed) ease; }
+        .logout-btn:hover { background: var(--accent-red-bg); }
+
+        /* ==========================================================================
+           6. NAVIGATION TABS & TABLES
+           ========================================================================== */
+        .tab-bar { display: flex; gap: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 2.5rem; overflow-x: auto; }
+        .tab-btn { background: none; border: none; color: var(--text-muted); padding: 1rem 0.5rem; cursor: pointer; font-weight: 500; font-size: 0.95rem; border-bottom: 2px solid transparent; white-space: nowrap; transition: all var(--transition-speed) ease; display: flex; align-items: center; gap: 0.5rem; }
+        .tab-btn:hover { color: var(--text-main); }
+        .tab-btn.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); font-weight: 600; }
+        .tab-badge { background: var(--input-bg); color: var(--text-muted); font-size: 0.75rem; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border-color); }
+        .tab-btn.active .tab-badge { background: rgba(59, 130, 246, 0.2); color: var(--accent-blue); border-color: rgba(59, 130, 246, 0.3); }
+
+        .table-responsive { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border-color); }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+        th { background: var(--bg-darker); color: var(--text-muted); padding: 14px 18px; font-weight: 600; border-bottom: 1px solid var(--border-color); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+        td { padding: 16px 18px; border-bottom: 1px solid var(--border-color); color: #e2e8f0; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: rgba(255, 255, 255, 0.015); }
+
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; text-transform: capitalize; }
+        .status-paid, .status-completed { background: var(--accent-green-bg); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status-pending, .status-in-progress { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .status-overdue, .status-cancelled { background: var(--accent-red-bg); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .empty-state { padding: 4rem 1rem; text-align: center; color: var(--text-muted); }
+        .client-id-pill { font-family: monospace; font-size: 0.75rem; background: var(--input-bg); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color); color: var(--accent-purple); }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans text-gray-800 antialiased selection:bg-blue-500 selection:text-white">
+<body>
 
-  <div class="flex h-screen overflow-hidden">
-    <!-- Sidebar Navigation -->
-    <aside class="w-64 bg-slate-900 text-white flex flex-col justify-between flex-shrink-0">
-      <div>
-        <div class="p-6 text-xl font-bold border-b border-slate-800 flex items-center space-x-3">
-          <i class="fa-solid fa-gauge-high text-blue-500 text-2xl"></i>
-          <span class="tracking-wide">Admin Portal</span>
-        </div>
-        <nav class="mt-6 space-y-1 px-3">
-          <button onclick="switchTab('projects-tab')" id="nav-projects-tab" class="nav-link w-full flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-800 hover:text-white transition-all font-medium active">
-            <i class="fa-solid fa-briefcase w-6 text-lg"></i>
-            <span>Projects</span>
-          </button>
-          <button onclick="switchTab('inquiries-tab')" id="nav-inquiries-tab" class="nav-link w-full flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-800 hover:text-white transition-all font-medium">
-            <i class="fa-solid fa-envelope w-6 text-lg"></i>
-            <span>Inquiries</span>
-          </button>
-          <button onclick="switchTab('payments-tab')" id="nav-payments-tab" class="nav-link w-full flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-slate-800 hover:text-white transition-all font-medium">
-            <i class="fa-solid fa-credit-card w-6 text-lg"></i>
-            <span>Payments</span>
-          </button>
-        </nav>
-      </div>
-      <div class="p-4 border-t border-slate-800 text-xs text-gray-400 flex items-center space-x-2">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span>Connected to Supabase DB</span>
-      </div>
-    </aside>
+    <div class="portal-container">
+        <!-- Top Navigation Header -->
+        <header class="admin-header">
+            <div class="header-brand">
+                <div class="brand-logo-badge">A</div>
+                <div>
+                    <h1 class="admin-title">Admin Control Portal</h1>
+                    <div id="user-info-display" class="user-info">
+                        <span class="status-dot"></span>
+                        <span>Verifying system permissions...</span>
+                    </div>
+                </div>
+            </div>
+            <button id="admin-logout-btn" class="logout-btn" style="display: none;">Sign Out</button>
+        </header>
 
-    <!-- Main Content Area -->
-    <main class="flex-1 overflow-y-auto bg-gray-50 p-8 relative">
-      
-      <!-- Toast Alert Notifications -->
-      <div id="alert-container" class="fixed top-4 right-4 z-50 space-y-2 pointer-events-none"></div>
-
-      <!-- PROJECTS TAB -->
-      <section id="projects-tab" class="tab-content active space-y-6">
-        <div class="flex justify-between items-center">
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900">Projects Overview</h1>
-            <p class="text-sm text-gray-500">Manage ongoing tasks, client deliverables, and project activity logs.</p>
-          </div>
-          <button onclick="openProjectModal()" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-4 py-2 rounded-lg font-medium shadow-md transition-all flex items-center space-x-2">
-            <i class="fa-solid fa-plus"></i>
-            <span>New Project</span>
-          </button>
-        </div>
-
-        <!-- Filter Sub-Navigation -->
-        <div class="flex space-x-2 border-b border-gray-200 pb-3">
-          <button onclick="filterProjects('All')" class="filter-btn filter-project active px-4 py-1.5 text-sm rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition-all">All</button>
-          <button onclick="filterProjects('Due')" class="filter-btn filter-project px-4 py-1.5 text-sm rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition-all">Due</button>
-          <button onclick="filterProjects('Working')" class="filter-btn filter-project px-4 py-1.5 text-sm rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition-all">Working</button>
-          <button onclick="filterProjects('Completed')" class="filter-btn filter-project px-4 py-1.5 text-sm rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition-all">Completed</button>
-        </div>
-
-        <!-- Projects Table Card -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase text-xs font-semibold tracking-wider">
-              <tr>
-                <th class="p-4">Project / Client</th>
-                <th class="p-4">Service</th>
-                <th class="p-4">Fee / Advance</th>
-                <th class="p-4">Status</th>
-                <th class="p-4">Payment</th>
-                <th class="p-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="projects-table-body" class="divide-y divide-gray-100">
-              <!-- Rendered via JS -->
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- INQUIRIES TAB -->
-      <section id="inquiries-tab" class="tab-content space-y-6">
-        <div class="flex justify-between items-center">
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900">Client Inquiries</h1>
-            <p class="text-sm text-gray-500">Track and respond to prospective client messages and lead conversions.</p>
-          </div>
-          <button onclick="openInquiryModal()" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-4 py-2 rounded-lg font-medium shadow-md transition-all flex items-center space-x-2">
-            <i class="fa-solid fa-plus"></i>
-            <span>Add Inquiry</span>
-          </button>
-        </div>
-
-        <div class="flex space-x-2 border-b border-gray-200 pb-3">
-          <button onclick="filterInquiries('All')" class="filter-btn filter-inquiry active px-4 py-1.5 text-sm rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition-all">All</button>
-          <button onclick="filterInquiries('Pending')" class="filter-btn filter-inquiry px-4 py-1.5 text-sm rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition-all">Pending</button>
-          <button onclick="filterInquiries('Contacted')" class="filter-btn filter-inquiry px-4 py-1.5 text-sm rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition-all">Contacted</button>
-          <button onclick="filterInquiries('Converted')" class="filter-btn filter-inquiry px-4 py-1.5 text-sm rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition-all">Converted</button>
-          <button onclick="filterInquiries('Archived')" class="filter-btn filter-inquiry px-4 py-1.5 text-sm rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition-all">Archived</button>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase text-xs font-semibold tracking-wider">
-              <tr>
-                <th class="p-4">Client</th>
-                <th class="p-4">Email</th>
-                <th class="p-4">Service</th>
-                <th class="p-4">Message</th>
-                <th class="p-4">Status</th>
-                <th class="p-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="inquiries-table-body" class="divide-y divide-gray-100">
-              <!-- Rendered via JS -->
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- PAYMENTS TAB -->
-      <section id="payments-tab" class="tab-content space-y-6">
-        <div class="flex justify-between items-center">
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900">Payments Ledger</h1>
-            <p class="text-sm text-gray-500">Monitor financial records, due dates, and transactional histories.</p>
-          </div>
-          <button onclick="openPaymentModal()" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-4 py-2 rounded-lg font-medium shadow-md transition-all flex items-center space-x-2">
-            <i class="fa-solid fa-plus"></i>
-            <span>Log Payment</span>
-          </button>
-        </div>
-
-        <div class="flex space-x-2 border-b border-gray-200 pb-3">
-          <button onclick="filterPayments('All')" class="filter-btn filter-payment active px-4 py-1.5 text-sm rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition-all">All</button>
-          <button onclick="filterPayments('Paid')" class="filter-btn filter-payment px-4 py-1.5 text-sm rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition-all">Paid</button>
-          <button onclick="filterPayments('Pending')" class="filter-btn filter-payment px-4 py-1.5 text-sm rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition-all">Pending</button>
-          <button onclick="filterPayments('Unpaid')" class="filter-btn filter-payment px-4 py-1.5 text-sm rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition-all">Unpaid</button>
-          <button onclick="filterPayments('Refunded')" class="filter-btn filter-payment px-4 py-1.5 text-sm rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium transition-all">Refunded</button>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase text-xs font-semibold tracking-wider">
-              <tr>
-                <th class="p-4">Client Name</th>
-                <th class="p-4">Amount</th>
-                <th class="p-4">Due Date</th>
-                <th class="p-4">Status</th>
-                <th class="p-4">Notes</th>
-                <th class="p-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="payments-table-body" class="divide-y divide-gray-100">
-              <!-- Rendered via JS -->
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-    </main>
-  </div>
-
-  <!-- MODAL: Project (Create / Edit) -->
-  <div id="project-modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-    <div class="bg-white rounded-xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
-      <div class="flex justify-between items-center border-b pb-3">
-        <h3 id="project-modal-title" class="text-lg font-bold text-gray-900">New Project</h3>
-        <button onclick="closeModal('project-modal')" class="text-gray-400 hover:text-gray-600 rounded-lg p-1 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
-      </div>
-      <form id="project-form" onsubmit="handleProjectSubmit(event)" class="grid grid-cols-2 gap-4">
-        <input type="hidden" id="project-id">
-        <div class="col-span-2 sm:col-span-1">
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Project Name *</label>
-          <input type="text" id="proj-name" required class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div class="col-span-2 sm:col-span-1">
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Client Name *</label>
-          <input type="text" id="proj-client-name" required class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div class="col-span-2 sm:col-span-1">
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Business Name</label>
-          <input type="text" id="proj-biz-name" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div class="col-span-2 sm:col-span-1">
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Contact Email *</label>
-          <input type="email" id="proj-contact-email" required class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div class="col-span-2 sm:col-span-1">
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Access Email *</label>
-          <input type="email" id="proj-access-email" required class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div class="col-span-2 sm:col-span-1">
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Service Requested *</label>
-          <input type="text" id="proj-service" required class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div class="col-span-2 sm:col-span-1">
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Projected Fee ($) *</label>
-          <input type="number" step="0.01" id="proj-fee" required class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div class="col-span-2 sm:col-span-1">
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Advance Amount ($)</label>
-          <input type="number" step="0.01" id="proj-advance" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div class="col-span-2 sm:col-span-1">
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Late Fee ($)</label>
-          <input type="number" step="0.01" id="proj-late-fee" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div class="col-span-2 sm:col-span-1">
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Deadline</label>
-          <input type="date" id="proj-deadline" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div class="col-span-2 sm:col-span-1">
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Status *</label>
-          <select id="proj-status" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all bg-white">
-            <option value="Due">Due</option>
-            <option value="Working">Working</option>
-            <option value="Completed">Completed</option>
-          </select>
-        </div>
-        <div class="col-span-2 sm:col-span-1">
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Payment Status *</label>
-          <select id="proj-pay-status" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all bg-white">
-            <option value="Unpaid">Unpaid</option>
-            <option value="Pending">Pending</option>
-            <option value="Paid">Paid</option>
-            <option value="Overdue">Overdue</option>
-          </select>
-        </div>
-        <div class="col-span-2">
-          <label class="block text-xs font-semibold text-gray-600 mb-1">People Working</label>
-          <input type="text" id="proj-people" placeholder="e.g. Alice, Bob" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div class="col-span-2 border-t pt-3">
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Project Logs / Notes</label>
-          <textarea id="proj-logs" rows="3" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Enter status notes or progress reports..."></textarea>
-        </div>
-        <div class="col-span-2 flex justify-end space-x-2 pt-2">
-          <button type="button" onclick="closeModal('project-modal')" class="px-4 py-2 border rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors">Cancel</button>
-          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-md transition-all">Save Project</button>
-        </div>
-      </form>
+        <!-- Main View Area -->
+        <main id="admin-main-view">
+            <div class="empty-state">
+                <p style="font-size: 1.1rem; color: var(--text-muted);">Verifying live session & administrative authority...</p>
+            </div>
+        </main>
     </div>
-  </div>
 
-  <!-- MODAL: Inquiry (Create / Edit) -->
-  <div id="inquiry-modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-    <div class="bg-white rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b pb-3">
-        <h3 id="inquiry-modal-title" class="text-lg font-bold text-gray-900">Inquiry</h3>
-        <button onclick="closeModal('inquiry-modal')" class="text-gray-400 hover:text-gray-600 rounded-lg p-1 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
-      </div>
-      <form id="inquiry-form" onsubmit="handleInquirySubmit(event)" class="space-y-4">
-        <input type="hidden" id="inquiry-id">
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Client Name *</label>
-          <input type="text" id="inq-name" required class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Email *</label>
-          <input type="email" id="inq-email" required class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Service Requested *</label>
-          <input type="text" id="inq-service" required class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Status *</label>
-          <select id="inq-status" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all bg-white">
-            <option value="Pending">Pending</option>
-            <option value="Contacted">Contacted</option>
-            <option value="Converted">Converted</option>
-            <option value="Archived">Archived</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Message *</label>
-          <textarea id="inq-message" rows="3" required class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"></textarea>
-        </div>
-        <div class="flex justify-end space-x-2 border-t pt-3">
-          <button type="button" onclick="closeModal('inquiry-modal')" class="px-4 py-2 border rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors">Cancel</button>
-          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-md transition-all">Save Inquiry</button>
-        </div>
-      </form>
-    </div>
-  </div>
+    <script>
+        /* ==========================================================================
+           SUPABASE CONSTANTS & INSTANCE INITIALIZATION
+           ========================================================================== */
+        const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
 
-  <!-- MODAL: Payment (Create / Edit) -->
-  <div id="payment-modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-    <div class="bg-white rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b pb-3">
-        <h3 id="payment-modal-title" class="text-lg font-bold text-gray-900">Log Payment</h3>
-        <button onclick="closeModal('payment-modal')" class="text-gray-400 hover:text-gray-600 rounded-lg p-1 transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
-      </div>
-      <form id="payment-form" onsubmit="handlePaymentSubmit(event)" class="space-y-4">
-        <input type="hidden" id="payment-id">
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Client Name *</label>
-          <input type="text" id="pay-client" required class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Amount ($) *</label>
-          <input type="number" step="0.01" id="pay-amount" required class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Due Date *</label>
-          <input type="date" id="pay-date" required class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Status *</label>
-          <select id="pay-status" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all bg-white">
-            <option value="Unpaid">Unpaid</option>
-            <option value="Pending">Pending</option>
-            <option value="Paid">Paid</option>
-            <option value="Refunded">Refunded</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Notes</label>
-          <textarea id="pay-notes" rows="2" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"></textarea>
-        </div>
-        <div class="flex justify-end space-x-2 border-t pt-3">
-          <button type="button" onclick="closeModal('payment-modal')" class="px-4 py-2 border rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors">Cancel</button>
-          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-md transition-all">Save Record</button>
-        </div>
-      </form>
-    </div>
-  </div>
+        let supabaseClient = null;
 
-  <script>
-    // ==========================================
-    // SUPABASE CONFIGURATION
-    // ==========================================
-    const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
-    
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
 
-    // Global State
-    let projectsData = [];
-    let inquiriesData = [];
-    let paymentsData = [];
+        function getSupabase() {
+            if (!supabaseClient) {
+                const config = {
+                    auth: {
+                        flowType: 'pkce',
+                        autoRefreshToken: true,
+                        persistSession: true,
+                        detectSessionInUrl: true
+                    }
+                };
+                if (window.supabase && typeof window.supabase.createClient === 'function') {
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, config);
+                } else if (typeof createClient === 'function') {
+                    supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, config);
+                }
+            }
+            return supabaseClient;
+        }
 
-    let currentProjFilter = 'All';
-    let currentInqFilter = 'All';
-    let currentPayFilter = 'All';
+        const mainView = document.getElementById('admin-main-view');
+        const logoutBtn = document.getElementById('admin-logout-btn');
+        const userInfoDisplay = document.getElementById('user-info-display');
 
-    // Application Initialization
-    document.addEventListener('DOMContentLoaded', () => {
-      fetchProjects();
-      fetchInquiries();
-      fetchPayments();
-    });
+        /* ==========================================================================
+           FAILSAFE AUTHENTICATION & AUTHORIZATION SYSTEM
+           ========================================================================== */
+        logoutBtn.addEventListener('click', async () => {
+            const client = getSupabase();
+            if (client) await client.auth.signOut();
+            window.location.replace('index.html');
+        });
 
-    // Navigation Handler
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('bg-slate-800', 'text-white'));
-      
-      document.getElementById(tabId).classList.add('active');
-      document.getElementById(`nav-${tabId}`).classList.add('bg-slate-800', 'text-white');
-    }
+        async function verifyAdminAuthority(session) {
+            if (!session || !session.user) {
+                window.location.replace('index.html');
+                return false;
+            }
 
-    // Alert Banner Manager
-    function showAlert(msg, type = 'success') {
-      const container = document.getElementById('alert-container');
-      const el = document.createElement('div');
-      const bg = type === 'success' ? 'bg-emerald-600' : 'bg-red-600';
-      el.className = `${bg} text-white px-4 py-3 rounded-lg shadow-xl text-sm font-medium pointer-events-auto transition-all duration-300 flex items-center space-x-2`;
-      el.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i><span>${msg}</span>`;
-      container.appendChild(el);
-      setTimeout(() => {
-        el.classList.add('opacity-0', 'translate-x-2');
-        setTimeout(() => el.remove(), 300);
-      }, 3000);
-    }
+            const email = (session.user.email || '').toLowerCase();
+            const userId = session.user.id;
+            const client = getSupabase();
 
-    function closeModal(id) {
-      document.getElementById(id).classList.add('hidden');
-    }
+            let isAdmin = false;
 
-    // ==========================================
-    // 1. PROJECTS MODULE
-    // ==========================================
-    async function fetchProjects() {
-      const { data, error } = await db.from('projects').select('*, project_logs(log_text)').order('created_at', { ascending: false });
-      if (error) return showAlert('Failed to load projects', 'error');
-      projectsData = data;
-      renderProjects();
-    }
+            try {
+                const { data: prof, error: profErr } = await client
+                    .from('profiles')
+                    .select('role, is_admin')
+                    .eq('id', userId)
+                    .maybeSingle();
 
-    function filterProjects(status) {
-      currentProjFilter = status;
-      document.querySelectorAll('.filter-project').forEach(btn => {
-        btn.classList.toggle('active', btn.innerText === status);
-      });
-      renderProjects();
-    }
+                if (prof && !profErr) {
+                    if (prof.role === 'admin' || prof.is_admin === true) {
+                        isAdmin = true;
+                    }
+                }
+            } catch (e) {
+                console.warn('Profiles table check bypassed due to policy restriction.');
+            }
 
-    function renderProjects() {
-      const tbody = document.getElementById('projects-table-body');
-      tbody.innerHTML = '';
+            if (!isAdmin) {
+                try {
+                    const { data: adm, error: admErr } = await client
+                        .from('admin_users')
+                        .select('email')
+                        .eq('email', email)
+                        .maybeSingle();
 
-      const filtered = projectsData.filter(p => currentProjFilter === 'All' || p.status === currentProjFilter);
+                    if (adm && !admErr) isAdmin = true;
+                } catch (e) {
+                    console.warn('admin_users table query bypassed.');
+                }
+            }
 
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-gray-400">No project records found.</td></tr>`;
-        return;
-      }
+            if (!isAdmin) {
+                const userMeta = session.user.user_metadata || {};
+                const appMeta = session.user.app_metadata || {};
+                if (userMeta.role === 'admin' || appMeta.role === 'admin' || userMeta.is_admin === true) {
+                    isAdmin = true;
+                }
+            }
 
-      filtered.forEach(p => {
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50/80 transition-colors';
-        tr.innerHTML = `
-          <td class="p-4">
-            <div class="font-bold text-gray-900">${p.project_name}</div>
-            <div class="text-xs text-gray-500">${p.client_name} ${p.client_business_name ? `(${p.client_business_name})` : ''}</div>
-          </td>
-          <td class="p-4 text-gray-600 font-medium">${p.service_requested}</td>
-          <td class="p-4">
-            <div class="font-semibold text-gray-800">$${parseFloat(p.projected_fee).toFixed(2)}</div>
-            <div class="text-xs text-gray-400">Adv: $${parseFloat(p.advance_amount || 0).toFixed(2)}</div>
-          </td>
-          <td class="p-4">
-            <span class="px-2.5 py-1 text-xs rounded-full font-semibold ${getBadgeColor(p.status)}">${p.status}</span>
-          </td>
-          <td class="p-4">
-            <span class="px-2.5 py-1 text-xs rounded-full font-semibold ${getBadgeColor(p.payment_status)}">${p.payment_status}</span>
-          </td>
-          <td class="p-4 text-right space-x-1">
-            <button onclick="editProject('${p.id}')" class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg p-2 transition-colors"><i class="fa-solid fa-pen-to-square"></i></button>
-            <button onclick="deleteProject('${p.id}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg p-2 transition-colors"><i class="fa-solid fa-trash"></i></button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
+            if (!isAdmin) {
+                renderAccessDenied(email);
+                return false;
+            }
 
-    function openProjectModal(data = null) {
-      document.getElementById('project-form').reset();
-      document.getElementById('project-id').value = '';
-      document.getElementById('project-modal-title').innerText = data ? 'Edit Project' : 'New Project';
+            userInfoDisplay.innerHTML = `
+                <span class="status-dot"></span>
+                <span>Authorized Admin: <strong>${escapeHtml(email)}</strong></span>
+            `;
+            logoutBtn.style.display = 'inline-block';
+            return true;
+        }
 
-      if (data) {
-        document.getElementById('project-id').value = data.id;
-        document.getElementById('proj-name').value = data.project_name;
-        document.getElementById('proj-client-name').value = data.client_name;
-        document.getElementById('proj-biz-name').value = data.client_business_name || '';
-        document.getElementById('proj-contact-email').value = data.client_contact_email;
-        document.getElementById('proj-access-email').value = data.client_access_email;
-        document.getElementById('proj-service').value = data.service_requested;
-        document.getElementById('proj-fee').value = data.projected_fee;
-        document.getElementById('proj-advance').value = data.advance_amount || '';
-        document.getElementById('proj-late-fee').value = data.late_fee || '';
-        document.getElementById('proj-deadline').value = data.deadline || '';
-        document.getElementById('proj-status').value = data.status;
-        document.getElementById('proj-pay-status').value = data.payment_status;
-        document.getElementById('proj-people').value = data.people_working || '';
-        document.getElementById('proj-logs').value = data.project_logs?.[0]?.log_text || '';
-      }
+        function renderAccessDenied(email) {
+            userInfoDisplay.innerHTML = `
+                <span class="status-dot" style="background-color: var(--accent-red); box-shadow: 0 0 8px var(--accent-red);"></span>
+                <span>Account: ${escapeHtml(email)}</span>
+            `;
+            logoutBtn.style.display = 'inline-block';
+            
+            mainView.innerHTML = `
+                <div class="empty-state">
+                    <h2 style="color: var(--accent-red);">Access Denied</h2>
+                    <p style="margin-top: 10px;">Your account (<strong>${escapeHtml(email)}</strong>) is not authorized as an admin. Redirecting...</p>
+                </div>
+            `;
 
-      document.getElementById('project-modal').classList.remove('hidden');
-    }
+            setTimeout(() => {
+                window.location.replace('client-portal.html');
+            }, 3000);
+        }
 
-    function editProject(id) {
-      const p = projectsData.find(item => item.id == id);
-      if (p) openProjectModal(p);
-    }
+        /* ==========================================================================
+           INITIALIZATION & LISTENERS
+           ========================================================================== */
+        document.addEventListener('DOMContentLoaded', async () => {
+            const client = getSupabase();
+            if (!client) return;
 
-    async function handleProjectSubmit(e) {
-      e.preventDefault();
-      const id = document.getElementById('project-id').value;
-      
-      const payload = {
-        project_name: document.getElementById('proj-name').value,
-        client_name: document.getElementById('proj-client-name').value,
-        client_business_name: document.getElementById('proj-biz-name').value,
-        client_contact_email: document.getElementById('proj-contact-email').value,
-        client_access_email: document.getElementById('proj-access-email').value,
-        service_requested: document.getElementById('proj-service').value,
-        projected_fee: parseFloat(document.getElementById('proj-fee').value),
-        advance_amount: parseFloat(document.getElementById('proj-advance').value) || 0,
-        late_fee: parseFloat(document.getElementById('proj-late-fee').value) || 0,
-        deadline: document.getElementById('proj-deadline').value || null,
-        status: document.getElementById('proj-status').value,
-        payment_status: document.getElementById('proj-pay-status').value,
-        people_working: document.getElementById('proj-people').value
-      };
+            const { data: { session } } = await client.auth.getSession();
+            const isAuthorized = await verifyAdminAuthority(session);
 
-      let projId = id;
+            if (isAuthorized) {
+                await loadAdminDashboard();
+            }
 
-      if (id) {
-        const { error } = await db.from('projects').update(payload).eq('id', id);
-        if (error) return showAlert('Failed to update project', 'error');
-      } else {
-        const { data, error } = await db.from('projects').insert([payload]).select();
-        if (error) return showAlert('Failed to create project', 'error');
-        projId = data[0].id;
-      }
+            client.auth.onAuthStateChange(async (event, session) => {
+                if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+                    const ok = await verifyAdminAuthority(session);
+                    if (ok) await loadAdminDashboard();
+                } else if (event === 'SIGNED_OUT') {
+                    window.location.replace('index.html');
+                }
+            });
+        });
 
-      // Upsert associated project activity logs
-      const logText = document.getElementById('proj-logs').value;
-      if (projId) {
-        await db.from('project_logs').upsert({ project_id: projId, log_text: logText });
-      }
+        /* ==========================================================================
+           DATA LOADING & UI RENDERERS
+           ========================================================================== */
+        async function loadAdminDashboard() {
+            const client = getSupabase();
 
-      showAlert('Project saved successfully');
-      closeModal('project-modal');
-      fetchProjects();
-    }
+            const [projectsRes, paymentsRes, logsRes, inquiriesRes] = await Promise.all([
+                client.from('projects').select('*').order('created_at', { ascending: false }),
+                client.from('payments').select('*').order('created_at', { ascending: false }),
+                client.from('activity_logs').select('*').order('created_at', { ascending: false }),
+                client.from('inquiries').select('*').order('created_at', { ascending: false })
+            ]);
 
-    async function deleteProject(id) {
-      if (!confirm('Are you sure you want to remove this project?')) return;
-      const { error } = await db.from('projects').delete().eq('id', id);
-      if (error) return showAlert('Delete failed', 'error');
-      showAlert('Project deleted successfully');
-      fetchProjects();
-    }
+            renderDashboardUI(
+                projectsRes.data || [],
+                paymentsRes.data || [],
+                logsRes.data || [],
+                inquiriesRes.data || []
+            );
+        }
 
-    // ==========================================
-    // 2. INQUIRIES MODULE
-    // ==========================================
-    async function fetchInquiries() {
-      const { data, error } = await db.from('inquiries').select('*').order('created_at', { ascending: false });
-      if (error) return showAlert('Failed to load inquiries', 'error');
-      inquiriesData = data;
-      renderInquiries();
-    }
+        function renderDashboardUI(projects, payments, logs, inquiries) {
+            const totalRev = payments
+                .filter(p => (p.status || p.payment_status || '').toLowerCase() === 'paid')
+                .reduce((acc, p) => acc + (Number(p.amount) || 0), 0);
 
-    function filterInquiries(status) {
-      currentInqFilter = status;
-      document.querySelectorAll('.filter-inquiry').forEach(btn => {
-        btn.classList.toggle('active', btn.innerText === status);
-      });
-      renderInquiries();
-    }
+            mainView.innerHTML = `
+                <section class="stats-grid">
+                    <div class="stat-card">
+                        <div class="label">Total Settled Revenue</div>
+                        <div class="value" style="color: var(--accent-green);">$${totalRev.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+                        <div class="subtext">From cleared payments</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Active Projects</div>
+                        <div class="value">${projects.filter(p => (p.status || '').toLowerCase() !== 'completed').length}</div>
+                        <div class="subtext">In production pipeline</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Total Inquiries</div>
+                        <div class="value">${inquiries.length}</div>
+                        <div class="subtext">Form submissions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Logged Transactions</div>
+                        <div class="value">${payments.length}</div>
+                        <div class="subtext">Total financial records</div>
+                    </div>
+                </section>
 
-    function renderInquiries() {
-      const tbody = document.getElementById('inquiries-table-body');
-      tbody.innerHTML = '';
+                <nav class="tab-bar">
+                    <button class="tab-btn active" onclick="switchTab('tab-projects', this)">
+                        Projects & Progress <span class="tab-badge">${projects.length}</span>
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('tab-payments', this)">
+                        Payment Ledger <span class="tab-badge">${payments.length}</span>
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('tab-logs', this)">
+                        Separate Activity Logs <span class="tab-badge">${logs.length}</span>
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('tab-inquiries', this)">
+                        Inquiry Inbox <span class="tab-badge">${inquiries.length}</span>
+                    </button>
+                </nav>
 
-      const filtered = inquiriesData.filter(i => currentInqFilter === 'All' || i.status === currentInqFilter);
+                <!-- Tab 1: Projects & Percentage Progress -->
+                <div id="tab-projects" class="tab-content active">
+                    <div class="card">
+                        <h3 class="section-title">Create New Client Project</h3>
+                        <form id="form-create-project">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Project Title</label>
+                                    <input type="text" id="p-title" required placeholder="Custom Web Platform">
+                                </div>
+                                <div class="form-group">
+                                    <label>Client Name</label>
+                                    <input type="text" id="p-client-name" required placeholder="John Doe / Acme Corp">
+                                </div>
+                                <div class="form-group">
+                                    <label>Client Email</label>
+                                    <input type="email" id="p-email" required placeholder="client@company.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>Client ID / User UUID (Optional)</label>
+                                    <input type="text" id="p-client-id" placeholder="e.g. 8f9b2c3d-...">
+                                </div>
+                                <div class="form-group">
+                                    <label>Completion Percentage (%)</label>
+                                    <input type="number" id="p-percentage" min="0" max="100" value="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Project Status</label>
+                                    <select id="p-status">
+                                        <option value="In Progress">In Progress</option>
+                                        <option value="Pending Review">Pending Review</option>
+                                        <option value="Completed">Completed</option>
+                                        <option value="On Hold">On Hold</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Project Scope & Details</label>
+                                    <textarea id="p-desc" placeholder="Scope details, technical requirements..."></textarea>
+                                </div>
+                            </div>
+                            <button type="submit" class="action-btn">Create Project Record</button>
+                        </form>
+                    </div>
 
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-gray-400">No inquiry records found.</td></tr>`;
-        return;
-      }
+                    <div class="card">
+                        <h3 class="section-title">Registered Client Projects</h3>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Project Name</th>
+                                        <th>Client Name & Email</th>
+                                        <th>Client ID</th>
+                                        <th>Progress Completed (%)</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${projects.length === 0 ? '<tr><td colspan="6" class="text-center text-muted">No projects registered.</td></tr>' : ''}
+                                    ${projects.map(p => {
+                                        const pct = p.percentage !== undefined && p.percentage !== null ? p.percentage : (p.progress || 0);
+                                        return `
+                                        <tr>
+                                            <td><strong>${escapeHtml(p.title || p.project_name || 'Untitled')}</strong></td>
+                                            <td>
+                                                <div>${escapeHtml(p.client_name || 'N/A')}</div>
+                                                <div style="font-size: 0.8rem; color: var(--text-muted);">${escapeHtml(p.client_email || p.email || 'N/A')}</div>
+                                            </td>
+                                            <td><span class="client-id-pill">${escapeHtml(p.client_id || p.user_id || 'N/A')}</span></td>
+                                            <td style="min-width: 140px;">
+                                                <div class="progress-text">${pct}%</div>
+                                                <div class="progress-container">
+                                                    <div class="progress-bar" style="width: ${pct}%;"></div>
+                                                </div>
+                                            </td>
+                                            <td><span class="status-badge status-${(p.status || 'in-progress').toLowerCase().replace(/\s+/g, '-')}">${escapeHtml(p.status || 'In Progress')}</span></td>
+                                            <td><button class="btn-danger" onclick="deleteItem('projects', '${p.id}')">Delete</button></td>
+                                        </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
-      filtered.forEach(i => {
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50/80 transition-colors';
-        tr.innerHTML = `
-          <td class="p-4 font-bold text-gray-900">${i.client_name}</td>
-          <td class="p-4 text-gray-600">${i.email}</td>
-          <td class="p-4 text-gray-600 font-medium">${i.service_requested}</td>
-          <td class="p-4 text-gray-500 max-w-xs truncate" title="${i.message}">${i.message}</td>
-          <td class="p-4">
-            <span class="px-2.5 py-1 text-xs rounded-full font-semibold ${getBadgeColor(i.status)}">${i.status}</span>
-          </td>
-          <td class="p-4 text-right space-x-1">
-            <button onclick="editInquiry('${i.id}')" class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg p-2 transition-colors"><i class="fa-solid fa-pen-to-square"></i></button>
-            <button onclick="deleteInquiry('${i.id}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg p-2 transition-colors"><i class="fa-solid fa-trash"></i></button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
+                <!-- Tab 2: Payments Ledger -->
+                <div id="tab-payments" class="tab-content">
+                    <div class="card">
+                        <h3 class="section-title">Log Payment / Invoice Entry</h3>
+                        <form id="form-create-payment">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Client Name</label>
+                                    <input type="text" id="pay-client" required placeholder="John Doe">
+                                </div>
+                                <div class="form-group">
+                                    <label>Client ID / UUID</label>
+                                    <input type="text" id="pay-client-id" placeholder="Optional User UUID">
+                                </div>
+                                <div class="form-group">
+                                    <label>Amount ($ USD)</label>
+                                    <input type="number" step="0.01" id="pay-amount" required placeholder="1250.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>Milestone / Milestone Name</label>
+                                    <input type="text" id="pay-milestone" placeholder="50% Upfront Deposit">
+                                </div>
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <select id="pay-status">
+                                        <option value="Paid">Paid</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Overdue">Overdue</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="action-btn">Log Payment Entry</button>
+                        </form>
+                    </div>
 
-    function openInquiryModal(data = null) {
-      document.getElementById('inquiry-form').reset();
-      document.getElementById('inquiry-id').value = '';
-      document.getElementById('inquiry-modal-title').innerText = data ? 'Edit Inquiry' : 'New Inquiry';
+                    <div class="card">
+                        <h3 class="section-title">Financial Transaction Records</h3>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Client Name</th>
+                                        <th>Client ID</th>
+                                        <th>Milestone Description</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${payments.length === 0 ? '<tr><td colspan="7" class="text-center text-muted">No transactions recorded.</td></tr>' : ''}
+                                    ${payments.map(p => `
+                                        <tr>
+                                            <td>${new Date(p.created_at || Date.now()).toLocaleDateString()}</td>
+                                            <td><strong>${escapeHtml(p.client_name || p.email || 'N/A')}</strong></td>
+                                            <td><span class="client-id-pill">${escapeHtml(p.client_id || p.user_id || 'N/A')}</span></td>
+                                            <td>${escapeHtml(p.milestone || p.notes || 'General Payment')}</td>
+                                            <td>$${Number(p.amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                                            <td><span class="status-badge status-${(p.status || p.payment_status || 'paid').toLowerCase()}">${escapeHtml(p.status || p.payment_status || 'Paid')}</span></td>
+                                            <td><button class="btn-danger" onclick="deleteItem('payments', '${p.id}')">Delete</button></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
-      if (data) {
-        document.getElementById('inquiry-id').value = data.id;
-        document.getElementById('inq-name').value = data.client_name;
-        document.getElementById('inq-email').value = data.email;
-        document.getElementById('inq-service').value = data.service_requested;
-        document.getElementById('inq-status').value = data.status;
-        document.getElementById('inq-message').value = data.message;
-      }
+                <!-- Tab 3: Separate Activity Logs -->
+                <div id="tab-logs" class="tab-content">
+                    <div class="card">
+                        <h3 class="section-title">Post Project Log Update</h3>
+                        <form id="form-create-log">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Target Project</label>
+                                    <select id="log-proj-id" required>
+                                        <option value="">-- Choose Target Project --</option>
+                                        ${projects.map(p => `<option value="${p.id}">${escapeHtml(p.title || p.project_name)} (${escapeHtml(p.client_name || 'No Client')})</option>`).join('')}
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Detailed Activity Log</label>
+                                    <textarea id="log-text" required placeholder="Posted update on client dashboard..."></textarea>
+                                </div>
+                            </div>
+                            <button type="submit" class="action-btn">Publish Activity Log</button>
+                        </form>
+                    </div>
 
-      document.getElementById('inquiry-modal').classList.remove('hidden');
-    }
+                    <div class="card">
+                        <h3 class="section-title">Separate Activity Audit Log</h3>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Project ID</th>
+                                        <th>Log Details</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${logs.length === 0 ? '<tr><td colspan="4" class="text-center text-muted">No activity logs recorded.</td></tr>' : ''}
+                                    ${logs.map(l => `
+                                        <tr>
+                                            <td style="white-space: nowrap;">${new Date(l.created_at).toLocaleString()}</td>
+                                            <td><code>${escapeHtml(l.project_id || '-')}</code></td>
+                                            <td>${escapeHtml(l.log_text || l.message || '')}</td>
+                                            <td><button class="btn-danger" onclick="deleteItem('activity_logs', '${l.id}')">Delete</button></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
-    function editInquiry(id) {
-      const i = inquiriesData.find(item => item.id == id);
-      if (i) openInquiryModal(i);
-    }
+                <!-- Tab 4: Inquiry Inbox -->
+                <div id="tab-inquiries" class="tab-content">
+                    <div class="card">
+                        <h3 class="section-title">Inquiry Inbox</h3>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Client Name</th>
+                                        <th>Email</th>
+                                        <th>Subject</th>
+                                        <th>Message</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${inquiries.length === 0 ? '<tr><td colspan="5" class="text-center text-muted">No inquiries received.</td></tr>' : ''}
+                                    ${inquiries.map(i => `
+                                        <tr>
+                                            <td>${new Date(i.created_at).toLocaleDateString()}</td>
+                                            <td><strong>${escapeHtml(i.name || i.client_name || 'Anonymous')}</strong></td>
+                                            <td>${escapeHtml(i.email || '-')}</td>
+                                            <td>${escapeHtml(i.subject || i.service || 'General Inquiry')}</td>
+                                            <td>${escapeHtml(i.message || '-')}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
 
-    async function handleInquirySubmit(e) {
-      e.preventDefault();
-      const id = document.getElementById('inquiry-id').value;
-      const payload = {
-        client_name: document.getElementById('inq-name').value,
-        email: document.getElementById('inq-email').value,
-        service_requested: document.getElementById('inq-service').value,
-        status: document.getElementById('inq-status').value,
-        message: document.getElementById('inq-message').value
-      };
+            /* ==========================================================================
+               FORM SUBMISSION HANDLERS
+               ========================================================================== */
+            document.getElementById('form-create-project').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const client = getSupabase();
+                const payload = {
+                    title: document.getElementById('p-title').value,
+                    project_name: document.getElementById('p-title').value,
+                    client_name: document.getElementById('p-client-name').value,
+                    client_email: document.getElementById('p-email').value,
+                    client_id: document.getElementById('p-client-id').value || null,
+                    percentage: parseInt(document.getElementById('p-percentage').value, 10),
+                    progress: parseInt(document.getElementById('p-percentage').value, 10),
+                    status: document.getElementById('p-status').value,
+                    description: document.getElementById('p-desc').value
+                };
 
-      if (id) {
-        const { error } = await db.from('inquiries').update(payload).eq('id', id);
-        if (error) return showAlert('Failed to update inquiry', 'error');
-      } else {
-        const { error } = await db.from('inquiries').insert([payload]);
-        if (error) return showAlert('Failed to create inquiry', 'error');
-      }
+                const { error } = await client.from('projects').insert([payload]);
+                if (error) alert('Error creating project: ' + error.message);
+                else loadAdminDashboard();
+            });
 
-      showAlert('Inquiry saved successfully');
-      closeModal('inquiry-modal');
-      fetchInquiries();
-    }
+            document.getElementById('form-create-payment').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const client = getSupabase();
+                const payload = {
+                    client_name: document.getElementById('pay-client').value,
+                    client_id: document.getElementById('pay-client-id').value || null,
+                    amount: parseFloat(document.getElementById('pay-amount').value),
+                    milestone: document.getElementById('pay-milestone').value || 'Payment',
+                    status: document.getElementById('pay-status').value,
+                    payment_status: document.getElementById('pay-status').value
+                };
 
-    async function deleteInquiry(id) {
-      if (!confirm('Are you sure you want to delete this inquiry?')) return;
-      const { error } = await db.from('inquiries').delete().eq('id', id);
-      if (error) return showAlert('Delete failed', 'error');
-      showAlert('Inquiry removed');
-      fetchInquiries();
-    }
+                const { error } = await client.from('payments').insert([payload]);
+                if (error) alert('Error logging payment: ' + error.message);
+                else loadAdminDashboard();
+            });
 
-    // ==========================================
-    // 3. PAYMENTS MODULE
-    // ==========================================
-    async function fetchPayments() {
-      const { data, error } = await db.from('payments').select('*').order('created_at', { ascending: false });
-      if (error) return showAlert('Failed to load payments', 'error');
-      paymentsData = data;
-      renderPayments();
-    }
+            document.getElementById('form-create-log').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const client = getSupabase();
+                const payload = {
+                    project_id: document.getElementById('log-proj-id').value,
+                    log_text: document.getElementById('log-text').value
+                };
 
-    function filterPayments(status) {
-      currentPayFilter = status;
-      document.querySelectorAll('.filter-payment').forEach(btn => {
-        btn.classList.toggle('active', btn.innerText === status);
-      });
-      renderPayments();
-    }
+                const { error } = await client.from('activity_logs').insert([payload]);
+                if (error) alert('Error posting log: ' + error.message);
+                else loadAdminDashboard();
+            });
+        }
 
-    function renderPayments() {
-      const tbody = document.getElementById('payments-table-body');
-      tbody.innerHTML = '';
+        /* ==========================================================================
+           TAB NAVIGATION & DELETE CONTROLLER
+           ========================================================================== */
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
 
-      const filtered = paymentsData.filter(p => currentPayFilter === 'All' || p.payment_status === currentPayFilter);
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-gray-400">No payment records found.</td></tr>`;
-        return;
-      }
-
-      filtered.forEach(p => {
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50/80 transition-colors';
-        tr.innerHTML = `
-          <td class="p-4 font-bold text-gray-900">${p.client_name}</td>
-          <td class="p-4 font-semibold text-gray-800">$${parseFloat(p.amount).toFixed(2)}</td>
-          <td class="p-4 text-gray-600 font-medium">${p.due_date}</td>
-          <td class="p-4">
-            <span class="px-2.5 py-1 text-xs rounded-full font-semibold ${getBadgeColor(p.payment_status)}">${p.payment_status}</span>
-          </td>
-          <td class="p-4 text-gray-500 max-w-xs truncate">${p.notes || '-'}</td>
-          <td class="p-4 text-right space-x-1">
-            <button onclick="editPayment('${p.id}')" class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg p-2 transition-colors"><i class="fa-solid fa-pen-to-square"></i></button>
-            <button onclick="deletePayment('${p.id}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg p-2 transition-colors"><i class="fa-solid fa-trash"></i></button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function openPaymentModal(data = null) {
-      document.getElementById('payment-form').reset();
-      document.getElementById('payment-id').value = '';
-      document.getElementById('payment-modal-title').innerText = data ? 'Edit Payment Record' : 'Log Payment';
-
-      if (data) {
-        document.getElementById('payment-id').value = data.id;
-        document.getElementById('pay-client').value = data.client_name;
-        document.getElementById('pay-amount').value = data.amount;
-        document.getElementById('pay-date').value = data.due_date;
-        document.getElementById('pay-status').value = data.payment_status;
-        document.getElementById('pay-notes').value = data.notes || '';
-      }
-
-      document.getElementById('payment-modal').classList.remove('hidden');
-    }
-
-    function editPayment(id) {
-      const p = paymentsData.find(item => item.id == id);
-      if (p) openPaymentModal(p);
-    }
-
-    async function handlePaymentSubmit(e) {
-      e.preventDefault();
-      const id = document.getElementById('payment-id').value;
-      const payload = {
-        client_name: document.getElementById('pay-client').value,
-        amount: parseFloat(document.getElementById('pay-amount').value),
-        due_date: document.getElementById('pay-date').value,
-        payment_status: document.getElementById('pay-status').value,
-        notes: document.getElementById('pay-notes').value
-      };
-
-      if (id) {
-        const { error } = await db.from('payments').update(payload).eq('id', id);
-        if (error) return showAlert('Failed to update payment', 'error');
-      } else {
-        const { error } = await db.from('payments').insert([payload]);
-        if (error) return showAlert('Failed to log payment', 'error');
-      }
-
-      showAlert('Payment record saved successfully');
-      closeModal('payment-modal');
-      fetchPayments();
-    }
-
-    async function deletePayment(id) {
-      if (!confirm('Are you sure you want to delete this payment record?')) return;
-      const { error } = await db.from('payments').delete().eq('id', id);
-      if (error) return showAlert('Delete failed', 'error');
-      showAlert('Payment record removed');
-      fetchPayments();
-    }
-
-    // UI Utility: Dynamic Status Badges
-    function getBadgeColor(status) {
-      switch(status) {
-        case 'Paid':
-        case 'Converted':
-        case 'Completed':
-          return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
-        case 'Working':
-        case 'Contacted':
-        case 'Pending':
-          return 'bg-amber-100 text-amber-800 border border-amber-200';
-        case 'Due':
-        case 'Unpaid':
-        case 'Overdue':
-          return 'bg-rose-100 text-rose-800 border border-rose-200';
-        case 'Archived':
-        case 'Refunded':
-          return 'bg-gray-100 text-gray-700 border border-gray-200';
-        default:
-          return 'bg-gray-100 text-gray-800 border border-gray-200';
-      }
-    }
-  </script>
+        async function deleteItem(table, id) {
+            if (!confirm(`Are you sure you want to permanently delete this item from ${table}?`)) return;
+            const client = getSupabase();
+            const { error } = await client.from(table).delete().eq('id', id);
+            if (error) alert('Delete error: ' + error.message);
+            else loadAdminDashboard();
+        }
+    </script>
 </body>
 </html>
