@@ -3,1084 +3,1547 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Administration System</title>
+    <title>Aevix Studio - Executive Admin Control Center</title>
+    <!-- Supabase JS Client library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ==========================================================================
-           1. CSS RESET & GLOBAL VARIABLES
-           ========================================================================== */
-        *, *::before, *::after {
+        :root {
+            --bg-dark: #070a12;
+            --bg-sidebar: #0b0f19;
+            --bg-card: #0f172a;
+            --bg-surface: #1e293b;
+            --border-color: #334155;
+            --border-highlight: #475569;
+            --accent-blue: #2563eb;
+            --accent-glow: #3b82f6;
+            --accent-hover: #1d4ed8;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-muted: #64748b;
+            --gold-accent: #eab308;
+            --green-accent: #22c55e;
+            --red-accent: #ef4444;
+            --purple-accent: #a855f7;
+            --cyan-accent: #06b6d4;
+            --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            --sidebar-width: 280px;
+        }
+
+        * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-        }
-
-        :root {
-            --bg-color: #f4f6f9;
-            --header-bg: #1e293b;
-            --sidebar-bg: #334155;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --accent-color: #2563eb;
-            --accent-hover: #1d4ed8;
-            --danger-color: #dc2626;
-            --danger-hover: #b91c1c;
-            --success-color: #16a34a;
-            --warning-color: #d97706;
-            --card-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: var(--font-family);
         }
 
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-dark);
             color: var(--text-main);
-            font-family: var(--font-stack);
+            min-height: 100vh;
             display: flex;
-            height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
-        /* ==========================================================================
-           2. SIDEBAR NAVIGATION STYLES
-           ========================================================================== */
-        aside {
-            width: 260px;
-            background-color: var(--sidebar-bg);
-            color: #ffffff;
+        /* Sidebar Navigation Architecture */
+        aside.admin-sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            user-select: none;
-            z-index: 100;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 120;
+            transition: transform 0.3s ease;
         }
 
-        aside .brand {
-            padding: 20px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            background-color: var(--header-bg);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        .sidebar-brand {
+            padding: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        aside .brand svg {
-            width: 24px;
-            height: 24px;
-            fill: var(--accent-color);
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--purple-accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.4rem;
+            color: white;
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
         }
 
-        aside nav {
+        .brand-info h2 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #ffffff, var(--text-sub));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-info span {
+            font-size: 0.7rem;
+            color: var(--cyan-accent);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+        }
+
+        .sidebar-menu {
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
             flex: 1;
-            padding: 20px 0;
             overflow-y: auto;
         }
 
-        aside nav .nav-group-title {
-            padding: 10px 20px 5px;
-            font-size: 0.75rem;
+        .menu-category {
+            font-size: 0.7rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #94a3b8;
-            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.08em;
+            margin: 1rem 0 0.4rem 0.75rem;
         }
 
-        aside nav a {
+        .nav-link {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 20px;
-            color: #cbd5e1;
+            gap: 0.85rem;
+            padding: 0.8rem 1rem;
+            color: var(--text-sub);
             text-decoration: none;
-            font-size: 0.95rem;
-            transition: background 0.2s, color 0.2s;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
             cursor: pointer;
+            border: 1px solid transparent;
         }
 
-        aside nav a:hover, 
-        aside nav a.active {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            border-left: 4px solid var(--accent-color);
+        .nav-link:hover {
+            color: var(--text-main);
+            background: rgba(30, 41, 59, 0.6);
+            border-color: rgba(255, 255, 255, 0.05);
         }
 
-        /* ==========================================================================
-           3. MAIN LAYOUT & HEADER
-           ========================================================================== */
-        .main-wrapper {
-            flex: 1;
+        .nav-link.active {
+            color: white;
+            background: linear-gradient(90deg, rgba(37, 99, 235, 0.2), rgba(30, 41, 59, 0.8));
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-footer {
+            padding: 1.25rem;
+            border-top: 1px solid var(--border-color);
+            background: rgba(7, 10, 18, 0.5);
+        }
+
+        .admin-profile-card {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .admin-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--purple-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.85rem;
+        }
+
+        .admin-details {
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
-        header {
-            height: 60px;
-            background-color: var(--card-bg);
+        .admin-email {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .admin-role {
+            font-size: 0.7rem;
+            color: var(--text-sub);
+        }
+
+        /* Top Header Navigation Bar */
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        header.top-navbar {
+            height: 70px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 24px;
-            box-shadow: var(--shadow-sm);
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        header h1 {
-            font-size: 1.25rem;
-            color: var(--text-main);
-            font-weight: 600;
+        .search-container {
+            position: relative;
+            width: 320px;
         }
 
-        .user-controls {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background-color: var(--accent-color);
+        .global-search-input {
+            width: 100%;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
             color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
+            font-size: 0.875rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .global-search-input:focus {
+            border-color: var(--accent-glow);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-sub);
             font-size: 0.9rem;
         }
 
-        .logout-btn {
-            background-color: var(--danger-color);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .btn-header-action {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
             cursor: pointer;
-            font-weight: 500;
-            font-size: 0.875rem;
-            transition: background-color 0.2s;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .logout-btn:hover {
-            background-color: var(--danger-hover);
+        .btn-header-action:hover {
+            border-color: var(--border-highlight);
+            background: rgba(51, 65, 85, 0.8);
         }
 
-        /* ==========================================================================
-           4. MAIN CONTENT PANELS
-           ========================================================================== */
-        main {
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--red-accent);
+        }
+
+        .btn-logout:hover {
+            background: var(--red-accent);
+            color: white;
+        }
+
+        /* Content View Layout */
+        .content-area {
+            padding: 2.5rem 2rem;
             flex: 1;
-            padding: 24px;
-            overflow-y: auto;
         }
 
-        .tab-panel {
+        .view-panel {
             display: none;
+            animation: fadeIn 0.3s ease-in-out;
         }
 
-        .tab-panel.active {
+        .view-panel.active {
             display: block;
         }
 
-        .grid {
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .page-title-group h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.25rem;
+        }
+
+        .page-title-group p {
+            color: var(--text-sub);
+            font-size: 0.95rem;
+        }
+
+        /* Metric Highlights Grid */
+        .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-bottom: 24px;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
         }
 
-        .card {
-            background-color: var(--card-bg);
+        .metric-card {
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 20px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .card h3 {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        .card .metric {
-            font-size: 1.75rem;
-            font-weight: bold;
-        }
-
-        /* ==========================================================================
-           5. DATA TABLES & FORMS
-           ========================================================================== */
-        .table-container {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
             overflow: hidden;
-            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
         }
 
-        table {
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-glow);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--purple-accent));
+        }
+
+        .metric-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-sub);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+
+        .metric-foot {
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .text-positive { color: var(--green-accent); }
+        .text-warning { color: var(--gold-accent); }
+        .text-negative { color: var(--red-accent); }
+
+        /* Dashboard Tables & Cards */
+        .content-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table.data-table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
         }
 
-        th, td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.9rem;
-        }
-
-        th {
-            background-color: #f8fafc;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        .status-tag {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
+        table.data-table th {
+            background-color: rgba(30, 41, 59, 0.5);
+            color: var(--text-sub);
+            padding: 1rem;
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .status-active { background-color: #dcfce7; color: #15803d; }
-        .status-idle { background-color: #fef9c3; color: #a16207; }
-        .status-error { background-color: #fee2e2; color: #b91c1c; }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
+        table.data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
             font-size: 0.875rem;
-            font-weight: 500;
+            vertical-align: middle;
         }
 
-        .form-control {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 0.9rem;
+        table.data-table tr:hover td {
+            background-color: rgba(30, 41, 59, 0.3);
         }
 
+        /* Status & Badges */
+        .badge {
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .badge-active { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .badge-pending { background: rgba(234, 179, 8, 0.15); color: #fde047; border: 1px solid rgba(234, 179, 8, 0.3); }
+        .badge-danger { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-info { background: rgba(37, 99, 235, 0.15); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.3); }
+
+        /* Action Buttons */
         .btn-primary {
-            background-color: var(--accent-color);
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-hover));
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.875rem;
             cursor: pointer;
-            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .btn-primary:hover {
-            background-color: var(--accent-hover);
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
         }
 
-        /* Console Output Container */
-        .console-log {
-            background-color: #0f172a;
-            color: #38bdf8;
-            font-family: monospace;
-            padding: 16px;
+        .btn-secondary {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(51, 65, 85, 0.8);
+            border-color: var(--border-highlight);
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.78rem;
             border-radius: 6px;
-            height: 300px;
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--red-accent);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-danger:hover {
+            background: var(--red-accent);
+            color: white;
+        }
+
+        /* Form Components */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label.form-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-sub);
+            letter-spacing: 0.05em;
+        }
+
+        .form-control {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-glow);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* Custom Modal Dialog System */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(7, 10, 18, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 650px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+            max-height: 90vh;
             overflow-y: auto;
-            font-size: 0.85rem;
-            line-height: 1.5;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            color: white;
+        }
+
+        .modal-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+            aside.admin-sidebar {
+                transform: translateX(-100%);
+            }
+
+            aside.admin-sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-wrapper {
+                margin-left: 0;
+            }
+
+            header.top-navbar {
+                padding: 0 1rem;
+            }
+
+            .content-area {
+                padding: 1.5rem 1rem;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar Navigation -->
-    <aside>
-        <div class="brand">
-            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            Control Panel
+    <!-- Executive Admin Sidebar Navigation -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">A</div>
+            <div class="brand-info">
+                <h2>Aevix Studio</h2>
+                <span>Executive Admin</span>
+            </div>
         </div>
-        <nav>
-            <div class="nav-group-title">Main Menu</div>
-            <a onclick="switchTab('dashboard')" id="nav-dashboard" class="active">Dashboard</a>
-            <a onclick="switchTab('users')" id="nav-users">Users Management</a>
-            <a onclick="switchTab('system')" id="nav-system">System Logs</a>
-            <a onclick="switchTab('settings')" id="nav-settings">Settings</a>
-            <div class="nav-group-title">Diagnostics</div>
-            <a onclick="switchTab('console')" id="nav-console">Live Terminal</a>
+
+        <nav class="sidebar-menu">
+            <div class="menu-category">Main Operations</div>
+            <a class="nav-link active" onclick="switchView('overview', this)">
+                <span>📊</span> Executive Overview
+            </a>
+            <a class="nav-link" onclick="switchView('projects', this)">
+                <span>📁</span> Project Manager
+            </a>
+            <a class="nav-link" onclick="switchView('clients', this)">
+                <span>👥</span> Client Directory
+            </a>
+
+            <div class="menu-category">Activity & Logs</div>
+            <a class="nav-link" onclick="switchView('logs', this)">
+                <span>📝</span> Timeline Logs
+            </a>
+            <a class="nav-link" onclick="switchView('requests', this)">
+                <span>📥</span> Client Requests
+            </a>
+
+            <div class="menu-category">System Configuration</div>
+            <a class="nav-link" onclick="switchView('settings', this)">
+                <span>⚙️</span> Studio Settings
+            </a>
         </nav>
+
+        <div class="sidebar-footer">
+            <div class="admin-profile-card">
+                <div class="admin-avatar" id="admin-avatar-initial">A</div>
+                <div class="admin-details">
+                    <span class="admin-email" id="admin-email-display">Authenticating...</span>
+                    <span class="admin-role">Super Administrator</span>
+                </div>
+            </div>
+        </div>
     </aside>
 
-    <!-- Main Content Area -->
+    <!-- Main Wrapper Area -->
     <div class="main-wrapper">
-        <header>
-            <h1 id="page-title">Overview</h1>
-            <div class="user-controls">
-                <div class="user-profile">
-                    <div class="avatar">AD</div>
-                    <span>Administrator</span>
-                </div>
-                <form id="logoutForm" action="/logout" method="POST" style="display: inline;">
-                    <button type="submit" class="logout-btn">Log Out</button>
-                </form>
+
+        <!-- Top Navigation Header -->
+        <header class="top-navbar">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="global-search-input" placeholder="Search projects, clients, logs..." onkeyup="handleGlobalSearch(this.value)">
+            </div>
+
+            <div class="header-actions">
+                <button class="btn-primary btn-sm" onclick="openNewProjectModal()">+ New Project</button>
+                <button class="btn-header-action btn-logout" onclick="handleAdminSignOut()">Sign Out</button>
             </div>
         </header>
 
-        <main>
-            <!-- DASHBOARD PANEL -->
-            <div id="tab-dashboard" class="tab-panel active">
-                <div class="grid">
-                    <div class="card">
-                        <h3>Active Sessions</h3>
-                        <div class="metric" id="metric-sessions">128</div>
-                    </div>
-                    <div class="card">
-                        <h3>Server Load</h3>
-                        <div class="metric" id="metric-load">24%</div>
-                    </div>
-                    <div class="card">
-                        <h3>Error Rate</h3>
-                        <div class="metric" id="metric-errors">0.02%</div>
-                    </div>
-                    <div class="card">
-                        <h3>Database Connections</h3>
-                        <div class="metric" id="metric-db">12/50</div>
+        <!-- Main Dynamic Content Views -->
+        <main class="content-area">
+
+            <!-- VIEW 1: EXECUTIVE OVERVIEW -->
+            <section id="view-overview" class="view-panel active">
+                <div class="page-header">
+                    <div class="page-title-group">
+                        <h1>Executive Command Center</h1>
+                        <p>Studio operational metric summary and real-time client status monitor.</p>
                     </div>
                 </div>
 
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>User ID</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                                <th>Last Active</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dashboard-user-table">
-                            <!-- Populated dynamically via JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                <!-- Strategic Metrics -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-title">Active Projects</div>
+                        <div class="metric-value" id="metric-active-projects">0</div>
+                        <div class="metric-foot text-positive">
+                            <span>▲ Active developments</span>
+                        </div>
+                    </div>
 
-            <!-- USERS MANAGEMENT PANEL -->
-            <div id="tab-users" class="tab-panel">
-                <div class="card" style="margin-bottom: 20px;">
-                    <h3>Add New User</h3>
-                    <form id="addUserForm" onsubmit="event.preventDefault(); handleAddUser();" style="display: flex; gap: 10px; margin-top: 10px;">
-                        <input type="text" id="new-username" class="form-control" placeholder="User ID/Name" required>
-                        <select id="new-user-role" class="form-control">
-                            <option value="Admin">Admin</option>
-                            <option value="Editor">Editor</option>
-                            <option value="Viewer">Viewer</option>
-                        </select>
-                        <button type="submit" class="btn-primary">Add User</button>
+                    <div class="metric-card">
+                        <div class="metric-title">Total Accounts</div>
+                        <div class="metric-value" id="metric-total-clients">0</div>
+                        <div class="metric-foot text-info">
+                            <span>👥 Registered studio clients</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-title">Total Gross Pipeline</div>
+                        <div class="metric-value" id="metric-total-budget">$0</div>
+                        <div class="metric-foot text-positive">
+                            <span>💰 Contracted value</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-title">Pending Client Messages</div>
+                        <div class="metric-value" id="metric-pending-requests">0</div>
+                        <div class="metric-foot text-warning">
+                            <span>⏳ Action required</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Overview Table -->
+                <div class="content-card">
+                    <div class="card-header-bar">
+                        <div class="card-title"><span>⚡</span> Priority Active Projects</div>
+                        <button class="btn-secondary btn-sm" onclick="switchView('projects', document.querySelectorAll('.nav-link')[1])">View All</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Project Name</th>
+                                    <th>Client Email</th>
+                                    <th>Deadline</th>
+                                    <th>Budget</th>
+                                    <th>Status</th>
+                                    <th>Progress</th>
+                                </tr>
+                            </thead>
+                            <tbody id="overview-projects-tbody">
+                                <tr><td colspan="6" style="text-align:center;">Loading project data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 2: PROJECT MANAGER -->
+            <section id="view-projects" class="view-panel">
+                <div class="page-header">
+                    <div class="page-title-group">
+                        <h1>Project Lifecycle Manager</h1>
+                        <p>Create, inspect, update, and manage progress across client project contracts.</p>
+                    </div>
+                    <button class="btn-primary" onclick="openNewProjectModal()">+ Add New Project</button>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header-bar">
+                        <div class="card-title"><span>📁</span> All Contracted Projects</div>
+                        <input type="text" class="form-control" style="width:250px;" placeholder="Filter projects..." onkeyup="filterProjectsTable(this.value)">
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Project Title</th>
+                                    <th>Client Email</th>
+                                    <th>Status</th>
+                                    <th>Progress (%)</th>
+                                    <th>Budget</th>
+                                    <th>Deadline</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="full-projects-tbody">
+                                <tr><td colspan="7" style="text-align:center;">Loading project list...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 3: CLIENT DIRECTORY -->
+            <section id="view-clients" class="view-panel">
+                <div class="page-header">
+                    <div class="page-title-group">
+                        <h1>Client Account Directory</h1>
+                        <p>Detailed view of studio client relationships and active contract pairings.</p>
+                    </div>
+                    <button class="btn-primary" onclick="openNewClientModal()">+ Register Client</button>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header-bar">
+                        <div class="card-title"><span>👥</span> Active Client Profiles</div>
+                        <button class="btn-secondary btn-sm" onclick="exportClientsCSV()">Export CSV</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Client Identifier</th>
+                                    <th>Associated Projects</th>
+                                    <th>Combined Budget</th>
+                                    <th>Status</th>
+                                    <th>Quick Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clients-tbody">
+                                <tr><td colspan="5" style="text-align:center;">Loading client profiles...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 4: TIMELINE LOGS -->
+            <section id="view-logs" class="view-panel">
+                <div class="page-header">
+                    <div class="page-title-group">
+                        <h1>Studio Timeline & Activity Logs</h1>
+                        <p>Broadcast updates directly to client dashboards in real-time.</p>
+                    </div>
+                    <button class="btn-primary" onclick="openNewLogModal()">+ Broadcast Log Entry</button>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header-bar">
+                        <div class="card-title"><span>📝</span> Global System Activity Stream</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date/Time</th>
+                                    <th>Target Project</th>
+                                    <th>Log Update Message</th>
+                                    <th>Author</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="full-logs-tbody">
+                                <tr><td colspan="5" style="text-align:center;">Loading timeline activity...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 5: CLIENT REQUESTS -->
+            <section id="view-requests" class="view-panel">
+                <div class="page-header">
+                    <div class="page-title-group">
+                        <h1>Client Request & Message Center</h1>
+                        <p>Process submitted inquiry forms and change requests sent from the client portal.</p>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header-bar">
+                        <div class="card-title"><span>📥</span> Submitted Feedback & Requirements</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Origin Project</th>
+                                    <th>Transmission Content</th>
+                                    <th>Author/Email</th>
+                                </tr>
+                            </thead>
+                            <tbody id="requests-tbody">
+                                <tr><td colspan="4" style="text-align:center;">Loading client messages...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 6: STUDIO SETTINGS -->
+            <section id="view-settings" class="view-panel">
+                <div class="page-header">
+                    <div class="page-title-group">
+                        <h1>Studio Platform Configuration</h1>
+                        <p>Manage system API keys, database connections, and workspace defaults.</p>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header-bar">
+                        <div class="card-title"><span>⚙️</span> System Parameters</div>
+                    </div>
+                    <form onsubmit="handleSettingsSave(event)">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Studio Name</label>
+                                <input type="text" class="form-control" value="Aevix Studio" id="setting-studio-name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Default Currency Code</label>
+                                <select class="form-control" id="setting-currency">
+                                    <option value="USD">USD ($)</option>
+                                    <option value="EUR">EUR (€)</option>
+                                    <option value="GBP">GBP (£)</option>
+                                    <option value="BDT">BDT (৳)</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">System Notification Email</label>
+                                <input type="email" class="form-control" value="admin@aevixstudio.com" id="setting-admin-email">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary">Save Configuration</button>
                     </form>
                 </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>User ID</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="management-user-table">
-                            <!-- Populated dynamically -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            </section>
 
-            <!-- SYSTEM LOGS PANEL -->
-            <div id="tab-system" class="tab-panel">
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Timestamp</th>
-                                <th>Severity</th>
-                                <th>Message</th>
-                            </tr>
-                        </thead>
-                        <tbody id="system-logs-table">
-                            <!-- Dynamic log output -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- SETTINGS PANEL -->
-            <div id="tab-settings" class="tab-panel">
-                <div class="card" style="max-width: 600px;">
-                    <h3>System Configurations</h3>
-                    <div class="form-group" style="margin-top: 15px;">
-                        <label for="sys-name">System Display Name</label>
-                        <input type="text" id="sys-name" class="form-control" value="Enterprise Admin Node">
-                    </div>
-                    <div class="form-group">
-                        <label for="sys-refresh">Auto-Refresh Rate (seconds)</label>
-                        <input type="number" id="sys-refresh" class="form-control" value="5">
-                    </div>
-                    <button class="btn-primary" onclick="alert('Settings Saved Successfully')">Save Changes</button>
-                </div>
-            </div>
-
-            <!-- LIVE TERMINAL PANEL -->
-            <div id="tab-console" class="tab-panel">
-                <div class="console-log" id="terminal-output">
-                    [SYSTEM INIT] Console output initialized...<br>
-                </div>
-            </div>
         </main>
     </div>
 
-    <!-- ==========================================================================
-       6. EMBEDDED APPLICATION LOGIC & MOCK ENGINE
-       ========================================================================== -->
+    <!-- MODAL 1: CREATE / EDIT PROJECT -->
+    <div class="modal-overlay" id="projectModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title" id="projectModalTitle">Create New Project</div>
+                <button class="modal-close" onclick="closeModal('projectModal')">&times;</button>
+            </div>
+            <form id="projectForm" onsubmit="handleProjectSubmit(event)">
+                <input type="hidden" id="pm-project-id">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label class="form-label">Project Title</label>
+                        <input type="text" id="pm-title" class="form-control" placeholder="e.g. E-Commerce Redesign" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Client Email / Account</label>
+                        <input type="email" id="pm-client-email" class="form-control" placeholder="client@company.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Project Status</label>
+                        <select id="pm-status" class="form-control" required>
+                            <option value="In Progress">In Progress</option>
+                            <option value="In Review">In Review</option>
+                            <option value="Completed">Completed</option>
+                            <option value="On Hold">On Hold</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Progress Percentage (0-100)</label>
+                        <input type="number" id="pm-progress" class="form-control" min="0" max="100" value="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contract Budget ($)</label>
+                        <input type="number" id="pm-budget" class="form-control" placeholder="5000" min="0" step="0.01">
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label">Completion Deadline</label>
+                        <input type="date" id="pm-deadline" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('projectModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: BROADCAST TIMELINE LOG -->
+    <div class="modal-overlay" id="logModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">Broadcast Activity Log Entry</div>
+                <button class="modal-close" onclick="closeModal('logModal')">&times;</button>
+            </div>
+            <form id="logForm" onsubmit="handleLogSubmit(event)">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label class="form-label">Target Project</label>
+                        <select id="lm-project-select" class="form-control" required>
+                            <option value="">Select target project...</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label">Log Message / Milestone Update</label>
+                        <textarea id="lm-message" class="form-control" placeholder="Detailed update message visible on client dashboard..." required></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label">Author Tag</label>
+                        <input type="text" id="lm-author" class="form-control" value="Aevix Studio Lead">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('logModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Broadcast Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Executive Admin Application Control Logic -->
     <script>
+        // Supabase Initialization
+        const SUPABASE_URL = "YOUR_SUPABASE_URL";
+        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // System Caches
+        let currentAdminUser = null;
+        let cachedProjects = [];
+        let cachedActivityLogs = [];
+
         /**
-         * Comprehensive Admin Dashboard Controller Framework
+         * System Application Entry Point
          */
-        (function() {
-            // Core Application State
-            const state = {
-                activeTab: 'dashboard',
-                users: [
-                    { id: '#1001', role: 'Super Admin', status: 'Active', lastActive: 'Just now' },
-                    { id: '#1002', role: 'Editor', status: 'Idle', lastActive: '12 mins ago' },
-                    { id: '#1003', role: 'Viewer', status: 'Active', lastActive: '2 mins ago' },
-                    { id: '#1004', role: 'System Engine', status: 'Active', lastActive: 'Continuous' },
-                    { id: '#1005', role: 'Editor', status: 'Error', lastActive: '1 hr ago' }
-                ],
-                logs: [],
-                metrics: {
-                    sessions: 128,
-                    load: 24,
-                    errors: 0.02,
-                    dbConnections: 12
+        async function initAdminDashboard() {
+            try {
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+
+                if (error || !session) {
+                    console.warn("No active admin session detected. Redirecting to login.");
+                    window.location.href = "/login.html";
+                    return;
                 }
-            };
 
-            // Dynamic Data Generator Helper Modules
-            const DataGenerator = {
-                generateLogEntry: function() {
-                    const severities = ['INFO', 'WARN', 'ERROR'];
-                    const messages = [
-                        'Database query executed in 12ms',
-                        'User authentication cache refreshed',
-                        'Failed login attempt from IP 192.168.1.104',
-                        'CPU usage spike detected',
-                        'Scheduled backup task completed successfully'
-                    ];
-                    const severity = severities[Math.floor(Math.random() * severities.length)];
-                    const message = messages[Math.floor(Math.random() * messages.length)];
-                    const timestamp = new Date().toISOString();
-                    return { timestamp, severity, message };
-                },
+                currentAdminUser = session.user;
+                document.getElementById('admin-email-display').innerText = currentAdminUser.email;
+                document.getElementById('admin-avatar-initial').innerText = (currentAdminUser.email || 'A').charAt(0).toUpperCase();
 
-                generateMetricUpdates: function() {
-                    state.metrics.sessions += Math.floor(Math.random() * 5) - 2;
-                    state.metrics.load = Math.min(100, Math.max(5, state.metrics.load + (Math.floor(Math.random() * 7) - 3)));
-                    state.metrics.dbConnections = Math.min(50, Math.max(1, state.metrics.dbConnections + (Math.floor(Math.random() * 3) - 1)));
+                // Fetch operational data
+                await refreshAllAdminData();
+
+            } catch (err) {
+                console.error("Critical error during admin initialization:", err);
+            }
+        }
+
+        /**
+         * Refresh all operational database tables concurrently
+         */
+        async function refreshAllAdminData() {
+            await Promise.all([
+                fetchProjects(),
+                fetchActivityLogs()
+            ]);
+
+            renderOverviewMetrics();
+            renderOverviewTable();
+            renderFullProjectsTable(cachedProjects);
+            renderClientDirectory();
+            renderFullLogsTable();
+            renderClientRequestsTable();
+            populateLogProjectDropdown();
+        }
+
+        /**
+         * Fetch All System Projects
+         */
+        async function fetchProjects() {
+            const { data, error } = await supabaseClient
+                .from('projects')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error("Error fetching projects:", error);
+                return;
+            }
+            cachedProjects = data || [];
+        }
+
+        /**
+         * Fetch All Activity Logs & Client Requests
+         */
+        async function fetchActivityLogs() {
+            const { data, error } = await supabaseClient
+                .from('activity_logs')
+                .select('*, projects(project_name, client_email)')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error("Error fetching logs:", error);
+                return;
+            }
+            cachedActivityLogs = data || [];
+        }
+
+        /**
+         * Render High-Level Executive Dashboard Metrics
+         */
+        function renderOverviewMetrics() {
+            const activeProjects = cachedProjects.filter(p => p.status !== 'Completed').length;
+            
+            // Unique clients extracted from project emails
+            const clientEmails = new Set(cachedProjects.map(p => p.client_email || p.client_name).filter(Boolean));
+            
+            const totalPipelineValue = cachedProjects.reduce((sum, p) => sum + (Number(p.budget) || 0), 0);
+            
+            const clientRequestsCount = cachedActivityLogs.filter(l => (l.log_text || '').startsWith('[CLIENT REQUEST')).length;
+
+            document.getElementById('metric-active-projects').innerText = activeProjects;
+            document.getElementById('metric-total-clients').innerText = clientEmails.size;
+            document.getElementById('metric-total-budget').innerText = '$' + totalPipelineValue.toLocaleString();
+            document.getElementById('metric-pending-requests').innerText = clientRequestsCount;
+        }
+
+        /**
+         * Render Priority Active Projects on Executive Overview View
+         */
+        function renderOverviewTable() {
+            const tbody = document.getElementById('overview-projects-tbody');
+            const activeSubset = cachedProjects.slice(0, 5);
+
+            if (activeSubset.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No project records registered yet.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = activeSubset.map(p => `
+                <tr>
+                    <td><strong>${escapeHtml(p.project_name || p.title || 'Untitled')}</strong></td>
+                    <td>${escapeHtml(p.client_email || p.client_name || 'N/A')}</td>
+                    <td>${p.deadline ? new Date(p.deadline).toLocaleDateString() : 'TBD'}</td>
+                    <td>${p.budget ? '$' + Number(p.budget).toLocaleString() : 'N/A'}</td>
+                    <td><span class="badge ${getStatusBadgeClass(p.status)}">${escapeHtml(p.status || 'In Progress')}</span></td>
+                    <td>
+                        <strong>${p.progress || 0}%</strong>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        /**
+         * Render Full Project Lifecycle Table
+         */
+        function renderFullProjectsTable(projects) {
+            const tbody = document.getElementById('full-projects-tbody');
+
+            if (!projects || projects.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No projects found matching query.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = projects.map(p => `
+                <tr>
+                    <td><strong>${escapeHtml(p.project_name || p.title || 'Untitled')}</strong></td>
+                    <td>${escapeHtml(p.client_email || p.client_name || 'N/A')}</td>
+                    <td><span class="badge ${getStatusBadgeClass(p.status)}">${escapeHtml(p.status || 'In Progress')}</span></td>
+                    <td>
+                        <strong>${p.progress || 0}%</strong>
+                    </td>
+                    <td>${p.budget ? '$' + Number(p.budget).toLocaleString() : 'N/A'}</td>
+                    <td>${p.deadline ? new Date(p.deadline).toLocaleDateString() : 'TBD'}</td>
+                    <td>
+                        <button class="btn-secondary btn-sm" onclick="openEditProjectModal('${p.id}')">Edit</button>
+                        <button class="btn-danger btn-sm" onclick="deleteProject('${p.id}')">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        /**
+         * Render Aggregated Client Accounts Directory
+         */
+        function renderClientDirectory() {
+            const tbody = document.getElementById('clients-tbody');
+            const clientMap = {};
+
+            cachedProjects.forEach(p => {
+                const email = p.client_email || p.client_name || 'Unassigned';
+                if (!clientMap[email]) {
+                    clientMap[email] = {
+                        email: email,
+                        projectCount: 0,
+                        totalBudget: 0
+                    };
                 }
-            };
-
-            // DOM Rendering Engine
-            const RenderEngine = {
-                renderDashboard: function() {
-                    document.getElementById('metric-sessions').innerText = state.metrics.sessions;
-                    document.getElementById('metric-load').innerText = state.metrics.load + '%';
-                    document.getElementById('metric-errors').innerText = state.metrics.errors + '%';
-                    document.getElementById('metric-db').innerText = state.metrics.dbConnections + '/50';
-
-                    const tbody = document.getElementById('dashboard-user-table');
-                    tbody.innerHTML = '';
-                    state.users.forEach(user => {
-                        const tr = document.createElement('tr');
-                        const statusClass = user.status === 'Active' ? 'status-active' : (user.status === 'Idle' ? 'status-idle' : 'status-error');
-                        tr.innerHTML = `
-                            <td>${user.id}</td>
-                            <td>${user.role}</td>
-                            <td><span class="status-tag ${statusClass}">${user.status}</span></td>
-                            <td>${user.lastActive}</td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                },
-
-                renderUserManagement: function() {
-                    const tbody = document.getElementById('management-user-table');
-                    tbody.innerHTML = '';
-                    state.users.forEach((user, index) => {
-                        const tr = document.createElement('tr');
-                        const statusClass = user.status === 'Active' ? 'status-active' : (user.status === 'Idle' ? 'status-idle' : 'status-error');
-                        tr.innerHTML = `
-                            <td>${user.id}</td>
-                            <td>${user.role}</td>
-                            <td><span class="status-tag ${statusClass}">${user.status}</span></td>
-                            <td>
-                                <button onclick="deleteUser(${index})" style="background: none; border: none; color: var(--danger-color); cursor: pointer; font-size: 0.85rem;">Remove</button>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                },
-
-                renderLogs: function() {
-                    const tbody = document.getElementById('system-logs-table');
-                    tbody.innerHTML = '';
-                    state.logs.slice(-15).reverse().forEach(log => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>${log.timestamp}</td>
-                            <td><strong>${log.severity}</strong></td>
-                            <td>${log.message}</td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                },
-
-                appendToTerminal: function(text) {
-                    const terminal = document.getElementById('terminal-output');
-                    const time = new Date().toLocaleTimeString();
-                    terminal.innerHTML += `[${time}] ${text}<br>`;
-                    terminal.scrollTop = terminal.scrollHeight;
-                }
-            };
-
-            // Global Scope Navigation Expose
-            window.switchTab = function(tabId) {
-                state.activeTab = tabId;
-                document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
-                document.querySelectorAll('aside nav a').forEach(el => el.classList.remove('active'));
-
-                document.getElementById('tab-' + tabId).classList.add('active');
-                document.getElementById('nav-' + tabId).classList.add('active');
-
-                const titleMap = {
-                    'dashboard': 'Overview',
-                    'users': 'Users Management',
-                    'system': 'System Logs',
-                    'settings': 'System Settings',
-                    'console': 'Live Terminal'
-                };
-                document.getElementById('page-title').innerText = titleMap[tabId] || 'Admin';
-            };
-
-            window.handleAddUser = function() {
-                const usernameInput = document.getElementById('new-username');
-                const roleSelect = document.getElementById('new-user-role');
-                
-                if (usernameInput.value.trim() !== '') {
-                    state.users.push({
-                        id: usernameInput.value.trim(),
-                        role: roleSelect.value,
-                        status: 'Active',
-                        lastActive: 'Just now'
-                    });
-                    usernameInput.value = '';
-                    RenderEngine.renderUserManagement();
-                    RenderEngine.renderDashboard();
-                    RenderEngine.appendToTerminal('New user created: ' + usernameInput.value);
-                }
-            };
-
-            window.deleteUser = function(index) {
-                const removed = state.users.splice(index, 1);
-                RenderEngine.renderUserManagement();
-                RenderEngine.renderDashboard();
-                if(removed.length > 0) {
-                    RenderEngine.appendToTerminal('User removed: ' + removed[0].id);
-                }
-            };
-
-            // Logout Event Listener (Fixed & Purged Sessions)
-            document.getElementById('logoutForm').addEventListener('submit', function(event) {
-                localStorage.clear();
-                sessionStorage.clear();
-
-                const cookies = document.cookie.split(";");
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i];
-                    const eqPos = cookie.indexOf("=");
-                    const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-                    document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-                }
+                clientMap[email].projectCount += 1;
+                clientMap[email].totalBudget += (Number(p.budget) || 0);
             });
 
-            // Initialization & Realtime Simulation Loop
-            function init() {
-                // Populate initial logs
-                for(let i = 0; i < 10; i++) {
-                    state.logs.push(DataGenerator.generateLogEntry());
-                }
+            const clientList = Object.values(clientMap);
 
-                RenderEngine.renderDashboard();
-                RenderEngine.renderUserManagement();
-                RenderEngine.renderLogs();
-
-                // Live Data Tick Engine
-                setInterval(function() {
-                    DataGenerator.generateMetricUpdates();
-                    RenderEngine.renderDashboard();
-
-                    if (Math.random() > 0.5) {
-                        const newLog = DataGenerator.generateLogEntry();
-                        state.logs.push(newLog);
-                        RenderEngine.renderLogs();
-                        RenderEngine.appendToTerminal(`LOG: [${newLog.severity}] ${newLog.message}`);
-                    }
-                }, 3000);
+            if (clientList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No client profiles active.</td></tr>`;
+                return;
             }
 
-            // Fire up engine
-            window.addEventListener('DOMContentLoaded', init);
-        })();
+            tbody.innerHTML = clientList.map(c => `
+                <tr>
+                    <td><strong>${escapeHtml(c.email)}</strong></td>
+                    <td>${c.projectCount} Project(s)</td>
+                    <td>$${c.totalBudget.toLocaleString()}</td>
+                    <td><span class="badge badge-active">Active Client</span></td>
+                    <td>
+                        <button class="btn-secondary btn-sm" onclick="filterProjectsByClient('${escapeHtml(c.email)}')">View Projects</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
 
-        /* ==========================================================================
-           7. EXTENSIVE SYSTEM STRUCT & ENTERPRISE ENGINE MODULES
-           Included below are detailed utility, logging, and state management classes
-           designed to scale administrative data handling, websocket fallbacks, and UI components.
-           ========================================================================== */
+        /**
+         * Render Complete Timeline Activity Stream Table
+         */
+        function renderFullLogsTable() {
+            const tbody = document.getElementById('full-logs-tbody');
 
-        class SystemLogger {
-            constructor(maxEntries = 500) {
-                this.maxEntries = maxEntries;
-                this.logs = [];
+            if (cachedActivityLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No timeline logs recorded yet.</td></tr>`;
+                return;
             }
 
-            log(level, moduleName, message) {
-                const entry = {
-                    id: this.generateUUID(),
-                    timestamp: new Date().toISOString(),
-                    level: level.toUpperCase(),
-                    module: moduleName,
-                    message: message
-                };
+            tbody.innerHTML = cachedActivityLogs.map(log => `
+                <tr>
+                    <td>${new Date(log.created_at).toLocaleString()}</td>
+                    <td><strong>${escapeHtml(log.projects?.project_name || 'System Broadcast')}</strong></td>
+                    <td>${escapeHtml(log.log_text || log.message || '-')}</td>
+                    <td><span class="badge badge-info">${escapeHtml(log.author || 'Admin')}</span></td>
+                    <td>
+                        <button class="btn-danger btn-sm" onclick="deleteActivityLog('${log.id}')">Remove</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
 
-                this.logs.push(entry);
-                if (this.logs.length > this.maxEntries) {
-                    this.logs.shift();
-                }
-                return entry;
+        /**
+         * Render Client Transmitted Messages & Requests Table
+         */
+        function renderClientRequestsTable() {
+            const tbody = document.getElementById('requests-tbody');
+            const clientRequests = cachedActivityLogs.filter(l => (l.log_text || '').startsWith('[CLIENT REQUEST'));
+
+            if (clientRequests.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No client request submissions recorded.</td></tr>`;
+                return;
             }
 
-            info(moduleName, message) { return this.log('INFO', moduleName, message); }
-            warn(moduleName, message) { return this.log('WARN', moduleName, message); }
-            error(moduleName, message) { return this.log('ERROR', moduleName, message); }
+            tbody.innerHTML = clientRequests.map(req => `
+                <tr>
+                    <td>${new Date(req.created_at).toLocaleString()}</td>
+                    <td><strong>${escapeHtml(req.projects?.project_name || 'General Inquiry')}</strong></td>
+                    <td>${escapeHtml(req.log_text || '')}</td>
+                    <td>${escapeHtml(req.author || 'Client Account')}</td>
+                </tr>
+            `).join('');
+        }
 
-            generateUUID() {
-                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                    const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                    return v.toString(16);
-                });
+        /**
+         * Helper Function for Badge Color Classes
+         */
+        function getStatusBadgeClass(status) {
+            if (!status) return 'badge-info';
+            const lower = status.toLowerCase();
+            if (lower.includes('complete')) return 'badge-active';
+            if (lower.includes('review')) return 'badge-pending';
+            if (lower.includes('hold')) return 'badge-danger';
+            return 'badge-info';
+        }
+
+        /**
+         * View Switcher Navigation
+         */
+        function switchView(viewId, clickedElement) {
+            document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+
+            const targetView = document.getElementById(`view-${viewId}`);
+            if (targetView) targetView.classList.add('active');
+
+            if (clickedElement) clickedElement.classList.add('active');
+        }
+
+        /**
+         * Modal Display Handlers
+         */
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function openNewProjectModal() {
+            document.getElementById('projectForm').reset();
+            document.getElementById('pm-project-id').value = '';
+            document.getElementById('projectModalTitle').innerText = 'Create New Project';
+            openModal('projectModal');
+        }
+
+        function openEditProjectModal(projectId) {
+            const project = cachedProjects.find(p => p.id === projectId);
+            if (!project) return;
+
+            document.getElementById('pm-project-id').value = project.id;
+            document.getElementById('pm-title').value = project.project_name || project.title || '';
+            document.getElementById('pm-client-email').value = project.client_email || project.client_name || '';
+            document.getElementById('pm-status').value = project.status || 'In Progress';
+            document.getElementById('pm-progress').value = project.progress || 0;
+            document.getElementById('pm-budget').value = project.budget || '';
+            document.getElementById('pm-deadline').value = project.deadline ? project.deadline.split('T')[0] : '';
+
+            document.getElementById('projectModalTitle').innerText = 'Edit Project Details';
+            openModal('projectModal');
+        }
+
+        function openNewLogModal() {
+            document.getElementById('logForm').reset();
+            openModal('logModal');
+        }
+
+        function openNewClientModal() {
+            openNewProjectModal(); // Registering client creates an initial project association
+        }
+
+        /**
+         * Populate Log Modal Target Project Select Input
+         */
+        function populateLogProjectDropdown() {
+            const select = document.getElementById('lm-project-select');
+            select.innerHTML = '<option value="">Select target project...</option>' +
+                cachedProjects.map(p => `
+                    <option value="${p.id}">${escapeHtml(p.project_name || p.title || 'Untitled')}</option>
+                `).join('');
+        }
+
+        /**
+         * Form Submission: Create / Update Project
+         */
+        async function handleProjectSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('pm-project-id').value;
+            const payload = {
+                project_name: document.getElementById('pm-title').value,
+                client_email: document.getElementById('pm-client-email').value,
+                status: document.getElementById('pm-status').value,
+                progress: parseInt(document.getElementById('pm-progress').value, 10),
+                budget: parseFloat(document.getElementById('pm-budget').value) || 0,
+                deadline: document.getElementById('pm-deadline').value || null
+            };
+
+            let error;
+            if (id) {
+                // Update existing project
+                ({ error } = await supabaseClient.from('projects').update(payload).eq('id', id));
+            } else {
+                // Insert new project
+                ({ error } = await supabaseClient.from('projects').insert([payload]));
             }
 
-            getLogsByModule(moduleName) {
-                return this.logs.filter(log => log.module === moduleName);
-            }
-
-            clear() {
-                this.logs = [];
+            if (error) {
+                alert("Database operation failed: " + error.message);
+            } else {
+                closeModal('projectModal');
+                await refreshAllAdminData();
             }
         }
 
-        class UserSessionManager {
-            constructor() {
-                this.activeSessions = new Map();
-            }
+        /**
+         * Delete Project Entry
+         */
+        async function deleteProject(projectId) {
+            if (!confirm("Are you sure you want to delete this project and all associated logs?")) return;
 
-            registerSession(userId, token, ip) {
-                const session = {
-                    userId: userId,
-                    token: token,
-                    ip: ip,
-                    loginTime: new Date(),
-                    lastActive: new Date()
-                };
-                this.activeSessions.set(token, session);
-                return session;
-            }
+            const { error } = await supabaseClient.from('projects').delete().eq('id', projectId);
 
-            validateSession(token) {
-                if (!this.activeSessions.has(token)) return false;
-                const session = this.activeSessions.get(token);
-                session.lastActive = new Date();
-                return true;
-            }
-
-            revokeSession(token) {
-                return this.activeSessions.delete(token);
-            }
-
-            getActiveCount() {
-                return this.activeSessions.size;
+            if (error) {
+                alert("Error deleting project: " + error.message);
+            } else {
+                await refreshAllAdminData();
             }
         }
 
-        class DataAnalyticsEngine {
-            constructor() {
-                this.datapoints = [];
-            }
+        /**
+         * Form Submission: Broadcast Activity Log Entry
+         */
+        async function handleLogSubmit(e) {
+            e.preventDefault();
+            const payload = {
+                project_id: document.getElementById('lm-project-select').value,
+                log_text: document.getElementById('lm-message').value,
+                author: document.getElementById('lm-author').value || 'Aevix Studio Lead'
+            };
 
-            recordDataPoint(metricName, value) {
-                this.datapoints.push({
-                    metric: metricName,
-                    value: value,
-                    timestamp: Date.now()
-                });
-            }
+            const { error } = await supabaseClient.from('activity_logs').insert([payload]);
 
-            getAverage(metricName, durationMs = 60000) {
-                const now = Date.now();
-                const filtered = this.datapoints.filter(dp => dp.metric === metricName && (now - dp.timestamp) <= durationMs);
-                if (filtered.length === 0) return 0;
-                const sum = filtered.reduce((acc, curr) => acc + curr.value, 0);
-                return sum / filtered.length;
-            }
-        }
-
-        // Initialize Extended Subsystems
-        const coreLogger = new SystemLogger();
-        const sessionManager = new UserSessionManager();
-        const analyticsEngine = new DataAnalyticsEngine();
-
-        coreLogger.info('CoreSubsystem', 'Logger module active.');
-        sessionManager.registerSession('admin_root', 'token_x89f23kld', '127.0.0.1');
-        analyticsEngine.recordDataPoint('cpu_usage', 24);
-
-        /* ==========================================================================
-           8. DATA STRUCTURE EXPANSIONS & HELPER FUNCTIONS
-           ========================================================================== */
-        
-        function formatBytes(bytes, decimals = 2) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const dm = decimals < 0 ? 0 : decimals;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-        }
-
-        function parseQueryString(query) {
-            const vars = query.split('&');
-            const query_string = {};
-            for (let i = 0; i < vars.length; i++) {
-                const pair = vars[i].split('=');
-                const key = decodeURIComponent(pair[0]);
-                const value = decodeURIComponent(pair[1] || '');
-                if (typeof query_string[key] === 'undefined') {
-                    query_string[key] = decodeURIComponent(value);
-                } else if (typeof query_string[key] === 'string') {
-                    const arr = [query_string[key], decodeURIComponent(value)];
-                    query_string[key] = arr;
-                } else {
-                    query_string[key].push(decodeURIComponent(value));
-                }
-            }
-            return query_string;
-        }
-
-        class MockWebSocketServer {
-            constructor(url) {
-                this.url = url;
-                this.connected = false;
-                this.listeners = {};
-            }
-
-            connect() {
-                this.connected = true;
-                this.trigger('open', { status: 'connected' });
-                this.startHeartbeat();
-            }
-
-            on(event, callback) {
-                if (!this.listeners[event]) {
-                    this.listeners[event] = [];
-                }
-                this.listeners[event].push(callback);
-            }
-
-            trigger(event, data) {
-                if (this.listeners[event]) {
-                    this.listeners[event].forEach(cb => cb(data));
-                }
-            }
-
-            send(data) {
-                if (this.connected) {
-                    coreLogger.info('WebSocket', 'Sent payload: ' + JSON.stringify(data));
-                }
-            }
-
-            startHeartbeat() {
-                setInterval(() => {
-                    if (this.connected) {
-                        this.trigger('message', { type: 'ping', timestamp: Date.now() });
-                    }
-                }, 10000);
-            }
-
-            disconnect() {
-                this.connected = false;
-                this.trigger('close', { status: 'disconnected' });
+            if (error) {
+                alert("Error broadcasting log: " + error.message);
+            } else {
+                closeModal('logModal');
+                await refreshAllAdminData();
             }
         }
 
-        const mockWS = new MockWebSocketServer('wss://admin.enterprise.internal/stream');
-        mockWS.connect();
-        mockWS.on('message', function(data) {
-            analyticsEngine.recordDataPoint('ws_ping', 1);
-        });
+        /**
+         * Delete Activity Log Entry
+         */
+        async function deleteActivityLog(logId) {
+            if (!confirm("Delete this log update from project timeline?")) return;
 
-        /* ==========================================================================
-           9. SECURITY VALIDATION AND ACCESS CONTROL LAYERS
-           ========================================================================== */
+            const { error } = await supabaseClient.from('activity_logs').delete().eq('id', logId);
 
-        class AccessControlManager {
-            constructor() {
-                this.rolesPermissions = {
-                    'Super Admin': ['read', 'write', 'delete', 'execute', 'configure'],
-                    'Admin': ['read', 'write', 'execute'],
-                    'Editor': ['read', 'write'],
-                    'Viewer': ['read']
-                };
-            }
-
-            hasPermission(role, permission) {
-                if (!this.rolesPermissions[role]) return false;
-                return this.rolesPermissions[role].includes(permission);
-            }
-
-            authorizeUserAction(userRole, actionRequired) {
-                const isAllowed = this.hasPermission(userRole, actionRequired);
-                if (!isAllowed) {
-                    coreLogger.warn('Security', `Unauthorized access attempt for action [${actionRequired}] by role [${userRole}]`);
-                }
-                return isAllowed;
+            if (error) {
+                alert("Error deleting log: " + error.message);
+            } else {
+                await refreshAllAdminData();
             }
         }
 
-        const acm = new AccessControlManager();
-
-        /* ==========================================================================
-           10. CACHE MANAGEMENT AND LOCAL STORAGE ABSTRACTIONS
-           ========================================================================== */
-
-        class CacheController {
-            constructor(prefix = 'app_cache_') {
-                this.prefix = prefix;
-            }
-
-            set(key, value, ttlSeconds = 3600) {
-                const item = {
-                    value: value,
-                    expiry: Date.now() + (ttlSeconds * 1000)
-                };
-                try {
-                    localStorage.setItem(this.prefix + key, JSON.stringify(item));
-                } catch (e) {
-                    coreLogger.error('Cache', 'LocalStorage write error: ' + e.message);
-                }
-            }
-
-            get(key) {
-                const keyName = this.prefix + key;
-                const itemStr = localStorage.getItem(keyName);
-                if (!itemStr) return null;
-
-                try {
-                    const item = JSON.parse(itemStr);
-                    if (Date.now() > item.expiry) {
-                        localStorage.removeItem(keyName);
-                        return null;
-                    }
-                    return item.value;
-                } catch (e) {
-                    return null;
-                }
-            }
-
-            remove(key) {
-                localStorage.removeItem(this.prefix + key);
-            }
-
-            clearAll() {
-                Object.keys(localStorage).forEach(key => {
-                    if (key.startsWith(this.prefix)) {
-                        localStorage.removeItem(key);
-                    }
-                });
-            }
+        /**
+         * Global Search Handler
+         */
+        function handleGlobalSearch(query) {
+            const q = query.toLowerCase();
+            const filteredProjects = cachedProjects.filter(p => {
+                const title = (p.project_name || p.title || '').toLowerCase();
+                const email = (p.client_email || p.client_name || '').toLowerCase();
+                return title.includes(q) || email.includes(q);
+            });
+            renderFullProjectsTable(filteredProjects);
         }
 
-        const sysCache = new CacheController();
-        sysCache.set('session_state', 'active', 600);
-
-        /* ==========================================================================
-           11. DOM UTILITY WRAPPERS AND EVENT DELEGATION
-           ========================================================================== */
-
-        const DOMUtils = {
-            createElement: function(tag, className, innerHTML) {
-                const el = document.createElement(tag);
-                if (className) el.className = className;
-                if (innerHTML) el.innerHTML = innerHTML;
-                return el;
-            },
-
-            addEventDelegate: function(parentSelector, eventType, childSelector, handler) {
-                const parent = document.querySelector(parentSelector);
-                if (!parent) return;
-                parent.addEventListener(eventType, function(event) {
-                    const target = event.target.closest(childSelector);
-                    if (target && parent.contains(target)) {
-                        handler.call(target, event);
-                    }
-                });
-            },
-
-            toggleVisibility: function(element, show) {
-                if (element) {
-                    element.style.display = show ? 'block' : 'none';
-                }
-            }
-        };
-
-        /* ==========================================================================
-           12. INTEGRATED TEST & MONITORING HARNESS
-           ========================================================================== */
-
-        class SystemHealthMonitor {
-            constructor() {
-                this.status = 'HEALTHY';
-                this.checkInterval = null;
-            }
-
-            startMonitoring() {
-                this.checkInterval = setInterval(() => {
-                    this.runDiagnostics();
-                }, 15000);
-            }
-
-            stopMonitoring() {
-                if (this.checkInterval) clearInterval(this.checkInterval);
-            }
-
-            runDiagnostics() {
-                const loadAvg = analyticsEngine.getAverage('cpu_usage');
-                if (loadAvg > 85) {
-                    this.status = 'CRITICAL';
-                    coreLogger.error('HealthMonitor', 'High CPU load detected: ' + loadAvg);
-                } else if (loadAvg > 60) {
-                    this.status = 'WARNING';
-                    coreLogger.warn('HealthMonitor', 'Elevated CPU load: ' + loadAvg);
-                } else {
-                    this.status = 'HEALTHY';
-                }
-            }
+        /**
+         * Filter Project Table By Input Query
+         */
+        function filterProjectsTable(query) {
+            handleGlobalSearch(query);
         }
 
-        const healthMonitor = new SystemHealthMonitor();
-        healthMonitor.startMonitoring();
-
-        /* ==========================================================================
-           13. ADDITIONAL EXTENDED REPOSITORY ABSTRACTS
-           ========================================================================== */
-
-        class UserRepository {
-            constructor() {
-                this.db = [];
-            }
-
-            async fetchUsers() {
-                return new Promise((resolve) => {
-                    setTimeout(() => {
-                        resolve(this.db);
-                    }, 200);
-                });
-            }
-
-            async addUser(user) {
-                return new Promise((resolve) => {
-                    setTimeout(() => {
-                        this.db.push(user);
-                        resolve(true);
-                    }, 100);
-                });
-            }
-
-            async removeUserById(id) {
-                return new Promise((resolve) => {
-                    setTimeout(() => {
-                        this.db = this.db.filter(u => u.id !== id);
-                        resolve(true);
-                    }, 100);
-                });
-            }
+        /**
+         * Filter Projects View for Selected Client Profile
+         */
+        function filterProjectsByClient(clientEmail) {
+            switchView('projects', document.querySelectorAll('.nav-link')[1]);
+            const filtered = cachedProjects.filter(p => (p.client_email || p.client_name) === clientEmail);
+            renderFullProjectsTable(filtered);
         }
 
-        const userRepo = new UserRepository();
-
-        /* ==========================================================================
-           14. DATA FORMATTERS AND STRING UTILITIES
-           ========================================================================== */
-
-        const StringFormatter = {
-            capitalize: function(str) {
-                if (!str) return '';
-                return str.charAt(0).toUpperCase() + str.slice(1);
-            },
-            truncate: function(str, length) {
-                if (str.length <= length) return str;
-                return str.substring(0, length) + '...';
-            },
-            escapeHTML: function(str) {
-                return str.replace(/[&<>'"]/g, 
-                    tag => ({
-                        '&': '&amp;',
-                        '<': '&lt;',
-                        '>': '&gt;',
-                        "'": '&#39;',
-                        '"': '&quot;'
-                    }[tag] || tag)
-                );
+        /**
+         * Export Client Directory to CSV File Format
+         */
+        function exportClientsCSV() {
+            if (cachedProjects.length === 0) {
+                alert("No project data available to export.");
+                return;
             }
-        };
 
-        /* ==========================================================================
-           15. COMPONENT INITIALIZATION PIPELINE
-           ========================================================================== */
+            let csvContent = "data:text/csv;charset=utf-8,Client Email,Project Name,Budget,Status,Deadline\n";
+            cachedProjects.forEach(p => {
+                csvContent += `"${p.client_email || ''}","${p.project_name || ''}","${p.budget || 0}","${p.status || ''}","${p.deadline || ''}"\n`;
+            });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            coreLogger.info('Bootstrap', 'Application context ready.');
-            if (acm.authorizeUserAction('Admin', 'read')) {
-                coreLogger.info('Security', 'Initial access authorized.');
-            }
-        });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Aevix_Studio_Client_Directory.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        /**
+         * Form Submission: System Settings Configuration
+         */
+        function handleSettingsSave(e) {
+            e.preventDefault();
+            alert("Studio configuration settings updated successfully.");
+        }
+
+        /**
+         * Admin User Sign Out Handler
+         */
+        async function handleAdminSignOut() {
+            await supabaseClient.auth.signOut();
+            window.location.href = "/login.html";
+        }
+
+        /**
+         * HTML Entity Escaping Utility
+         */
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Initialize Admin Dashboard on DOM Ready
+        window.addEventListener('DOMContentLoaded', initAdminDashboard);
     </script>
 </body>
 </html>
