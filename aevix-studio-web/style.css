@@ -5,11 +5,17 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     background-color: #0b0f17;
     color: #f3f4f6;
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* Navigation Header */
@@ -17,9 +23,10 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 5%;
+    padding: 1.25rem 5%;
     background: rgba(13, 26, 45, 0.85);
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -56,10 +63,12 @@ nav .nav-cta {
     padding: 0.5rem 1.25rem;
     border-radius: 6px;
     font-weight: 600;
+    transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 nav .nav-cta:hover {
     background: #3b82f6;
+    transform: translateY(-1px);
 }
 
 /* Hero Section with Dynamic Gradient Overlay */
@@ -73,7 +82,7 @@ nav .nav-cta:hover {
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 4rem 1rem;
+    padding: 4rem 1.5rem;
     background-color: #0d1a2d;
     transition: background-color 0.1s linear;
 }
@@ -124,17 +133,13 @@ nav .nav-cta:hover {
     text-decoration: none;
     color: #ffffff;
     
-    /* ~85% Transparent base fill with subtle highlight tint */
     background: rgba(255, 255, 255, 0.05);
-    
-    /* Edge highlights and inner drop shadow */
     border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 
         inset 0 2px 4px rgba(255, 255, 255, 0.5),
         inset 0 -3px 6px rgba(0, 0, 0, 0.3),
         0 8px 32px rgba(0, 0, 0, 0.37);
 
-    /* Backdrop Lens Refraction & Magnification Filters */
     backdrop-filter: blur(2px) contrast(1.15) brightness(1.1) url(#water-refraction);
     -webkit-backdrop-filter: blur(2px) contrast(1.15) brightness(1.1);
 
@@ -213,12 +218,13 @@ nav .nav-cta:hover {
     border: 1px solid #1f2937;
     border-radius: 12px;
     padding: 2rem;
-    transition: border-color 0.25s ease, transform 0.25s ease;
+    transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .card:hover {
     border-color: #374151;
     transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
 }
 
 .card h3 {
@@ -264,12 +270,13 @@ nav .nav-cta:hover {
     color: #ffffff;
     font-size: 0.95rem;
     outline: none;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-group input:focus, 
 .form-group textarea:focus {
     border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 /* Form Submit Button */
@@ -324,4 +331,27 @@ footer a:hover {
     color: #6b7280;
     font-size: 0.85rem;
     margin-top: 0.75rem;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 768px) {
+    header {
+        padding: 1rem 4%;
+    }
+    
+    nav {
+        gap: 1rem;
+    }
+    
+    .hero h1 {
+        font-size: 2.1rem;
+    }
+    
+    .hero p {
+        font-size: 1.05rem;
+    }
+    
+    .section-container {
+        padding: 4rem 1rem;
+    }
 }
