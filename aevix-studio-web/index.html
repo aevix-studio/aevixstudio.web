@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* Center the bottom two cards in the Services section */
+        /* Base Services Layout */
         .services-container {
             display: flex;
             flex-direction: column;
@@ -35,6 +35,71 @@
         .services-bottom-row .card {
             flex: 1 1 300px;
             max-width: 380px;
+        }
+
+        /* Responsive Mobile Styles */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column !important;
+                gap: 1rem !important;
+                padding: 1rem !important;
+                text-align: center;
+            }
+
+            header nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1rem !important;
+                width: 100%;
+            }
+
+            .hero {
+                padding: 4rem 1.25rem 2.5rem 1.25rem !important;
+                min-height: auto !important;
+            }
+
+            .hero h1 {
+                font-size: 2.1rem !important;
+                line-height: 1.25 !important;
+            }
+
+            .hero p {
+                font-size: 1rem !important;
+            }
+
+            .section-container {
+                padding: 2.5rem 1.25rem !important;
+            }
+
+            .services-top-row,
+            .services-bottom-row {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 1.25rem !important;
+            }
+
+            .services-bottom-row .card {
+                max-width: 100% !important;
+            }
+
+            #contact-form {
+                width: 100% !important;
+            }
+
+            footer {
+                padding: 1.5rem 1rem !important;
+                text-align: center;
+            }
+
+            footer p {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            footer p span.separator {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -152,8 +217,9 @@
     <!-- Footer -->
     <footer>
         <p style="color: #9ca3af; margin-bottom: 0.5rem;">
-            Direct Email: <a href="mailto:aevixstudio962@gmail.com"><strong>aevixstudio962@gmail.com</strong></a> | 
-            Instagram: <a href="https://www.instagram.com/aevixstudio?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer"><strong>@aevixstudio</strong></a>
+            Direct Email: <a href="mailto:aevixstudio962@gmail.com" style="color: #60a5fa; text-decoration: none; font-weight: bold;">aevixstudio962@gmail.com</a>
+            <span class="separator">|</span>
+            Instagram: <a href="https://www.instagram.com/aevixstudio?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: none; font-weight: bold;">@aevixstudio</a>
         </p>
         <div class="copyright">
             &copy; 2026 Aevix Studio. All Rights Reserved. | <a href="terms/">Terms & Policies</a>
