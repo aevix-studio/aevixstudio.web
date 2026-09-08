@@ -8,173 +8,6 @@
     
     <!-- Supabase JS CDN Integration -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <style>
-        /* Unified Responsive Grid for Services (Eliminates Empty Space) */
-        .services-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .services-container .card {
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        /* Mobile Side Navigation Drawer Overlay */
-        .drawer-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            z-index: 999;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .drawer-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .side-drawer {
-            position: fixed;
-            top: 0;
-            left: -280px;
-            width: 260px;
-            height: 100%;
-            background-color: #0b0f17;
-            border-right: 1px solid #1e293b;
-            z-index: 1000;
-            padding: 2rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            transition: transform 0.3s ease;
-            box-sizing: border-box;
-        }
-
-        .side-drawer.active {
-            transform: translateX(280px);
-        }
-
-        .side-drawer .close-btn {
-            align-self: flex-end;
-            background: transparent;
-            border: none;
-            color: #9ca3af;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .side-drawer a {
-            color: #e2e8f0;
-            text-decoration: none;
-            font-size: 1.1rem;
-            font-weight: 500;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #1e293b;
-        }
-
-        .hamburger-btn {
-            display: none;
-            background: transparent;
-            border: none;
-            color: #ffffff;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0;
-            line-height: 1;
-        }
-
-        /* Header Layout Alignment */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .desktop-nav-links {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        /* Footer Inline Layout */
-        .footer-contacts {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-            color: #9ca3af;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        /* Responsive Mobile Breakpoint */
-        @media (max-width: 768px) {
-            .hamburger-btn {
-                display: block;
-            }
-
-            .desktop-nav-links {
-                display: none;
-            }
-
-            header {
-                padding: 0.8rem 1rem !important;
-            }
-
-            .header-right {
-                gap: 0.5rem !important;
-            }
-
-            .header-right button,
-            .header-right .nav-cta {
-                padding: 0.4rem 0.75rem !important;
-                font-size: 0.85rem !important;
-            }
-
-            .hero {
-                padding: 4rem 1.25rem 2.5rem 1.25rem !important;
-            }
-
-            .hero h1 {
-                font-size: 2rem !important;
-            }
-
-            .section-container {
-                padding: 2.5rem 1rem !important;
-            }
-
-            .footer-contacts {
-                flex-direction: row !important;
-                justify-content: center !important;
-                gap: 0.75rem !important;
-            }
-        }
-    </style>
 </head>
 <body>
 
@@ -188,7 +21,7 @@
       </defs>
     </svg>
 
-    <!-- Side Navigation Drawer & Overlay -->
+    <!-- Side Navigation Drawer & Overlay (Mobile Only) -->
     <div class="drawer-overlay" id="drawer-overlay"></div>
     <aside class="side-drawer" id="side-drawer">
         <button class="close-btn" id="drawer-close-btn" aria-label="Close menu">&times;</button>
@@ -203,15 +36,14 @@
             <div class="brand"><a href="index.html" style="text-decoration:none; color:inherit;">AEVIX STUDIO</a></div>
         </div>
 
-        <div class="header-right">
-            <!-- Desktop Nav Links -->
+        <nav>
             <div class="desktop-nav-links">
                 <a href="#services">Services</a>
                 <a href="terms/">Terms & Policies</a>
             </div>
 
             <!-- Google Auth Button -->
-            <button id="google-login-btn" type="button" style="background: transparent; border: 1px solid #3b82f6; color: #60a5fa; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+            <button id="google-login-btn" type="button" class="google-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -221,9 +53,9 @@
                 Sign In
             </button>
 
-            <!-- Restored Blue CTA Button -->
+            <!-- Restored Blue Start Project Button -->
             <a href="#contact" class="nav-cta">Start Project</a>
-        </div>
+        </nav>
     </header>
 
     <!-- Hero Section -->
@@ -284,11 +116,11 @@
                 <textarea id="message" name="message" rows="5" placeholder="Tell us about your project scope, timeline, and budget..." required></textarea>
             </div>
 
-            <!-- Acceptance Checkbox -->
-            <div style="display: flex; align-items: flex-start; gap: 10px; margin: 1.5rem 0; font-size: 0.9rem; color: #9ca3af;">
-                <input type="checkbox" id="terms" name="terms_agreed" value="agreed" required style="width: 18px; height: 18px; margin-top: 2px; cursor: pointer; accent-color: #3b82f6;">
-                <label for="terms" style="cursor: pointer; line-height: 1.4;">
-                    I have read and agree to the <a href="terms/" target="_blank" style="color: #60a5fa; text-decoration: underline;">Terms & Policies</a>.
+            <!-- Terms Acceptance Checkbox -->
+            <div class="terms-checkbox-container">
+                <input type="checkbox" id="terms" name="terms_agreed" value="agreed" required>
+                <label for="terms">
+                    I have read and agree to the <a href="terms/" target="_blank">Terms & Policies</a>.
                 </label>
             </div>
 
@@ -299,9 +131,9 @@
     <!-- Footer -->
     <footer>
         <div class="footer-contacts">
-            <span>Direct Email: <a href="mailto:aevixstudio962@gmail.com" style="color: #60a5fa; text-decoration: none; font-weight: bold;">aevixstudio962@gmail.com</a></span>
-            <span>|</span>
-            <span>Instagram: <a href="https://www.instagram.com/aevixstudio?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: none; font-weight: bold;">@aevixstudio</a></span>
+            <span>Direct Email: <a href="mailto:aevixstudio962@gmail.com">aevixstudio962@gmail.com</a></span>
+            <span class="divider">|</span>
+            <span>Instagram: <a href="https://www.instagram.com/aevixstudio?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer">@aevixstudio</a></span>
         </div>
         <div class="copyright">
             &copy; 2026 Aevix Studio. All Rights Reserved. | <a href="terms/">Terms & Policies</a>
@@ -334,19 +166,15 @@
             return supabaseClient;
         }
 
-        // Direct Role Routing Logic
         async function handleRoleRouting(session) {
             if (!session || !session.user) return;
-
             const email = (session.user.email || '').toLowerCase();
 
-            // 1. Super-Admin Check
             if (email === 'aevixstudio962@gmail.com') {
                 window.location.replace('admin-portal.html');
                 return;
             }
 
-            // 2. Database Role Query
             const client = getSupabase();
             try {
                 const { data: profile } = await client
@@ -367,7 +195,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', async function() {
-            // Side Drawer Handling
+            // Mobile Side Drawer Logic
             const hamburgerBtn = document.getElementById('hamburger-btn');
             const drawerCloseBtn = document.getElementById('drawer-close-btn');
             const sideDrawer = document.getElementById('side-drawer');
@@ -391,7 +219,6 @@
 
             const client = getSupabase();
 
-            // Check if user is already logged in
             if (client) {
                 const { data: { session } } = await client.auth.getSession();
                 if (session) {
@@ -421,14 +248,13 @@
                 termsCheckbox.addEventListener('click', syncSubmitButtonState);
             }
 
-            // Direct Google OAuth Trigger
+            // Google OAuth Trigger
             const googleLoginBtn = document.getElementById('google-login-btn');
             if (googleLoginBtn) {
                 googleLoginBtn.addEventListener('click', async (e) => {
                     e.preventDefault();
-                    
                     if (!client) {
-                        alert('Supabase SDK failed to load. Check your network or browser ad-blockers.');
+                        alert('Supabase SDK failed to load.');
                         return;
                     }
 
@@ -437,25 +263,17 @@
                             provider: 'google',
                             options: {
                                 redirectTo: window.location.origin + '/index.html',
-                                queryParams: {
-                                    access_type: 'offline',
-                                    prompt: 'consent'
-                                }
+                                queryParams: { access_type: 'offline', prompt: 'consent' }
                             }
                         });
-
-                        if (error) {
-                            alert('Login Error: ' + error.message);
-                            console.error('OAuth Error:', error);
-                        }
+                        if (error) alert('Login Error: ' + error.message);
                     } catch (err) {
-                        alert('Authentication triggered an exception: ' + err.message);
-                        console.error('Execution Error:', err);
+                        alert('Execution Error: ' + err.message);
                     }
                 });
             }
 
-            // Hero Scroll Animation
+            // Hero Animation
             const heroSection = document.getElementById('hero');
             const heroLogo = document.getElementById('hero-logo');
             const startColor = { r: 13, g: 26, b: 45 };
