@@ -10,95 +10,168 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* Base Services Layout */
+        /* Unified Responsive Grid for Services (Eliminates Empty Space) */
         .services-container {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
             max-width: 1200px;
             margin: 0 auto;
         }
 
-        .services-top-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        .services-container .card {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Mobile Side Navigation Drawer Overlay */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .side-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 260px;
+            height: 100%;
+            background-color: #0b0f17;
+            border-right: 1px solid #1e293b;
+            z-index: 1000;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            transition: transform 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .side-drawer.active {
+            transform: translateX(280px);
+        }
+
+        .side-drawer .close-btn {
+            align-self: flex-end;
+            background: transparent;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .side-drawer a {
+            color: #e2e8f0;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .hamburger-btn {
+            display: none;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        /* Desktop vs Mobile Header Adjustments */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .desktop-nav-links {
+            display: flex;
+            align-items: center;
             gap: 1.5rem;
         }
 
-        .services-bottom-row {
+        /* Footer Inline Layout */
+        .footer-contacts {
             display: flex;
             justify-content: center;
-            gap: 1.5rem;
+            align-items: center;
+            gap: 1rem;
             flex-wrap: wrap;
+            color: #9ca3af;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
         }
 
-        .services-bottom-row .card {
-            flex: 1 1 300px;
-            max-width: 380px;
-        }
-
-        /* Responsive Mobile Styles */
+        /* Responsive Breakpoint (Mobile) */
         @media (max-width: 768px) {
-            header {
-                flex-direction: column !important;
-                gap: 1rem !important;
-                padding: 1rem !important;
-                text-align: center;
+            .hamburger-btn {
+                display: block;
             }
 
-            header nav {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 1rem !important;
-                width: 100%;
+            .desktop-nav-links {
+                display: none;
+            }
+
+            header {
+                padding: 0.8rem 1rem !important;
+            }
+
+            .header-right {
+                gap: 0.5rem !important;
+            }
+
+            .header-right button,
+            .header-right .nav-cta {
+                padding: 0.4rem 0.75rem !important;
+                font-size: 0.85rem !important;
             }
 
             .hero {
                 padding: 4rem 1.25rem 2.5rem 1.25rem !important;
-                min-height: auto !important;
             }
 
             .hero h1 {
-                font-size: 2.1rem !important;
-                line-height: 1.25 !important;
-            }
-
-            .hero p {
-                font-size: 1rem !important;
+                font-size: 2rem !important;
             }
 
             .section-container {
-                padding: 2.5rem 1.25rem !important;
+                padding: 2.5rem 1rem !important;
             }
 
-            .services-top-row,
-            .services-bottom-row {
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 1.25rem !important;
-            }
-
-            .services-bottom-row .card {
-                max-width: 100% !important;
-            }
-
-            #contact-form {
-                width: 100% !important;
-            }
-
-            footer {
-                padding: 1.5rem 1rem !important;
-                text-align: center;
-            }
-
-            footer p {
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            footer p span.separator {
-                display: none;
+            .footer-contacts {
+                flex-direction: row !important;
+                justify-content: center !important;
+                gap: 0.75rem !important;
             }
         }
     </style>
@@ -115,13 +188,28 @@
       </defs>
     </svg>
 
+    <!-- Side Navigation Drawer & Overlay -->
+    <div class="drawer-overlay" id="drawer-overlay"></div>
+    <aside class="side-drawer" id="side-drawer">
+        <button class="close-btn" id="drawer-close-btn" aria-label="Close menu">&times;</button>
+        <a href="#services" class="drawer-link">Services</a>
+        <a href="terms/" class="drawer-link">Terms & Policies</a>
+    </aside>
+
     <!-- Header Navigation -->
     <header>
-        <div class="brand"><a href="index.html" style="text-decoration:none; color:inherit;">AEVIX STUDIO</a></div>
-        <nav style="display: flex; align-items: center; gap: 1.5rem;">
-            <a href="#services">Services</a>
-            <a href="terms/">Terms & Policies</a>
-            
+        <div class="header-left">
+            <button class="hamburger-btn" id="hamburger-btn" aria-label="Open navigation menu">&#9776;</button>
+            <div class="brand"><a href="index.html" style="text-decoration:none; color:inherit;">AEVIX STUDIO</a></div>
+        </div>
+
+        <div class="header-right">
+            <!-- Desktop Nav Links -->
+            <div class="desktop-nav-links">
+                <a href="#services">Services</a>
+                <a href="terms/">Terms & Policies</a>
+            </div>
+
             <!-- Google Auth Button -->
             <button id="google-login-btn" type="button" style="background: transparent; border: 1px solid #3b82f6; color: #60a5fa; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
                 <svg width="18" height="18" viewBox="0 0 24 24">
@@ -134,7 +222,7 @@
             </button>
 
             <a href="#contact" class="nav-cta">Start Project</a>
-        </nav>
+        </div>
     </header>
 
     <!-- Hero Section -->
@@ -150,31 +238,25 @@
     <section id="services" class="section-container">
         <h2>Our Services</h2>
         <div class="services-container">
-            <div class="services-top-row">
-                <div class="card">
-                    <h3>Creative Direction</h3>
-                    <p>Strategic brand positioning, visual storytelling, and comprehensive art direction to build brands that stand out.</p>
-                </div>
-                <div class="card">
-                    <h3>Social Media Management</h3>
-                    <p>End-to-end strategy, content curation, profile optimization (SMM), and audience engagement strategies.</p>
-                </div>
-                <div class="card">
-                    <h3>Web Development</h3>
-                    <p>High-performance, responsive websites built with modern frameworks and robust security protocols.</p>
-                </div>
+            <div class="card">
+                <h3>Creative Direction</h3>
+                <p>Strategic brand positioning, visual storytelling, and comprehensive art direction to build brands that stand out.</p>
             </div>
-            
-            <!-- Centered Bottom Row -->
-            <div class="services-bottom-row">
-                <div class="card">
-                    <h3>Visual & Media Design</h3>
-                    <p>Industry-standard video editing, photo editing, motion graphics, and tailored brand asset generation.</p>
-                </div>
-                <div class="card">
-                    <h3>Digital Solutions</h3>
-                    <p>End-to-end technical consulting, infrastructure management, and performance optimization.</p>
-                </div>
+            <div class="card">
+                <h3>Social Media Management</h3>
+                <p>End-to-end strategy, content curation, profile optimization (SMM), and audience engagement strategies.</p>
+            </div>
+            <div class="card">
+                <h3>Web Development</h3>
+                <p>High-performance, responsive websites built with modern frameworks and robust security protocols.</p>
+            </div>
+            <div class="card">
+                <h3>Visual & Media Design</h3>
+                <p>Industry-standard video editing, photo editing, motion graphics, and tailored brand asset generation.</p>
+            </div>
+            <div class="card">
+                <h3>Digital Solutions</h3>
+                <p>End-to-end technical consulting, infrastructure management, and performance optimization.</p>
             </div>
         </div>
     </section>
@@ -184,7 +266,6 @@
         <h2>Start Your Project</h2>
         <p class="section-lead">Fill out the brief below or reach out directly—our team will respond within 48 hours.</p>
 
-        <!-- Updated Formspree Endpoint -->
         <form action="https://formspree.io/f/xnpqbdjv" method="POST" id="contact-form">
             
             <div class="form-group">
@@ -216,11 +297,11 @@
 
     <!-- Footer -->
     <footer>
-        <p style="color: #9ca3af; margin-bottom: 0.5rem;">
-            Direct Email: <a href="mailto:aevixstudio962@gmail.com" style="color: #60a5fa; text-decoration: none; font-weight: bold;">aevixstudio962@gmail.com</a>
-            <span class="separator">|</span>
-            Instagram: <a href="https://www.instagram.com/aevixstudio?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: none; font-weight: bold;">@aevixstudio</a>
-        </p>
+        <div class="footer-contacts">
+            <span>Direct Email: <a href="mailto:aevixstudio962@gmail.com" style="color: #60a5fa; text-decoration: none; font-weight: bold;">aevixstudio962@gmail.com</a></span>
+            <span>|</span>
+            <span>Instagram: <a href="https://www.instagram.com/aevixstudio?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: none; font-weight: bold;">@aevixstudio</a></span>
+        </div>
         <div class="copyright">
             &copy; 2026 Aevix Studio. All Rights Reserved. | <a href="terms/">Terms & Policies</a>
         </div>
@@ -285,9 +366,31 @@
         }
 
         document.addEventListener('DOMContentLoaded', async function() {
+            // Side Drawer Handling
+            const hamburgerBtn = document.getElementById('hamburger-btn');
+            const drawerCloseBtn = document.getElementById('drawer-close-btn');
+            const sideDrawer = document.getElementById('side-drawer');
+            const drawerOverlay = document.getElementById('drawer-overlay');
+            const drawerLinks = document.querySelectorAll('.drawer-link');
+
+            function openDrawer() {
+                sideDrawer.classList.add('active');
+                drawerOverlay.classList.add('active');
+            }
+
+            function closeDrawer() {
+                sideDrawer.classList.remove('active');
+                drawerOverlay.classList.remove('active');
+            }
+
+            if (hamburgerBtn) hamburgerBtn.addEventListener('click', openDrawer);
+            if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', closeDrawer);
+            if (drawerOverlay) drawerOverlay.addEventListener('click', closeDrawer);
+            drawerLinks.forEach(link => link.addEventListener('click', closeDrawer));
+
             const client = getSupabase();
 
-            // Check if user is already logged in (or coming back from OAuth redirect)
+            // Check if user is already logged in
             if (client) {
                 const { data: { session } } = await client.auth.getSession();
                 if (session) {
@@ -301,7 +404,7 @@
                 });
             }
 
-            // 1. Form Checkbox Enable Logic
+            // Form Checkbox Enable Logic
             const termsCheckbox = document.getElementById('terms');
             const submitBtn = document.getElementById('submit-btn');
 
@@ -317,7 +420,7 @@
                 termsCheckbox.addEventListener('click', syncSubmitButtonState);
             }
 
-            // 2. Direct Google OAuth Trigger
+            // Direct Google OAuth Trigger
             const googleLoginBtn = document.getElementById('google-login-btn');
             if (googleLoginBtn) {
                 googleLoginBtn.addEventListener('click', async (e) => {
@@ -351,7 +454,7 @@
                 });
             }
 
-            // 3. Hero Scroll Animation
+            // Hero Scroll Animation
             const heroSection = document.getElementById('hero');
             const heroLogo = document.getElementById('hero-logo');
             const startColor = { r: 13, g: 26, b: 45 };
