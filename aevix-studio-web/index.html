@@ -3,305 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aevix Studio | Digital Media & Development Agency</title>
-    <link rel="stylesheet" href="style.css">
-    
-    <!-- Supabase JS CDN Integration -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Terms & Policies | Aevix Studio</title>
+    <link rel="stylesheet" href="../style.css">
 </head>
 <body>
 
-    <!-- SVG Liquid Refraction Filter -->
-    <svg style="display: none;">
-      <defs>
-        <filter id="water-refraction" x="-20%" y="-20%" width="140%" height="140%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="2" result="noise" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </defs>
-    </svg>
-
-    <!-- Side Navigation Drawer & Overlay (Mobile Only) -->
-    <div class="drawer-overlay" id="drawer-overlay"></div>
-    <aside class="side-drawer" id="side-drawer">
-        <button class="close-btn" id="drawer-close-btn" aria-label="Close menu">&times;</button>
-        <a href="#services" class="drawer-link">Services</a>
-        <a href="terms/" class="drawer-link">Terms & Policies</a>
-    </aside>
-
     <!-- Header Navigation -->
     <header>
-        <div class="header-left">
-            <button class="hamburger-btn" id="hamburger-btn" aria-label="Open navigation menu">&#9776;</button>
-            <div class="brand"><a href="index.html" style="text-decoration:none; color:inherit;">AEVIX STUDIO</a></div>
-        </div>
-
+        <div class="brand"><a href="/" style="text-decoration:none; color:inherit;">AEVIX STUDIO</a></div>
         <nav>
-            <div class="desktop-nav-links">
-                <a href="#services">Services</a>
-                <a href="terms/">Terms & Policies</a>
-            </div>
-
-            <!-- Google Auth Button -->
-            <button id="google-login-btn" type="button" class="google-btn">
-                <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                </svg>
-                Sign In
-            </button>
-
-            <!-- Restored Blue Start Project Button -->
-            <a href="#contact" class="nav-cta">Start Project</a>
+            <a href="/#services">Services</a>
+            <a href="/#portfolio">Work</a>
+            <a href="/terms">Terms & Policies</a>
+            <a href="/#contact" class="nav-cta">Start Project</a>
         </nav>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero" id="hero">
-        <img src="logo.png" alt="Aevix Studio Logo" class="hero-bg-logo" id="hero-logo">
-
-        <h1>Crafting Digital Experiences That Scale</h1>
-        <p>Aevix Studio delivers high-performance web development, creative direction, social media management, and digital media assets for global brands.</p>
-        <a href="#contact" class="cta-btn">Get Started</a>
-    </section>
-
-    <!-- Services Section -->
-    <section id="services" class="section-container">
-        <h2>Our Services</h2>
-        <div class="services-container">
-            <div class="card">
-                <h3>Creative Direction</h3>
-                <p>Strategic brand positioning, visual storytelling, and comprehensive art direction to build brands that stand out.</p>
-            </div>
-            <div class="card">
-                <h3>Social Media Management</h3>
-                <p>End-to-end strategy, content curation, profile optimization (SMM), and audience engagement strategies.</p>
-            </div>
-            <div class="card">
-                <h3>Web Development</h3>
-                <p>High-performance, responsive websites built with modern frameworks and robust security protocols.</p>
-            </div>
-            <div class="card">
-                <h3>Visual & Media Design</h3>
-                <p>Industry-standard video editing, photo editing, motion graphics, and tailored brand asset generation.</p>
-            </div>
-            <div class="card">
-                <h3>Digital Solutions</h3>
-                <p>End-to-end technical consulting, infrastructure management, and performance optimization.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Form Section -->
-    <section id="contact" class="section-container">
-        <h2>Start Your Project</h2>
-        <p class="section-lead">Fill out the brief below or reach out directly—our team will respond within 48 hours.</p>
-
-        <form action="https://formspree.io/f/xnpqbdjv" method="POST" id="contact-form">
+    <!-- Main Terms Content -->
+    <section class="section-container">
+        <h2>Terms & Policies</h2>
+        <p class="section-lead">Master Terms of Service governing all global clients, productions, and digital assets.</p>
+        
+        <div class="terms-card">
             
-            <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" id="name" name="name" placeholder="Your Name or Business" required>
+            <div class="term-block">
+                <p style="color: #9ca3af; font-style: italic;">Note: Terms and Policies are subject to change without prior notice.</p>
             </div>
 
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="your@email.com" required>
+            <!-- SECTION: TERMS & CONDITIONS -->
+            <div class="term-block">
+                <h3>Terms & Conditions</h3>
             </div>
 
-            <div class="form-group">
-                <label for="message">Project Details</label>
-                <textarea id="message" name="message" rows="5" placeholder="Tell us about your project scope, timeline, and budget..." required></textarea>
+            <div class="term-block">
+                <h4>1. Implied Acceptance and Digital Execution</h4>
+                <p><strong>a. Deemed Consent</strong><br>By engaging Aevix Studio, issuing an advance payment, transferring project assets, or consuming any services delivered by Aevix Studio, the Client explicitly agrees to be legally bound by these global terms.</p>
+                <p style="margin-top:0.75rem;"><strong>b. Electronic Execution</strong><br>Physical signatures are not required. Client initiation, digital payment processing, or service usage constitutes full legal acceptance under global electronic signature standards (including the UNCITRAL Model Law on Electronic Commerce and Bangladesh’s Information & Communication Technology Act, 2006).</p>
             </div>
 
-            <!-- Terms Acceptance Checkbox -->
-            <div class="terms-checkbox-container">
-                <input type="checkbox" id="terms" name="terms_agreed" value="agreed" required>
-                <label for="terms">
-                    I have read and agree to the <a href="terms/" target="_blank">Terms & Policies</a>.
-                </label>
+            <div class="term-block">
+                <h4>2. Financial Terms and Cancellation Policies</h4>
+                <p><strong>a. Advance Deposit</strong><br>A non-refundable advance deposit of 35% is required prior to project kickoff. The remaining 65% balance is due upon final project completion prior to releasing final unwatermarked files, site handovers, or source media.</p>
+                <p style="margin-top:0.75rem;"><strong>b. Strict Zero-Cancellation Policy</strong><br>Once work has commenced or an advance payment has been processed, no mid-project cancellations or contract terminations are permitted by the Client. The Client remains legally bound to pay the total agreed contract value in full.</p>
+                <p style="margin-top:0.75rem;"><strong>c. Cross-border Fees</strong><br>Payments must be settled in the currency specified in the invoice (USD/EUR/BDT). The Client explicitly agrees to pay all grossed-up transaction fees, including international wire fees, intermediate correspondent bank charges, platform/gateway processing fees, currency conversion spreads, and local withholding taxes. The net amount received by Aevix Studio must equal 100% of the invoiced total.</p>
+                <p style="margin-top:0.75rem;"><strong>d. Late Payment Recovery Fees</strong><br>Invoices unpaid past 7 days from the due date shall incur a flat fixed administrative recovery fee of $12 USD (or equivalent) per month as direct compensation to cover actual operational, administrative, and tracking expenses resulting from default. The Client confirms this agreed fee reflects a reasonable, fair estimate of Aevix Studio’s actual administrative and recovery expenses, rather than a punitive charge.</p>
             </div>
 
-            <button type="submit" id="submit-btn" class="submit-btn" disabled>Send Message</button>
-        </form>
+            <div class="term-block">
+                <h4>3. Mandatory Binding Arbitration</h4>
+                <p><strong>a. Mandatory Forum</strong><br>To the maximum extent permitted by applicable law, the Client explicitly waives any right to file, initiate, or maintain any lawsuit, class action, or public court proceeding against Aevix Studio, its owners, or its contractors.</p>
+                <p style="margin-top:0.75rem;"><strong>b. Binding Arbitration Standard</strong><br>Any legal dispute, controversy, or claim arising out of or relating to this agreement shall be settled exclusively through final and binding private arbitration in accordance with the UNCITRAL Arbitration Rules under the Arbitration Act, 2001 of Bangladesh.</p>
+                <p style="margin-top:0.75rem;"><strong>c. Seat & Enforcement</strong><br>The seat of arbitration shall be Dhaka, Bangladesh. The proceedings shall be conducted strictly in English. The arbitral award shall be final, non-appealable, binding, and enforceable in any court of competent jurisdiction worldwide under the New York Convention (1958).</p>
+            </div>
+
+            <div class="term-block">
+                <h4>4. Absolute Limitation of Liability and Indemnification</h4>
+                <p><strong>a. Financial Damages Cap</strong><br>Under no circumstances shall Aevix Studio, its owners, employees, or agents be liable for any indirect, incidental, punitive, special, or consequential damages (including lost profits, platform bans, or business disruption). Aevix Studio’s maximum cumulative financial liability for any claim shall not exceed the exact total amount paid by the Client to Aevix Studio for the specific service in dispute.</p>
+                <p style="margin-top:0.75rem;"><strong>b. Client Indemnification</strong><br>The Client guarantees that all content, logos, music, video footage, fonts, and assets provided to Aevix Studio are fully owned or legally licensed by the Client. The Client agrees to defend, indemnify, and hold harmless Aevix Studio against any global third-party lawsuits, trademark disputes, copyright claims, or legal expenses resulting from client-supplied materials.</p>
+            </div>
+
+            <div class="term-block">
+                <h4>5. Intellectual Property & Portfolio Rights</h4>
+                <p><strong>a. Global Copyright Transfer</strong><br>Upon receipt of full and final payment, Aevix Studio assigns to the Client full, worldwide, exclusive copyright ownership of the final customized deliverables (final video edits, web design layouts, graphic files, and edited photos).</p>
+                <p style="margin-top:0.75rem;"><strong>b. Source Files</strong><br>Raw footage, preliminary drafts, project source files (e.g., Premiere/After Effects project files, PSDs, Figma files), and proprietary studio assets remain the exclusive property of Aevix Studio unless purchased under a separate written agreement.</p>
+                <p style="margin-top:0.75rem;"><strong>c. Studio Portfolio License</strong><br>Aevix Studio retains a perpetual, worldwide, non-exclusive license to display completed project materials in its agency portfolio, website, showreels, and social media platforms, unless a non-disclosure agreement (NDA) is executed prior to project kickoff.</p>
+            </div>
+
+            <div class="term-block">
+                <h4>6. Governing Law</h4>
+                <p>This Agreement, its interpretation, and all cross-border performance under it shall be governed by, construed, and enforced in accordance with the substantive laws of the People's Republic of Bangladesh, without regard to its conflict-of-law principles.</p>
+            </div>
+
+            <!-- SECTION: POLICIES -->
+            <div class="term-block" style="margin-top:2rem; border-top: 1px solid #374151; padding-top:2rem;">
+                <h3>Policies</h3>
+            </div>
+
+            <div class="term-block">
+                <h4>1. Quality Assurance & Service Vetting</h4>
+                <p><strong>a. Quality Commitment:</strong> Aevix Studio is dedicated to delivering industry-standard, high-performing visual and digital assets, employing rigorous internal review standards on every project.</p>
+                <p style="margin-top:0.75rem;"><strong>b. Service Refusal:</strong> The studio reserves the absolute right to decline, suspend, or terminate engagement on any project that involves illegal activities, unlawful content, copyright infringement, or violations of local and international regulations.</p>
+            </div>
+
+            <div class="term-block">
+                <h4>2. Dual-Developer Review Protocol</h4>
+                <p>Prior to client handoff, deliverables undergo a mandatory dual-developer review process (conducted by two dedicated team members) to verify functional execution, performance optimization, and asset integrity.</p>
+            </div>
+
+            <div class="term-block">
+                <h4>3. Material & Asset Expenses</h4>
+                <p>The Client is strictly responsible for 100% of all direct third-party material and operational costs required to complete the project. This includes, but is not limited to: premium stock assets, licensed fonts, third-party software plugins, hosting infrastructure, domain registrations, or specialized APIs. All material expenses will be itemized and billed directly to the Client.</p>
+            </div>
+
+            <div class="term-block">
+                <h4>4. Client Communication & Response Windows</h4>
+                <p>Clients must provide required feedback, approvals, or project inputs within 48 hours of receiving an official update or query.</p>
+                <p style="margin-top:0.75rem;"><strong>a. Weekend Exclusion:</strong> Thursdays and Fridays are designated studio non-working days and are excluded from the 48-hour calculation window.</p>
+                <p style="margin-top:0.75rem;"><strong>b. Schedule Extensions:</strong> Unresponsive delays exceeding the 48-hour limit (excluding Thursdays and Fridays) will result in an automatic extension of the final delivery schedule to accommodate project rescheduling.</p>
+            </div>
+
+            <div class="term-block">
+                <h4>5. Revision Scope & Cumulative Modification Fees</h4>
+                <p>Standard minor adjustments during development are accommodated without extra charge. However, when minor edits accumulate significantly or exceed standard scope limits, an additional charge of $2 USD per supplemental revision cycle will be assessed and added to the final invoice prior to asset release.</p>
+            </div>
+
+            <div class="term-block">
+                <h4>6. Data Privacy & Confidentiality Policy</h4>
+                <p><strong>a. Information Collection:</strong> Aevix Studio collects personal identification details (such as names, business emails, and project specifications) submitted voluntarily through contact forms, project briefs, or payment processing channels.</p>
+                <p style="margin-top:0.75rem;"><strong>b. Data Usage & Non-Disclosure:</strong> All collected data is strictly used to execute production deliverables, process invoices, handle project inquiries, and fulfill contractual obligations. Aevix Studio will never sell, lease, trade, or distribute client personal information or proprietary project assets to third parties.</p>
+                <p style="margin-top:0.75rem;"><strong>c. Client Asset Confidentiality:</strong> All raw video footage, audio assets, design files, branding guidelines, source code, and project communications shared by the Client are treated as strictly confidential. Aevix Studio will not publish or share non-public assets without prior written consent, unless permitted under the Studio Portfolio License clause.</p>
+                <p style="margin-top:0.75rem;"><strong>d. Third-Party Data Processors:</strong> The Client acknowledges that data and assets may pass through secure, trusted third-party infrastructure (such as Cloudflare hosting, Formspree contact handling, and international banking platforms) solely to facilitate necessary studio operations and service delivery.</p>
+            </div>
+
+            <div class="term-block">
+                <h4>7. Non-Disclosure Agreement (NDA) Protocol</h4>
+                <p><strong>a. Standard Confidentiality:</strong> Aevix Studio and the Client mutually agree to protect all proprietary materials, trade secrets, unreleased business concepts, and technical assets shared during the engagement. Neither party shall disclose confidential project information to any third party without explicit written consent.</p>
+                <p style="margin-top:0.75rem;"><strong>b. Portfolio Non-Disclosure Addendum:</strong> By default, completed deliverables fall under the Studio Portfolio License. However, if a Client requires absolute confidentiality (e.g., unreleased product launches or white-label agency work), a formal NDA Addendum must be executed prior to project kickoff.</p>
+                <p style="margin-top:0.75rem;"><strong>c. NDA Exclusions:</strong> Confidentiality obligations do not apply to information that is already in the public domain, independently developed without access to client assets, or required to be disclosed by applicable legal authority or legal process.</p>
+            </div>
+
+        </div>
     </section>
 
     <!-- Footer -->
     <footer>
-        <div class="footer-contacts">
-            <span>Direct Email: <a href="mailto:aevixstudio962@gmail.com">aevixstudio962@gmail.com</a></span>
-            <span class="divider">|</span>
-            <span>Instagram: <a href="https://www.instagram.com/aevixstudio?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer">@aevixstudio</a></span>
-        </div>
+        <p style="color: #9ca3af; margin-bottom: 0.5rem;">Direct Email: <strong>aevixstudio961@gmail.com</strong></p>
         <div class="copyright">
-            &copy; 2026 Aevix Studio. All Rights Reserved. | <a href="terms/">Terms & Policies</a>
+            &copy; 2026 Aevix Studio. All Rights Reserved.
         </div>
     </footer>
 
-    <!-- Interactive Scripts & Direct Auth Handling -->
-    <script>
-        const SUPABASE_URL = 'https://bfabowxtvgknggpqnrpf.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWJvd3h0dmdrbmdncHFucnBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMTQwMDQsImV4cCI6MjEwMzU5MDAwNH0.zRuc9gF7qtihFHJJrUDXIwD1l0QJBBVHP_KasxJGMKM';
-
-        let supabaseClient = null;
-
-        function getSupabase() {
-            if (!supabaseClient) {
-                const config = {
-                    auth: {
-                        flowType: 'pkce',
-                        autoRefreshToken: true,
-                        persistSession: true,
-                        detectSessionInUrl: true
-                    }
-                };
-                if (window.supabase && typeof window.supabase.createClient === 'function') {
-                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, config);
-                } else if (typeof createClient === 'function') {
-                    supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, config);
-                }
-            }
-            return supabaseClient;
-        }
-
-        async function handleRoleRouting(session) {
-            if (!session || !session.user) return;
-            const email = (session.user.email || '').toLowerCase();
-
-            if (email === 'aevixstudio962@gmail.com') {
-                window.location.replace('admin-portal.html');
-                return;
-            }
-
-            const client = getSupabase();
-            try {
-                const { data: profile } = await client
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', session.user.id)
-                    .maybeSingle();
-
-                if (profile && (profile.role === 'admin' || profile.role === 'team')) {
-                    window.location.replace('admin-portal.html');
-                } else {
-                    window.location.replace('client-portal.html');
-                }
-            } catch (err) {
-                console.error('Routing check error:', err);
-                window.location.replace('client-portal.html');
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Mobile Side Drawer Logic
-            const hamburgerBtn = document.getElementById('hamburger-btn');
-            const drawerCloseBtn = document.getElementById('drawer-close-btn');
-            const sideDrawer = document.getElementById('side-drawer');
-            const drawerOverlay = document.getElementById('drawer-overlay');
-            const drawerLinks = document.querySelectorAll('.drawer-link');
-
-            function openDrawer() {
-                sideDrawer.classList.add('active');
-                drawerOverlay.classList.add('active');
-            }
-
-            function closeDrawer() {
-                sideDrawer.classList.remove('active');
-                drawerOverlay.classList.remove('active');
-            }
-
-            if (hamburgerBtn) hamburgerBtn.addEventListener('click', openDrawer);
-            if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', closeDrawer);
-            if (drawerOverlay) drawerOverlay.addEventListener('click', closeDrawer);
-            drawerLinks.forEach(link => link.addEventListener('click', closeDrawer));
-
-            const client = getSupabase();
-
-            if (client) {
-                const { data: { session } } = await client.auth.getSession();
-                if (session) {
-                    await handleRoleRouting(session);
-                }
-
-                client.auth.onAuthStateChange(async (event, session) => {
-                    if (session && event === 'SIGNED_IN') {
-                        await handleRoleRouting(session);
-                    }
-                });
-            }
-
-            // Form Checkbox Enable Logic
-            const termsCheckbox = document.getElementById('terms');
-            const submitBtn = document.getElementById('submit-btn');
-
-            function syncSubmitButtonState() {
-                if (termsCheckbox && submitBtn) {
-                    submitBtn.disabled = !termsCheckbox.checked;
-                }
-            }
-
-            if (termsCheckbox && submitBtn) {
-                syncSubmitButtonState();
-                termsCheckbox.addEventListener('change', syncSubmitButtonState);
-                termsCheckbox.addEventListener('click', syncSubmitButtonState);
-            }
-
-            // Google OAuth Trigger
-            const googleLoginBtn = document.getElementById('google-login-btn');
-            if (googleLoginBtn) {
-                googleLoginBtn.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    if (!client) {
-                        alert('Supabase SDK failed to load.');
-                        return;
-                    }
-
-                    try {
-                        const { error } = await client.auth.signInWithOAuth({
-                            provider: 'google',
-                            options: {
-                                redirectTo: window.location.origin + '/index.html',
-                                queryParams: { access_type: 'offline', prompt: 'consent' }
-                            }
-                        });
-                        if (error) alert('Login Error: ' + error.message);
-                    } catch (err) {
-                        alert('Execution Error: ' + err.message);
-                    }
-                });
-            }
-
-            // Hero Animation
-            const heroSection = document.getElementById('hero');
-            const heroLogo = document.getElementById('hero-logo');
-            const startColor = { r: 13, g: 26, b: 45 };
-            const endColor = { r: 11, g: 15, b: 23 };
-
-            if (heroSection && heroLogo) {
-                window.addEventListener('scroll', () => {
-                    const scrollPosition = window.scrollY;
-                    const heroHeight = heroSection.offsetHeight;
-
-                    if (scrollPosition <= heroHeight) {
-                        const progress = Math.min(scrollPosition / heroHeight, 1);
-                        const translateY = -50 - (progress * 100);
-                        const scale = 1 - (progress * 0.2);
-                        const opacity = Math.max(0, 0.22 * (1 - progress * 1.5));
-                        
-                        heroLogo.style.transform = `translate(-50%, ${translateY}%) scale(${scale})`;
-                        heroLogo.style.opacity = opacity;
-
-                        const r = Math.round(startColor.r + (endColor.r - startColor.r) * progress);
-                        const g = Math.round(startColor.g + (endColor.g - startColor.g) * progress);
-                        const b = Math.round(startColor.b + (endColor.b - startColor.b) * progress);
-
-                        heroSection.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-                    }
-                });
-            }
-        });
-    </script>
 </body>
 </html>
